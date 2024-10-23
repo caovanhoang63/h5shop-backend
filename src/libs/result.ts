@@ -4,5 +4,5 @@ import {Paging} from "./paging";
 
 export type Result<T> = {
     error?: Nullable<AppError>,
-    data: Nullable<T>,
+    data?: Nullable<T> ,
 }

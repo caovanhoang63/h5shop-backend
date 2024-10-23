@@ -19,7 +19,10 @@ export class UserMysqlRepo {
             error: null,
             data: null
         };
-        await this.pool.promise().query(`INSERT INTO user (first_name,last_name,system_role) VALUES (?, ? , ? ) `,
+
+        const query = `INSERT INTO user (first_name,last_name,system_role) VALUES (?, ? , ? ) `;
+
+        await this.pool.promise().query(query,
             [u.firstName,u.lastName,u.systemRole.toString()],
         ).then(
             ([r,f]) => {
@@ -56,6 +59,7 @@ export class UserMysqlRepo {
             result.error = DBError(err)
             return
         })
+
         return result;
     }
 }

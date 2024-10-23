@@ -1,13 +1,13 @@
 import {UserCreate} from "../entity/userVar";
 import {Result} from "../../../libs/result";
-import {InternalError} from "../../../libs/errors";
+import {DBError, InternalError, isSameErr} from "../../../libs/errors";
 import {ICondition} from "../../../libs/condition";
 import {Paging} from "../../../libs/paging";
 import {User} from "../entity/user";
 
 interface IUserRepository {
     Create: (u: UserCreate) => Promise<Result<null>>
-    FindByCondition(condition: ICondition,paging : Paging): Promise<Result<User[]>>
+    FindByCondition : (condition: ICondition,paging : Paging)=> Promise<Result<User[]>>
 }
 
 export class UserBiz  {
@@ -17,10 +17,11 @@ export class UserBiz  {
 
     public CreateNewUser = async (u : UserCreate) : Promise<Result<null>> => {
         const result =  await this.userRepository.Create(u)
-        if (result.error != null ) {
+        if (!result.error) {
+        }
+        else if (isSameErr(result.error,DBError(null))) {
             return {
                 error : InternalError(result.error),
-                data: null
             }
         }
         return result;
