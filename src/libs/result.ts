@@ -1,6 +1,8 @@
 import {Nullable} from "./nullable";
+import {AppError} from "./errors";
+import {Paging} from "./paging";
 
 export type Result<T> = {
-    Error?: Nullable<any>,
-    Data: Nullable<T>,
+    error?: Nullable<AppError>,
+    data: Nullable<T>,
 }

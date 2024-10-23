@@ -11,6 +11,7 @@ const  userRouter = (appContext : IAppContext) => {
     const userApi = new UserApi(appContext,userBiz);
 
     router.post('/',userApi.CreateNewUser)
+    router.get('/',userApi.ListUsers)
     return router
 }
 

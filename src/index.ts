@@ -23,8 +23,13 @@ const pool = mysql.createPool({
     queueLimit: 0
 });
 
-const promisePool = pool.query("SELECT 1 + 1")
-
+try {
+    const promisePool = pool.query("SELECT 1 + 1")
+    console.log("Connect database success!")
+} catch (e) {
+    console.error(e);
+    throw e;
+}
 
 
 const appContext = new AppContext(pool);
