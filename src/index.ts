@@ -23,6 +23,10 @@ const pool = mysql.createPool({
     queueLimit: 0
 });
 
+const promisePool = pool.query("SELECT 1 + 1")
+
+
+
 const appContext = new AppContext(pool);
 
 app.use(logger('dev'));

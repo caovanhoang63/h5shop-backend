@@ -3,7 +3,7 @@ import {Result} from "../../../libs/result";
 import {UserMysqlRepo} from "../repository/mysql/mysqlRepo";
 
 interface IUserRepository {
-    Create: (u: UserCreate) => Result<any>
+    Create: (u: UserCreate) => Promise<Result<null>>
 }
 
 export class UserBiz  {
@@ -11,10 +11,8 @@ export class UserBiz  {
         this.userRepository = userRepository;
     }
 
-    public CreateNewUser = (u : UserCreate) : Result<null> => {
-        return {
-            Error: null, Data: null
-        }
+    public CreateNewUser = async (u : UserCreate) : Promise<Result<null>>  => {
+        return  await this.userRepository.Create(u)
     }
 }
 

@@ -3,9 +3,10 @@ import {UserBiz} from "../../biz/biz";
 import {Result} from "../../../../libs/result";
 import express from "express";
 import {UserCreate} from "../../entity/userVar";
+import {SystemRole} from "../../entity/user";
 
 interface IUserBiz {
-    CreateNewUser:  (u : UserCreate) => Result<null>
+    CreateNewUser:  (u : UserCreate) => Promise<Result<null>>
 }
 
 export class UserApi {
@@ -15,11 +16,15 @@ export class UserApi {
         this.appCtx = appCtx;
         this.userBiz = biz;
     }
-    public CreateNewUser : express.Handler = (req, res, next)=> {
-        const data = req.body as UserCreate;
-        if (this.userBiz.CreateNewUser(data).Error != null ){
+    public CreateNewUser : express.Handler = async (req, res, next)=> {
+        const data : UserCreate= {
+             firstName: "caovanhoang", lastName: "123123", systemRole: SystemRole.Admin
+        };
+        const result = await this.userBiz.CreateNewUser(data)
+        if (result.Error != null ){
+            console.log(result.Error)
             res.status(400).send({})
         }
-        res.status(200).send("oke")
+        res.send({id : data.id})
     }
 }
