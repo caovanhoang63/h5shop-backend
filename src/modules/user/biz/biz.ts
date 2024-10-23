@@ -1,41 +1,36 @@
 import {UserCreate} from "../entity/userVar";
 import {Result} from "../../../libs/result";
-import {DBError, InternalError, isSameErr} from "../../../libs/errors";
+import {DBError, ErrDbKey, InternalError} from "../../../libs/errors";
 import {ICondition} from "../../../libs/condition";
 import {Paging} from "../../../libs/paging";
 import {User} from "../entity/user";
+import {ResultAsync} from "../../../libs/resultAsync";
+import {AsyncResource} from "node:async_hooks";
 
 interface IUserRepository {
-    Create: (u: UserCreate) => Promise<Result<null>>
-    FindByCondition : (condition: ICondition,paging : Paging)=> Promise<Result<User[]>>
+    Create: (u: UserCreate) => ResultAsync<void>
+    FindByCondition : (condition: ICondition,paging : Paging) => ResultAsync<User[]>
 }
 
 export class UserBiz  {
     constructor(private readonly userRepository: IUserRepository) {
-        this.userRepository = userRepository;
     }
 
-    public CreateNewUser = async (u : UserCreate) : Promise<Result<null>> => {
-        const result =  await this.userRepository.Create(u)
-        if (!result.error) {
-        }
-        else if (isSameErr(result.error,DBError(null))) {
-            return {
-                error : InternalError(result.error),
-            }
-        }
-        return result;
+    public CreateNewUser =(u : UserCreate) : ResultAsync<void> => {
+        return this.userRepository.Create(u)
     }
 
-    public ListUsers =  async () : Promise<Result<User[]>> => {
-        return await this.userRepository.FindByCondition(
-            {
-                firstName: "caovanhoang",
-            },
-            {
-                cursor: 0, limit: 0, nextCursor: 0, page: 0, total: 0
-            }
-        )
+    public ListUsers =  () : ResultAsync<User[]> => {
+        const cond = {
+            firstName : "caovanhoang"
+        }
+
+        const paging : Paging= {
+            cursor: 0, limit: 0, nextCursor: 0, page: 0, total: 0
+
+        }
+
+        return this.userRepository.FindByCondition(cond,paging)
 
     }
 }

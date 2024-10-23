@@ -1,29 +1,29 @@
-export interface AppError extends Error {
-    message: string;
-    code: number;
-    error: AppError;
-    key: string;
-}
-export const DBError = (e :any) : AppError=> {
-    return {
-        code: 500,
-        error: e,
-        message: "Something went wrong with DB",
-        name: "Database Error ",
-        key: "ERR_DB"
+import {Nullable} from "./nullable";
+
+export type ErrKey = string
+
+export class AppError extends Error {
+    public constructor(e : any,  message: string ,key : string, code: number ) {
+        super(message);
+        this.code = code;
+        this.error = e;
+        this.key = key;
+    }
+
+    public code: number;
+    public error?: Nullable<AppError>;
+    public key: string;
+    public isSame(e : AppError) : boolean {
+        return this.key === e.key
     }
 }
 
-export const InternalError = (e : any) : AppError => {
-    return {
-        code: 500,
-        error: e,
-        message: "Something went wrong with server",
-        name: "Internal Server Error",
-        key: "INTERNAL_SERVER_ERROR"
-    }
-}
+export const  ErrDbKey =  "ERR_DB"
+export const DBError = (e? :any) =>
+    new AppError(e,"Something went wrong with DB",ErrDbKey,500)
 
-export const isSameErr = (Err1 : AppError, Err2 :AppError) => {
-    return Err1.key === Err2.key
-}
+export const InternalErrKey = "INTERNAL_SERVER_ERROR"
+export const InternalError = (e? : any)  =>
+    new AppError(e,"Something went wrong with server",InternalErrKey,500)
+
+

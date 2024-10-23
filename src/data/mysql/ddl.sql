@@ -6,13 +6,13 @@ DROP TABLE IF EXISTS `auth`;
 CREATE TABLE `auth` (
     `id` int NOT NULL AUTO_INCREMENT,
     `user_id` int NOT NULL,
-    `user_name` varchar(255) CHARACTER SET utf8mb4 NOT NULL,
-    `salt` varchar(50) CHARACTER SET utf8mb4 DEFAULT NULL,
+    `user_name` varchar(255) NOT NULL ,
+    `salt` varchar(50) DEFAULT NULL,
     `password` varchar(100) CHARACTER SET utf8mb4 DEFAULT NULL,
     `created_at` datetime DEFAULT CURRENT_TIMESTAMP,
     `updated_at` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     PRIMARY KEY (`id`),
-    UNIQUE KEY `email` (`user_name`) USING BTREE,
+    UNIQUE KEY `user_name` (`user_name`) USING BTREE,
     KEY `user_id` (`user_id`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
@@ -20,7 +20,8 @@ DROP TABLE IF EXISTS `user`;
 CREATE TABLE `user` (
     `id` int NOT NULL AUTO_INCREMENT,
     `phone_number` VARCHAR(20),
-    `email` varchar(255) CHARACTER SET utf8mb4 NOT NULL,
+    `userName` VARCHAR(255) NOT NULL UNIQUE ,
+    `email` varchar(255)  NOT NULL  UNIQUE,
     `address` VARCHAR(255),
     `first_name` VARCHAR(255) NOT NULL ,
     `last_name` VARCHAR(255) NOT NULL ,

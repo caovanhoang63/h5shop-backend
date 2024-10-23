@@ -1,12 +1,11 @@
-import mysql, {Connection, ResultSetHeader, RowDataPacket} from "mysql2";
+import mysql, {ResultSetHeader, RowDataPacket} from "mysql2";
 import {UserCreate} from "../../entity/userVar";
-import {Result} from "../../../../libs/result";
-import e from "cors";
-import {DBError} from "../../../../libs/errors";
+import {Err, Ok} from "../../../../libs/result";
 import {ICondition} from "../../../../libs/condition";
 import {User} from "../../entity/user";
 import {SqlHelper} from "../../../../libs/sqlHelper";
 import {Paging} from "../../../../libs/paging";
+import {ResultAsync} from "../../../../libs/resultAsync";
 
 export class UserMysqlRepo {
     private readonly pool: mysql.Pool;
@@ -14,52 +13,39 @@ export class UserMysqlRepo {
         this.pool = pool
     }
 
-    public Create =async  (u : UserCreate) :Promise<Result<null>> => {
-        const  result : Result<null> = {
-            error: null,
-            data: null
-        };
-
+    public Create = (u : UserCreate) : ResultAsync<void> => {
         const query = `INSERT INTO user (first_name,last_name,system_role) VALUES (?, ? , ? ) `;
-
-        await this.pool.promise().query(query,
+        return ResultAsync.fromPromise(this.pool.promise().query(query,
             [u.firstName,u.lastName,u.systemRole.toString()],
         ).then(
             ([r,f]) => {
-                console.log(r)
                 const a = r as ResultSetHeader
-                console.log(f);
                 u.id = a.insertId;
+                return Ok<void>(undefined);
             }
         ).catch((err) => {
-            result.error = DBError(err)
-            return
-        })
-        return result;
+            return Err<any>(err)
+        }))
     }
 
-    public FindByCondition = async (cond: ICondition, paging: Paging): Promise<Result<User[]>> => {
-        const result: Result<User[]> = {
-            error: null,
-            data: [],
-        };
-        const [whereClause, values] =  SqlHelper.BuildWhereClause(cond)
+    public FindByCondition = (cond: ICondition, paging: Paging): ResultAsync<User[]> => {
+        const [whereClause, values] = SqlHelper.BuildWhereClause(cond)
         const query = `SELECT * FROM user ${whereClause}`;
-
-        await this.pool.promise().query(query,values).then(
-            ([r,f]) => {
-                const a = r as RowDataPacket[]
-                if (a && Array.isArray(a) && a.length > 0) {
-                    const camelCaseUser = SqlHelper.ConvertKeysToCamelCase(a[0]);
-                    result.data?.push(camelCaseUser as User);
+        return ResultAsync.fromPromise(
+            this.pool.promise().query(query, values).then(
+                ([r, f]) => {
+                    const a = r as RowDataPacket[]
+                    const data :User[] = []
+                    if (a && Array.isArray(a) && a.length > 0) {
+                        const camelCaseUser = SqlHelper.ConvertKeysToCamelCase(a[0]);
+                        data.push(camelCaseUser as User);
+                    }
+                    paging.total = a.length;
+                    return Ok(data)
                 }
-                paging.total = a.length;
-            }
-        ).catch((err) => {
-            result.error = DBError(err)
-            return
-        })
-
-        return result;
+            ).catch((err) => {
+                return Err<User[]>(err)
+            })
+        )
     }
 }

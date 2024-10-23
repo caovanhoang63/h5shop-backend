@@ -7,10 +7,11 @@ import {SystemRole, User} from "../../entity/user";
 import {AppResponse} from "../../../../libs/response";
 import {ICondition} from "../../../../libs/condition";
 import {Paging} from "../../../../libs/paging";
+import {ResultAsync} from "../../../../libs/resultAsync";
 
 interface IUserBiz {
-    CreateNewUser:  (u : UserCreate) => Promise<Result<null>>
-    FindByCondition : (cond: ICondition, paging: Paging)=> Promise<Result<User[]>>
+    CreateNewUser:  (u : UserCreate) => ResultAsync<void>
+    FindByCondition : (cond: ICondition, paging: Paging)=> ResultAsync<User[]>
 }
 
 export class UserApi {
@@ -24,10 +25,9 @@ export class UserApi {
         const data : UserCreate= {
              firstName: "caovanhoang", lastName: "123", systemRole: SystemRole.Admin
         };
-        const result = await this.userBiz.CreateNewUser(data)
-        if (result.error != null ){
-            console.log(result.error)
-            res.status(result.error.code).send(AppResponse.ErrorResponse(result.error));
+        const result = await  this.userBiz.CreateNewUser(data);
+        if (result.isErr() ){
+            res.status(result.error!.code).send(AppResponse.ErrorResponse(result.error!));
             return
         }
         res.send(AppResponse.SimpleResponse(true))
