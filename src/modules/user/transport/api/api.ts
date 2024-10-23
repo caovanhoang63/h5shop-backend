@@ -10,7 +10,7 @@ import {Paging} from "../../../../libs/paging";
 import {ResultAsync} from "../../../../libs/resultAsync";
 
 interface IUserBiz {
-    CreateNewUser:  (u : UserCreate) => ResultAsync<void>
+    CreateNewUser:  (u : UserCreate) => ResultAsync<any>
     FindByCondition : (cond: ICondition, paging: Paging)=> ResultAsync<User[]>
 }
 
@@ -23,7 +23,7 @@ export class UserApi {
     }
     public CreateNewUser : express.Handler = async (req, res, next)=> {
         const data : UserCreate= {
-             firstName: "caovanhoang", lastName: "123", systemRole: SystemRole.Admin
+             firstName: "caovanhoang", lastName: "123", systemRole: SystemRole.Admin, userName : "123"
         };
         const result = await  this.userBiz.CreateNewUser(data);
         if (result.isErr() ){

@@ -9,7 +9,6 @@ const  userRouter = (appContext : IAppContext) => {
     const userRepo = new UserMysqlRepo(appContext.GetDbConnectionPool());
     const userBiz = new UserBiz(userRepo);
     const userApi = new UserApi(appContext,userBiz);
-
     router.post('/',userApi.CreateNewUser)
     router.get('/',userApi.ListUsers)
     return router

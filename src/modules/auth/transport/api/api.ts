@@ -2,6 +2,7 @@ import {AuthCreate} from "../../entity/authVar";
 import {ResultAsync} from "../../../../libs/resultAsync";
 import express from "express";
 import {AppResponse} from "../../../../libs/response";
+import {SystemRole} from "../../../user/entity/user";
 
 interface IAuthBiz {
     Register : (u : AuthCreate) => ResultAsync<void>
@@ -16,7 +17,10 @@ export class AuthApi {
             password: "",
             salt: "",
             userId: 1,
-            userName: "1234"
+            userName: "12344",
+            firstName: "cap",
+            lastName: "hoang",
+            systemRole: SystemRole.Admin
         }
 
         const r = await this.authBiz.Register(u)
