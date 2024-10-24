@@ -72,20 +72,25 @@ DROP TABLE IF EXISTS `category`;
 CREATE TABLE `category` (
     `id` INT NOT NULL AUTO_INCREMENT,
     `name` VARCHAR(255),
+    `description` TEXT,
+    `metadata` JSON,
+    `images` JSON,
     `status` INT DEFAULT 1,
     `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     PRIMARY KEY (`id`),
     KEY `status` (`status`) USING BTREE
-)ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+)   ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
-# 1 spu = n sku
+
 DROP TABLE IF EXISTS `spu`;
 CREATE TABLE `spu` (
     `id` INT NOT NULL AUTO_INCREMENT,
-    `provider_id` INT NOT NULL,
     `name` VARCHAR(255),
+    `description` TEXT,
+    `metadata` JSON,
     `images` JSON,
+    `out_of_stock` BOOLEAN NOT NULL DEFAULT false,
     `status` INT DEFAULT 1,
     `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -93,43 +98,57 @@ CREATE TABLE `spu` (
     KEY `status` (`status`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
-
-DROP TABLE IF EXISTS `category_item`;
-CREATE TABLE `category_item` (
-    `category_id` int NOT NULL,
-    `spu_id` int NOT NULL,
+-- 1 to n
+DROP TABLE IF EXISTS `category_to_spu`;
+CREATE TABLE `category_to_spu` (
+    `category_id` INT NOT NULL,
+    `spu_id` INT NOT NULL,
     `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    PRIMARY KEY (`category_id`,`spu_id`)
+    PRIMARY KEY (`category_id`,`spu_id`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
-DROP TABLE IF EXISTS `sku`;
-CREATE TABLE `sku` (
+DROP TABLE IF EXISTS `sku_attr`;
+CREATE TABLE `sku_attr` (
     `id` INT NOT NULL AUTO_INCREMENT,
     `spu_id` INT NOT NULL,
     `name` VARCHAR(255),
-    `price` DECIMAL(15,2),
-    `images` JSON,
+    `description` TEXT,
+    `data_type` enum('text','number','boolean'),
+    `value` JSON,
     `status` INT DEFAULT 1,
     `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    PRIMARY KEY (`id`),
+    PRIMARY KEY (`id`) USING BTREE,
     KEY `status` (`status`) USING BTREE,
     KEY `spu_id` (`spu_id`) USING BTREE
-)ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
-DROP TABLE IF EXISTS `inventory`;
-CREATE TABLE `inventory` (
+DROP TABLE IF EXISTS `sku`;
+CREATE TABLE `sku`(
     `id` INT NOT NULL AUTO_INCREMENT,
-    `sku_id` INT NOT NULL,
-    `amount` INT NOT NULL DEFAULT 0,
+    `sku_no` VARCHAR(32) NOT NULL, -- {spu-id}{attr1}{attr2}.....
+    `spu_id` INT NOT NULL,
+    `images` JSON,
+    `price` DECIMAL (19,5) NOT NULL DEFAULT 0,
+    `stock` INT NOT NULL DEFAULT 0,
     `status` INT DEFAULT 1,
     `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    PRIMARY KEY (`id`),
-    KEY `sku_id` (`sku_id`) USING BTREE,
-    KEY `status` (`status`) USING BTREE
+    PRIMARY KEY (`id`) USING BTREE,
+    KEY `status` (`status`) USING BTREE,
+    KEY `sku_no` (`sku_no`) USING BTREE,
+    KEY `spu_id` (`spu_id`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
+DROP TABLE IF EXISTS `sku_to_attr`;
+CREATE TABLE `sku_to_attr` (
+    `attr_id` INT NOT NULL,
+    `sku_id` INT NOT NULL,
+    `status` INT DEFAULT 1,
+    `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (`attr_id`,`sku_id`) USING BTREE,
+    KEY `status` (`status`) USING BTREE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 # STOCK IN
 DROP TABLE IF EXISTS `stock_in`;

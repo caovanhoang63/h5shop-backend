@@ -15,13 +15,17 @@ class Hasher implements IHasher {
 
 const  authRouter = (appContext : IAppContext) => {
     const router = express.Router();
-
     const hasher = new Hasher()
     const authRepo = new AuthMysqlRepo(appContext.GetDbConnectionPool());
     const userRepo = new UserLocal(appContext)
     const authBiz = new AuthBiz(authRepo,hasher,userRepo);
     const authApi = new AuthApi(authBiz)
+
+
     router.post('/register',authApi.Register)
+
+
+
     return router
 }
 

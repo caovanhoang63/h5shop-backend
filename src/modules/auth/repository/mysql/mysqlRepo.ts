@@ -8,7 +8,6 @@ import {SqlHelper} from "../../../../libs/sqlHelper";
 
 export class AuthMysqlRepo {
     constructor(private readonly pool : mysql.Pool) {
-
     }
 
     Create=  (u : AuthCreate) : ResultAsync<void> =>{
@@ -23,7 +22,6 @@ export class AuthMysqlRepo {
             )
         )
     }
-
 
     FindByUserName =  (userName: string ) :ResultAsync<Auth> => {
         const query = `SELECT * FROM auth WHERE user_name = ? LIMIT 1`;
@@ -41,8 +39,6 @@ export class AuthMysqlRepo {
                 e =>  Err<Auth>(e)
             )
         )
-
-
     }
 
 }

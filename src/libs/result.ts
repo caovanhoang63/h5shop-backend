@@ -22,7 +22,7 @@ export class Result<T> {
     }
 
     public isSameErr(Err:AppError) : boolean {
-        return this.error === Err
+        return this.error?.code === Err.code
     }
     public errIs(key : string) : boolean {
         return this.error?.key === key

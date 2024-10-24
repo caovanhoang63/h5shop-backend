@@ -5,6 +5,7 @@ import authRouter from "./authRoute";
 
 const v1Router = (appCtx : IAppContext) => {
     const router = express.Router();
+
     router.get("/ping", async (req, res) => {
         res.send("pong");
     })
@@ -17,6 +18,13 @@ const v1Router = (appCtx : IAppContext) => {
     router.use("/auth",authRouter(appCtx))
     return router;
 }
+
+
+// v1/auth/register
+
+
+
+
 
 
 export default v1Router;

@@ -7,6 +7,7 @@ import v1Router from "./routes/v1";
 import cors from "cors"
 import mysql from "mysql2"
 import {AppContext} from "./components/appContext/appContext";
+import recovery from "./middlewares/recovery";
 
 dotenv.config();
 const app: Express = express();
@@ -42,6 +43,7 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use("/v1",v1Router(appContext));
+app.use(recovery)
 
 app.listen(port, () => {
     console.log(`[server]: Server is running at http://localhost:${port}`);

@@ -1,5 +1,5 @@
 import {AuthCreate} from "../entity/authVar";
-import {Result} from "../../../libs/result";
+import {Err, Result} from "../../../libs/result";
 import {Auth} from "../entity/auth";
 import {errAsync, okAsync, ResultAsync} from "../../../libs/resultAsync";
 import {AppError, ErrDbKey, InternalError} from "../../../libs/errors";
@@ -27,33 +27,36 @@ export class AuthBiz {
     }
 
     // @ts-ignore
-    public Register= async  (u : AuthCreate) : ResultAsync<void> =>  {
-        const old = await this.authRepo.FindByUserName(u.userName)
-        if (old.isErr() && old.errIs(ErrDbKey)) {
-            return errAsync<void>(old.wrapBy(InternalError).error!)
-        }
-
-        if (old.data) {
-            return errAsync<void>(ErrUserNameAlreadyExists(u.userName))
-        }
-
-        const [user, err]  = await this.userRepo.CreateNewUser(u.firstName,u.lastName,u.userName,u.systemRole)
-
-        if (err != null ) {
-            return errAsync<void>(err)
-        }
-
-        u.userId = user
-        u.salt = randomSalt(50)
-        u.password = this.hasher.hash(u.password,u.salt)
-
-
-        const r = await this.authRepo.Create(u)
-
-        if (r.isErr() && r.errIs(ErrDbKey)) {
-            return errAsync<void>(old.wrapBy(InternalError).error!)
-        }
-
-        return okAsync<void>(undefined)
+    public Register= async (u : AuthCreate) : ResultAsync<void>=>  {
+        throw new Error("adsdsa")
+        //
+        // const old = await this.authRepo.FindByUserName(u.userName)
+        //
+        // if (old.isErr() && old.errIs(ErrDbKey)) {
+        //     return errAsync<void>(old.wrapBy(InternalError).error!)
+        // }
+        //
+        // if (old.data) {
+        //     return errAsync<void>(ErrUserNameAlreadyExists(u.userName))
+        // }
+        //
+        // const [user, err]  = await this.userRepo.CreateNewUser(u.firstName,u.lastName,u.userName,u.systemRole)
+        //
+        // if (err != null ) {
+        //     return errAsync<void>(err)
+        // }
+        //
+        // u.userId = user
+        // u.salt = randomSalt(50)
+        // u.password = this.hasher.hash(u.password,u.salt)
+        //
+        //
+        // const r = await this.authRepo.Create(u)
+        //
+        // if (r.isErr() && r.errIs(ErrDbKey)) {
+        //     return errAsync<void>(old.wrapBy(InternalError).error!)
+        // }
+        //
+        // return okAsync<void>(undefined)
     }
 }

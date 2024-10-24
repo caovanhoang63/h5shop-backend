@@ -19,7 +19,8 @@ export class UserLocal {
         this.userBiz = new UserBiz(new UserMysqlRepo(appContext.GetDbConnectionPool()));
     }
 
-    public CreateNewUser =  async (firstName: string, lastName: string, userName: string , systemRole: SystemRole ) : Promise<[number, Nullable<AppError>]>  => {
+    public CreateNewUser =  async (firstName: string, lastName: string, userName: string , systemRole: SystemRole)
+        : Promise<[number, Nullable<AppError>]>  => {
         const data : UserCreate= {
             firstName: firstName, lastName: lastName, systemRole: systemRole, userName: userName
         };

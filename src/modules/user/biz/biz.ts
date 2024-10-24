@@ -16,11 +16,11 @@ export class UserBiz  {
     constructor(private readonly userRepository: IUserRepository) {
     }
 
-    public CreateNewUser =(u : UserCreate) : ResultAsync<void> => {
+    public CreateNewUser =(u : UserCreate) => {
         return this.userRepository.Create(u)
     }
 
-    public ListUsers =  () : ResultAsync<User[]> => {
+    public ListUsers =  ()  => {
         const cond = {
             firstName : "caovanhoang"
         }
