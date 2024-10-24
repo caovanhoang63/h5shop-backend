@@ -1,6 +1,7 @@
 import {BaseModel} from "../../../libs/baseModel";
 import {Nullable} from "../../../libs/nullable";
 import {SystemRole} from "../../user/entity/user";
+import {Result} from "../../../libs/result";
 
 export interface AuthCreate extends BaseModel{
     userId : number;
@@ -11,3 +12,16 @@ export interface AuthCreate extends BaseModel{
     lastName: string;
     systemRole: SystemRole;
 }
+
+
+
+
+
+
+
+
+
+
+
+
+

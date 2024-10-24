@@ -14,15 +14,16 @@ export class AuthApi {
     Register : express.Handler  = async (req, res, next) =>  {
         // this try catch next for errHandler and can't recovery the server when a panic happened
         try {
-            const u : AuthCreate = {
-                password: "",
-                salt: "",
-                userId: 1,
-                userName: "12344",
-                firstName: "cap",
-                lastName: "hoang",
-                systemRole: SystemRole.Admin
-            }
+            // const u : AuthCreate = {
+            //     password: "",
+            //     salt: "",
+            //     userId: 1,
+            //     userName: "12344",
+            //     firstName: "cap",
+            //     lastName: "hoang",
+            //     systemRole: SystemRole.Admin
+            // }
+            const u = req.body as AuthCreate;
 
             const r = await this.authBiz.Register(u)
             if (r.isErr() ){

@@ -26,4 +26,6 @@ export const InternalErrKey = "INTERNAL_SERVER_ERROR"
 export const InternalError = (e? : any)  =>
     new AppError(e,"Something went wrong with server",InternalErrKey,500)
 
-
+export const InvalidDataKey = "INVALID_DATA_ERROR"
+export const InvalidData = (e :  Error ) =>
+    new AppError(e,e.message,InvalidDataKey,400)
