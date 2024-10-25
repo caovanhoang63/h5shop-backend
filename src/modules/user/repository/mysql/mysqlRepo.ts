@@ -7,6 +7,7 @@ import {SqlHelper} from "../../../../libs/sqlHelper";
 import {Paging} from "../../../../libs/paging";
 import {ResultAsync} from "../../../../libs/resultAsync";
 import {MysqlErrHandler} from "../../../../libs/mysqlErrHandler";
+import {DBError} from "../../../../libs/errors";
 
 export class UserMysqlRepo {
     private readonly pool: mysql.Pool;
@@ -35,14 +36,15 @@ export class UserMysqlRepo {
         return ResultAsync.fromPromise(
             this.pool.promise().query(query, values).then(
                 ([r, f]) => {
-                    const a = r as RowDataPacket[]
-                    const data :User[] = []
-                    if (a && Array.isArray(a) && a.length > 0) {
-                        const camelCaseUser = SqlHelper.ConvertKeysToCamelCase(a[0]);
-                        data.push(camelCaseUser as User);
+                    const rows = r as RowDataPacket[]
+                    const data : User[] = []
+                    if (rows && rows.length > 0){
+                        data.push( SqlHelper.toCamelCase(rows[0]) as User);
+                        paging.total = rows.length;
+                        return Ok(data)
+                    } else {
+                        return Ok([])
                     }
-                    paging.total = a.length;
-                    return Ok(data)
                 }
             ).catch((err : any) => {
                 return Err<User[]>(MysqlErrHandler.handler(err,UserEntityName))

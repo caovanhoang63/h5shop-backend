@@ -56,7 +56,6 @@ export class AuthBiz {
                 u.salt = randomSalt(50)
                 u.password = this.hasher.hash(u.password,u.salt)
 
-
                 const r = await this.authRepo.Create(u)
 
                 if (r.isErr() ) {

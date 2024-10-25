@@ -1,4 +1,6 @@
 import {ICondition} from "./condition";
+import {camelCase} from "lodash";
+
 
 export class SqlHelper {
 
@@ -28,6 +30,13 @@ export class SqlHelper {
         return obj;
     }
 
+    public static toCamelCase = (row: any) => {
+        const newRow: any = {};
+        for (const key in row) {
+            newRow[camelCase(key)] = row[key];
+        }
+        return newRow;
+    };
 
     private static convertKeysToSnakeCase(obj: any): any {
         if (Array.isArray(obj)) {

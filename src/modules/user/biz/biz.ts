@@ -35,7 +35,7 @@ export class UserBiz  {
 
     public ListUsers =  ()  => {
         const cond = {
-            firstName : "caovanhoang"
+            firstName : "cap"
         }
 
         const paging : Paging= {
