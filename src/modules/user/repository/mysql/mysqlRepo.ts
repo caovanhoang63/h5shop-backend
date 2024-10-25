@@ -2,10 +2,11 @@ import mysql, {ResultSetHeader, RowDataPacket} from "mysql2";
 import {UserCreate} from "../../entity/userVar";
 import {Err, Ok} from "../../../../libs/result";
 import {ICondition} from "../../../../libs/condition";
-import {User} from "../../entity/user";
+import {User, UserEntityName} from "../../entity/user";
 import {SqlHelper} from "../../../../libs/sqlHelper";
 import {Paging} from "../../../../libs/paging";
 import {ResultAsync} from "../../../../libs/resultAsync";
+import {MysqlErrHandler} from "../../../../libs/mysqlErrHandler";
 
 export class UserMysqlRepo {
     private readonly pool: mysql.Pool;
@@ -23,8 +24,8 @@ export class UserMysqlRepo {
                 u.id = a.insertId;
                 return Ok<void>(undefined);
             }
-        ).catch((err) => {
-            return Err<any>(err)
+        ).catch((err : any) => {
+            return Err<void>(MysqlErrHandler.handler(err,UserEntityName))
         }))
     }
 
@@ -43,8 +44,8 @@ export class UserMysqlRepo {
                     paging.total = a.length;
                     return Ok(data)
                 }
-            ).catch((err) => {
-                return Err<User[]>(err)
+            ).catch((err : any) => {
+                return Err<User[]>(MysqlErrHandler.handler(err,UserEntityName))
             })
         )
     }

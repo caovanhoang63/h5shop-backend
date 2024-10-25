@@ -7,7 +7,7 @@ import {ErrUserNameAlreadyExists} from "../entity/error";
 import {randomSalt} from "../../../libs/salt";
 import {SystemRole, User} from "../../user/entity/user";
 import {Nullable} from "../../../libs/nullable";
-import {schema} from "../entity/validate";
+import {authCreateSchema} from "../entity/validate";
 import {Validator} from "../../../libs/validator";
 
 interface IAuthRepository {
@@ -24,23 +24,22 @@ export interface IHasher {
 }
 
 export class AuthBiz {
-    constructor(private readonly authRepo: IAuthRepository, private readonly hasher : IHasher, private readonly userRepo : IUserRepository) {
-
-    }
-
+    constructor(private readonly authRepo: IAuthRepository,
+                private readonly hasher : IHasher,
+                private readonly userRepo : IUserRepository) {}
     public Register=  (u : AuthCreate) : ResultAsync<void>=>  {
         return ResultAsync.fromPromise(
             (async () => {
-                const vR = (await Validator(schema,u))
+                // validate
+                const vR = (await Validator(authCreateSchema,u))
+                console.log(u)
                 if (vR.isErr()) {
                     return vR
                 }
-                const old = await this.authRepo.FindByUserName(u.userName)
-                if (await Validator(schema,u)) {
 
-                }
-                if (old.isErr() && old.errIs(ErrDbKey)) {
-                    return old.wrapBy(InternalError) as Result<void>
+                const old = await this.authRepo.FindByUserName(u.userName)
+                if (old.isErr()) {
+                    return Err<void>(old.error)
                 }
 
                 if (old.data) {
@@ -60,8 +59,8 @@ export class AuthBiz {
 
                 const r = await this.authRepo.Create(u)
 
-                if (r.isErr() && r.errIs(ErrDbKey)) {
-                    return Err<void>(old.wrapBy(InternalError).error!)
+                if (r.isErr() ) {
+                    return r
                 }
 
                 return Ok<void>(undefined)

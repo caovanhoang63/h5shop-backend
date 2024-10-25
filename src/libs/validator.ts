@@ -3,9 +3,9 @@ import {ObjectSchema} from "joi";
 import {Err, Ok} from "./result";
 import {InternalError, InvalidData} from "./errors";
 
-export const Validator = (schema: ObjectSchema, data: any ) : ResultAsync<void> => {
+export const Validator = (validateSchema: ObjectSchema, data: any ) : ResultAsync<void> => {
     return ResultAsync.fromPromise(
-        schema.validateAsync(schema).then(
+        validateSchema.validateAsync(data).then(
           r => {
               return Ok<void>(undefined)
           }

@@ -1,11 +1,12 @@
 import {BaseModel} from "../../../libs/baseModel";
 
+export const UserEntityName = "User";
+
 export enum Gender {
     Male = 'male',
     Female = 'female',
     Other = 'other',
 }
-
 
 export enum SystemRole {
     Admin = 'admin',
@@ -26,15 +27,5 @@ export interface User extends BaseModel{
     gender?: Gender;
     systemRole: SystemRole;
     status: number;
-}
-
-const user: User = {
-    id : 1,
-    createdAt: new Date,
-    updatedAt: new Date,
-    firstName : "cao",
-    lastName : "asd",
-    status : 1,
-    systemRole : SystemRole.Admin
 }
 

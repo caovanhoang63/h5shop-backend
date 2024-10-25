@@ -20,7 +20,7 @@ export class AppError extends Error {
 
 export const  ErrDbKey =  "ERR_DB"
 export const DBError = (e? :any) =>
-    new AppError(e,"Something went wrong with DB",ErrDbKey,500)
+    new AppError(e,"Something went wrong with server",ErrDbKey,500)
 
 export const InternalErrKey = "INTERNAL_SERVER_ERROR"
 export const InternalError = (e? : any)  =>
@@ -28,4 +28,4 @@ export const InternalError = (e? : any)  =>
 
 export const InvalidDataKey = "INVALID_DATA_ERROR"
 export const InvalidData = (e :  Error ) =>
-    new AppError(e,e.message,InvalidDataKey,400)
+    new AppError(e,e.message.toString(),InvalidDataKey,400)
