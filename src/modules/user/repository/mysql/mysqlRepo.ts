@@ -36,7 +36,7 @@ export class UserMysqlRepo {
             .then(([r,f]) => {
                 const a = r as RowDataPacket[]
                 if (a.length <= 0 ) {
-                    return Ok<User>(null)
+                    return Ok<User>()
                 }
                 const data : User = SqlHelper.toCamelCase(a[0]);
                 return Ok<User>(data)

@@ -4,7 +4,7 @@ import {AppError} from "../../libs/errors";
 import {Nullable} from "../../libs/nullable";
 
 export interface JwtProvider {
-    ParseToken: (token: string) => Result<JwtClaim>
+    ParseToken: (token: string) => Result<Nullable<JwtClaim>>
     IssueToken: (id : string, sub : string, expiredTime: number  ) => [string,number]
 }
 
@@ -28,9 +28,9 @@ export class jwtProvider implements JwtProvider {
 
     }
 
-    ParseToken =  (token: string) : Result<JwtClaim> => {
+    ParseToken =  (token: string) : Result<Nullable<JwtClaim>> => {
         let  er  = null ;
-        let claim : Nullable<JwtClaim> = null;
+        let claim : Nullable<JwtClaim>  = null;
         jwt.verify(token, this._secret, (err, decoded) => {
             if (err != null ) {
                 er = err;
@@ -39,7 +39,7 @@ export class jwtProvider implements JwtProvider {
             claim = decoded as JwtClaim;
         })
 
-        return new Result<JwtClaim>(claim,er)
+        return new Result<Nullable<JwtClaim>>(claim,er)
     }
 
     IssueToken = (id : string, sub : string, expiredTime: number ) : [string,number] => {
