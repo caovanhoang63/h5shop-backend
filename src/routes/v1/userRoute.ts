@@ -7,15 +7,15 @@ import authentication from "../../middlewares/authentication";
 import requiredRole from "../../middlewares/requiredRole";
 import {SystemRole} from "../../modules/user/entity/user";
 
-const  userRouter = (appContext : IAppContext) => {
+const userRouter = (appContext: IAppContext) => {
     const router = express.Router();
     const userRepo = new UserMysqlRepo(appContext.GetDbConnectionPool());
     const userBiz = new UserBiz(userRepo);
-    const userApi = new UserApi(appContext,userBiz);
+    const userApi = new UserApi(appContext, userBiz);
     router.use(authentication(appContext))
-    router.use(requiredRole(appContext,SystemRole.Admin,SystemRole.Owner))
-    router.post('/',userApi.CreateNewUser)
-    router.get('/',userApi.ListUsers)
+    router.use(requiredRole(appContext, SystemRole.Admin, SystemRole.Owner))
+    router.post('/', userApi.CreateNewUser)
+    router.get('/', userApi.ListUsers)
     return router
 }
 

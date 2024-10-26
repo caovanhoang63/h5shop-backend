@@ -5,6 +5,7 @@ export class ResultAsync<T> implements PromiseLike<Result<T>> {
     constructor(res: Promise<Result<T>>) {
         this._promise = res
     }
+
     private _promise: Promise<Result<T>>
 
     then<A, B>(
@@ -28,8 +29,8 @@ export class ResultAsync<T> implements PromiseLike<Result<T>> {
     }
 
 
-    static fromPromise<T>(promise: Promise<Result<T>>){
-        return new ResultAsync(Promise.resolve( promise))
+    static fromPromise<T>(promise: Promise<Result<T>>) {
+        return new ResultAsync(Promise.resolve(promise))
     }
 
 }
@@ -37,5 +38,5 @@ export class ResultAsync<T> implements PromiseLike<Result<T>> {
 export const okAsync = <T>(value: T): ResultAsync<T> =>
     new ResultAsync(Promise.resolve(Ok(value)));
 
-export const errAsync = <T>(err : AppError ): ResultAsync<T> =>
+export const errAsync = <T>(err: AppError): ResultAsync<T> =>
     new ResultAsync(Promise.resolve(Err(err)))

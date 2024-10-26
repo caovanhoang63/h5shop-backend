@@ -17,7 +17,7 @@ export enum SystemRole {
     FinanceStaff = 'finance_staff',
 }
 
-export interface User extends BaseModel{
+export interface User extends BaseModel {
     phoneNumber?: number;
     email?: string;
     address?: string;

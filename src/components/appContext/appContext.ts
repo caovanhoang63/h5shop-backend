@@ -7,12 +7,12 @@ export interface IAppContext {
 
 export class AppContext implements IAppContext {
     private readonly connectionPool: mysql.Pool;
+
     constructor(connectionPool: mysql.Pool) {
         this.connectionPool = connectionPool;
     }
 
-    public GetDbConnectionPool =  () : mysql.Pool => {
+    public GetDbConnectionPool = (): mysql.Pool => {
         return this.connectionPool
     };
 }
-

@@ -10,19 +10,19 @@ export class Result<T> {
     error: Nullable<AppError>;
     data?: T;
 
-    public wrap(error: AppError): Result<T>  {
+    public wrap(error: AppError): Result<T> {
         this.error ? this.error.error = error : this.error = error;
         return this
     }
 
-    public wrapErr(fn : (...e: any[]) => AppError): Result<T>  {
+    public wrapErr(fn: (...e: any[]) => AppError): Result<T> {
         const err = fn(this.error)
         err.error = err
         this.error = err
         return this
     }
 
-    public errIs(key : string) : boolean {
+    public errIs(key: string): boolean {
         return this.error?.key === key
     }
 
@@ -35,11 +35,11 @@ export class Result<T> {
     }
 }
 
-export const Ok = <T>(value?: T ): Result<T> => {
-    return new Result<T>(value,null)
+export const Ok = <T>(value?: T): Result<T> => {
+    return new Result<T>(value, null)
 }
-export const Err = <T>(err? : Nullable<AppError>): Result<T> => {
+export const Err = <T>(err?: Nullable<AppError>): Result<T> => {
     if (!err)
         return new Result<T>(undefined, newInternalError(err))
-    return new Result<T>(undefined, err )
+    return new Result<T>(undefined, err)
 }

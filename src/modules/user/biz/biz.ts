@@ -10,15 +10,15 @@ import {Requester} from "../../../libs/requester";
 
 interface IUserRepository {
     Create: (u: UserCreate) => ResultAsync<void>
-    FindByCondition : (condition: ICondition,paging : Paging) => ResultAsync<User[]>
-    FindByUserId : (id : number) =>  ResultAsync<User>
+    FindByCondition: (condition: ICondition, paging: Paging) => ResultAsync<User[]>
+    FindByUserId: (id: number) => ResultAsync<User>
 }
 
-export class UserBiz  {
+export class UserBiz {
     constructor(private readonly userRepository: IUserRepository) {
     }
 
-    public CreateNewUser = (u : UserCreate)   => {
+    public CreateNewUser = (u: UserCreate) => {
         return ResultAsync.fromPromise(
             (async () => {
                 const vR = (await Validator(userCreateSchema, u))
@@ -26,16 +26,16 @@ export class UserBiz  {
                     return vR
                 }
 
-               const r =  await this.userRepository.Create(u);
-               if (r.isErr()) {
-                   return r
-               }
-               return Ok<void>(undefined);
+                const r = await this.userRepository.Create(u);
+                if (r.isErr()) {
+                    return r
+                }
+                return Ok<void>(undefined);
             })()
         )
     }
 
-    public RequiredRole = (r : Requester, ...roles : SystemRole[]) : ResultAsync<any> =>  {
+    public RequiredRole = (r: Requester, ...roles: SystemRole[]): ResultAsync<any> => {
         return ResultAsync.fromPromise(
             (async () => {
                 const uR = await this.userRepository.FindByUserId(r.userId);
@@ -60,15 +60,15 @@ export class UserBiz  {
         )
     }
 
-    public ListUsers =  ()  => {
+    public ListUsers = () => {
         const cond = {}
 
-        const paging : Paging= {
+        const paging: Paging = {
             cursor: 0, limit: 0, nextCursor: 0, page: 0, total: 0
 
         }
 
-        return this.userRepository.FindByCondition(cond,paging)
+        return this.userRepository.FindByCondition(cond, paging)
 
     }
 }

@@ -1,4 +1,4 @@
-import express, { Express, Request, Response } from "express";
+import express, {Express} from "express";
 import dotenv from "dotenv";
 import path from "path";
 import cookieParser from "cookie-parser";
@@ -41,10 +41,10 @@ app.use(logger('dev'));
 app.use(cors());
 app.use(helmet());
 app.use(bodyParser.json());
-app.use(express.urlencoded({ extended: false }));
+app.use(express.urlencoded({extended: false}));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
-app.use("/v1",v1Router(appContext));
+app.use("/v1", v1Router(appContext));
 app.use(recovery)
 
 app.listen(port, () => {
