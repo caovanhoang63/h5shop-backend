@@ -43,7 +43,7 @@ export class jwtProvider implements JwtProvider {
     }
 
     IssueToken = (id : string, sub : string, expiredTime: number ) : [string,number] => {
-        const now = (new Date()).getUTCDate();
+        const now = (new Date()).getTime();
         // need to time 1000 because the timestamp is in millisecond
         const expiresAt  = now + (expiredTime * 1000);
         const claim : JwtClaim = {
@@ -53,6 +53,7 @@ export class jwtProvider implements JwtProvider {
             issuedAt: now,
             expiresAt: expiresAt,
         }
+        console.log(this._secret)
         const token = jwt.sign(
             claim,this._secret, {algorithm: 'HS256'}
         )

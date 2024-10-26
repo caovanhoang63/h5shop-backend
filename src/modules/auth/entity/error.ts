@@ -6,3 +6,6 @@ export const ErrUserNameAlreadyExists = (userName: string) =>
 
 export const ErrPasswordNotStrongEnough = () =>
     new AppError(null,`Password not strong enough`, "ERR_INVALID_PASSWORD",400)
+
+export const ErrInvalidCredentials = () =>
+    new AppError(null,`Invalid username or password`, "ERR_INVALID_CREDENTIALS",400)

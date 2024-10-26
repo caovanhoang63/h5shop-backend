@@ -12,7 +12,7 @@ import {jwtProvider} from "../../components/jwtProvider/jwtProvider";
 
 const  authRouter = (appContext : IAppContext) => {
     const router = express.Router();
-    const appSecret = process.env.APP_SECRET
+    const appSecret = process.env.SYSTEM_SECRET
     const hasher = new Hasher()
     const authRepo = new AuthMysqlRepo(appContext.GetDbConnectionPool());
     const userRepo = new UserLocal(appContext)
@@ -21,9 +21,7 @@ const  authRouter = (appContext : IAppContext) => {
 
 
     router.post('/register',authApi.Register)
-
-
-
+    router.post('/login',authApi.Login)
     return router
 }
 

@@ -15,9 +15,9 @@ export class UserMysqlRepo {
     }
 
     public Create = (u : UserCreate) : ResultAsync<void> => {
-        const query = `INSERT INTO user (first_name,last_name,system_role) VALUES (?, ? , ? ) `;
+        const query = `INSERT INTO user (user_name,first_name,last_name,system_role) VALUES (?,?, ? , ? ) `;
         return ResultAsync.fromPromise(this.pool.promise().query(query,
-            [u.firstName,u.lastName,u.systemRole.toString()],
+            [u.userName,u.firstName,u.lastName,u.systemRole.toString()],
         ).then(
             ([r,f]) => {
                 const header = r as ResultSetHeader

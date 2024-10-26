@@ -29,7 +29,7 @@ export const authentication = (appCtx : IAppContext) : express.Handler =>  {
     const authRepo = new AuthMysqlRepo(appCtx.GetDbConnectionPool());
     const userRepo = new UserLocal(appCtx)
     const hasher = new Hasher()
-    const appSecret = process.env.APP_SECRET
+    const appSecret = process.env.SYSTEM_SECRET
     const authBiz = new AuthBiz(authRepo,hasher,userRepo,new jwtProvider(appSecret!));
     return async (req: express.Request, res: express.Response, next: express.NextFunction) => {
         const authHeader = req.header("Authorization")

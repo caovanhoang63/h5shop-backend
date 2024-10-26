@@ -20,7 +20,7 @@ DROP TABLE IF EXISTS `user`;
 CREATE TABLE `user` (
     `id` int NOT NULL AUTO_INCREMENT,
     `phone_number` VARCHAR(20),
-    `userName` VARCHAR(255) NOT NULL UNIQUE ,
+    `user_name` VARCHAR(255) NOT NULL UNIQUE ,
     `email` varchar(255)  NOT NULL  UNIQUE,
     `address` VARCHAR(255),
     `first_name` VARCHAR(255) NOT NULL ,

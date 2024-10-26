@@ -11,3 +11,9 @@ export const authCreateSchema = Joi.object().keys({
     firstName: Joi.string().required(),
     lastName: Joi.string().required()
 })
+
+
+export const authLoginSchema = Joi.object().keys({
+    password: Joi.string().required(),
+    userName: Joi.string().required(),
+})

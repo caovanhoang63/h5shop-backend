@@ -25,8 +25,10 @@ export interface TokenResponse {
 }
 
 
-
-
+export interface AuthLogin {
+    userName : string;
+    password: string;
+}
 
 
 
