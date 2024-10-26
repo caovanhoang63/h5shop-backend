@@ -5,7 +5,7 @@ const letters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
 export const randomSalt = (n :  number) : string => {
     let a = ""
     for (let i = 0; i < n; i++) {
-        a += letters[randomInt(0,letters.length -1 )]
+        a += letters[randomIntFromInterval(0,letters.length -1 )]
     }
     return a
 }

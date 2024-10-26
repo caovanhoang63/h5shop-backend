@@ -2,6 +2,7 @@ import {AuthCreate} from "../../entity/authVar";
 import {ResultAsync} from "../../../../libs/resultAsync";
 import express from "express";
 import {AppResponse} from "../../../../libs/response";
+import {writeErrorResponse} from "../../../../libs/writeErrorResponse";
 
 interface IAuthBiz {
     Register : (u : AuthCreate) => ResultAsync<void>
@@ -17,8 +18,7 @@ export class AuthApi {
 
             const r = await this.authBiz.Register(u)
             if (r.isErr() ){
-                console.log(r.error)
-                res.status(r.error!.code).send(AppResponse.ErrorResponse(r.error!));
+                writeErrorResponse(res,r.error)
                 return
             }
             res.send(AppResponse.SimpleResponse(true))

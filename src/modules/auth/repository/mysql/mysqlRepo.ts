@@ -31,7 +31,7 @@ export class AuthMysqlRepo {
                 if (a.length <= 0 ) {
                     return Ok<Auth>()
                 }
-                const data :Auth = SqlHelper.ConvertKeysToCamelCase(a[0]);
+                const data :Auth = SqlHelper.toCamelCase(a[0]);
                 return Ok<Auth>(data)
 
             })
@@ -41,4 +41,22 @@ export class AuthMysqlRepo {
         )
     }
 
+
+    FindByUserId =  (userId: number ) :ResultAsync<Auth> => {
+        const query = `SELECT * FROM auth WHERE id = ? LIMIT 1`;
+        return ResultAsync.fromPromise(this.pool.promise().query(query,[userId],)
+            .then(([r,f]) => {
+                const a = r as RowDataPacket[]
+                if (a.length <= 0 ) {
+                    return Ok<Auth>()
+                }
+                const data :Auth = SqlHelper.toCamelCase(a[0]);
+                return Ok<Auth>(data)
+
+            })
+            .catch(
+                e =>  Err<Auth>(e)
+            )
+        )
+    }
 }

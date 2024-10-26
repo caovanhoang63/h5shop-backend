@@ -18,14 +18,24 @@ export class AppError extends Error {
     }
 }
 
-export const  ErrDbKey =  "ERR_DB"
-export const DBError = (e? :any) =>
-    new AppError(e,"Something went wrong with server",ErrDbKey,500)
+export const  ErrKeyDb =  "DB_ERROR"
+export const newDBError = (e? :any) =>
+    new AppError(e,"Something went wrong with server",ErrKeyDb,500)
 
-export const InternalErrKey = "INTERNAL_SERVER_ERROR"
-export const InternalError = (e? : any)  =>
-    new AppError(e,"Something went wrong with server",InternalErrKey,500)
+export const ErrKeyInternal = "INTERNAL_SERVER_ERROR"
+export const newInternalError = (e? : any)  =>
+    new AppError(e,"Something went wrong with server",ErrKeyInternal,500)
 
-export const InvalidDataKey = "INVALID_DATA_ERROR"
-export const InvalidData = (e :  Error ) =>
-    new AppError(e,e.message.toString(),InvalidDataKey,400)
+export const ErrKeyInvalidData = "INVALID_DATA_ERROR"
+export const newInvalidData = (e :  Error ) =>
+    new AppError(e,e.message.toString(),ErrKeyInvalidData,400)
+
+
+export const ErrKeyUnauthorized = "UNAUTHORIZED_ERROR"
+export const newUnauthorized = (e? :any ) =>
+    new AppError(e,"Unauthorized",ErrKeyUnauthorized,401)
+
+
+export const ErrKeyForbidden = "FORBIDDEN_ERROR"
+export const newForbidden = (e? :any ) =>
+    new AppError(e,"Forbidden",ErrKeyForbidden,403)

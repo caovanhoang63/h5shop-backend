@@ -9,3 +9,4 @@ export interface Auth extends BaseModel{
     createdAt: Date;
     updatedAt: Date;
 }
+

@@ -1,4 +1,4 @@
-import {AppError, ErrDbKey} from "../../../libs/errors";
+import {AppError, ErrKeyDb} from "../../../libs/errors";
 import {UserCreate} from "../../user/entity/userVar";
 
 export const ErrUserNameAlreadyExists = (userName: string) =>

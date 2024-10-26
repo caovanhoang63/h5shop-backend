@@ -8,6 +8,8 @@ import cors from "cors"
 import mysql from "mysql2"
 import {AppContext} from "./components/appContext/appContext";
 import recovery from "./middlewares/recovery";
+import helmet from "helmet";
+import bodyParser from "body-parser";
 
 dotenv.config();
 const app: Express = express();
@@ -37,11 +39,11 @@ const appContext = new AppContext(pool);
 
 app.use(logger('dev'));
 app.use(cors());
-app.use(express.json());
+app.use(helmet());
+app.use(bodyParser.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
-
 app.use("/v1",v1Router(appContext));
 app.use(recovery)
 

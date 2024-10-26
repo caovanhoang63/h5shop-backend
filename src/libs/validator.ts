@@ -1,7 +1,7 @@
 import {ResultAsync} from "./resultAsync";
 import {ObjectSchema} from "joi";
 import {Err, Ok} from "./result";
-import {InternalError, InvalidData} from "./errors";
+import {newInternalError, newInvalidData} from "./errors";
 
 export const Validator = (validateSchema: ObjectSchema, data: any ) : ResultAsync<void> => {
     return ResultAsync.fromPromise(
@@ -10,11 +10,11 @@ export const Validator = (validateSchema: ObjectSchema, data: any ) : ResultAsyn
               return Ok<void>(undefined)
           }
         ).catch((e : Error) => {
-                return Err<void>(InvalidData(e))
+                return Err<void>(newInvalidData(e))
             }
         ).catch(
             e => {
-                return Err<void>(InternalError(e))
+                return Err<void>(newInternalError(e))
             }
         )
     )

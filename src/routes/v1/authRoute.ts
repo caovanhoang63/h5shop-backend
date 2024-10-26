@@ -5,20 +5,18 @@ import {AuthBiz, IHasher} from "../../modules/auth/biz/biz";
 import {AuthApi} from "../../modules/auth/transport/api/api";
 import CryptoJS from 'crypto-js';
 import {UserLocal} from "../../modules/user/transport/local/local";
+import {Hasher} from "../../libs/hasher";
+import {jwtProvider} from "../../components/jwtProvider/jwtProvider";
 
-class Hasher implements IHasher {
-    hash (value: string, salt: string)  {
-        return CryptoJS.SHA256(CryptoJS.enc.Hex.parse(value + salt)).toString(CryptoJS.enc.Hex);
-    };
-}
 
 
 const  authRouter = (appContext : IAppContext) => {
     const router = express.Router();
+    const appSecret = process.env.APP_SECRET
     const hasher = new Hasher()
     const authRepo = new AuthMysqlRepo(appContext.GetDbConnectionPool());
     const userRepo = new UserLocal(appContext)
-    const authBiz = new AuthBiz(authRepo,hasher,userRepo);
+    const authBiz = new AuthBiz(authRepo,hasher,userRepo, new jwtProvider(appSecret!));
     const authApi = new AuthApi(authBiz)
 
 

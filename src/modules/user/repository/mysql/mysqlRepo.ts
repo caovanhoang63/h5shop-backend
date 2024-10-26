@@ -7,7 +7,6 @@ import {SqlHelper} from "../../../../libs/sqlHelper";
 import {Paging} from "../../../../libs/paging";
 import {ResultAsync} from "../../../../libs/resultAsync";
 import {MysqlErrHandler} from "../../../../libs/mysqlErrHandler";
-import {DBError} from "../../../../libs/errors";
 
 export class UserMysqlRepo {
     private readonly pool: mysql.Pool;
@@ -21,8 +20,8 @@ export class UserMysqlRepo {
             [u.firstName,u.lastName,u.systemRole.toString()],
         ).then(
             ([r,f]) => {
-                const a = r as ResultSetHeader
-                u.id = a.insertId;
+                const header = r as ResultSetHeader
+                u.id = header.insertId;
                 return Ok<void>(undefined);
             }
         ).catch((err : any) => {
@@ -31,8 +30,9 @@ export class UserMysqlRepo {
     }
 
     public FindByCondition = (cond: ICondition, paging: Paging): ResultAsync<User[]> => {
-        const [whereClause, values] = SqlHelper.BuildWhereClause(cond)
+        const [whereClause, values] = SqlHelper.buildWhereClause(cond)
         const query = `SELECT * FROM user ${whereClause}`;
+        this.pool.query(query,)
         return ResultAsync.fromPromise(
             this.pool.promise().query(query, values).then(
                 ([r, f]) => {
@@ -41,10 +41,8 @@ export class UserMysqlRepo {
                     if (rows && rows.length > 0){
                         data.push( SqlHelper.toCamelCase(rows[0]) as User);
                         paging.total = rows.length;
-                        return Ok(data)
-                    } else {
-                        return Ok([])
                     }
+                    return Ok(data)
                 }
             ).catch((err : any) => {
                 return Err<User[]>(MysqlErrHandler.handler(err,UserEntityName))

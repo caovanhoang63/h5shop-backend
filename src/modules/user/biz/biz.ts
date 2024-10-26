@@ -1,6 +1,6 @@
 import {UserCreate, userCreateSchema} from "../entity/userVar";
 import {Ok} from "../../../libs/result";
-import {ErrDbKey, InternalError} from "../../../libs/errors";
+import {ErrKeyDb, newInternalError} from "../../../libs/errors";
 import {ICondition} from "../../../libs/condition";
 import {Paging} from "../../../libs/paging";
 import {User} from "../entity/user";

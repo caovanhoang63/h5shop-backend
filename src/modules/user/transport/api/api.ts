@@ -8,6 +8,7 @@ import {AppResponse} from "../../../../libs/response";
 import {ICondition} from "../../../../libs/condition";
 import {Paging} from "../../../../libs/paging";
 import {ResultAsync} from "../../../../libs/resultAsync";
+import {writeErrorResponse} from "../../../../libs/writeErrorResponse";
 
 interface IUserBiz {
     CreateNewUser:  (u : UserCreate) => ResultAsync<any>
@@ -27,16 +28,15 @@ export class UserApi {
         };
         const result = await  this.userBiz.CreateNewUser(data);
         if (result.isErr() ){
-            res.status(result.error!.code).send(AppResponse.ErrorResponse(result.error!));
+            writeErrorResponse(res,result.error)
             return
         }
         res.send(AppResponse.SimpleResponse(true))
     }
     public ListUsers : express.Handler = async (req, res, next)=> {
         const result = await this.userBiz.ListUsers()
-        if (result.error != null ){
-            console.log(result.error)
-            res.status(result.error.code).send(AppResponse.ErrorResponse(result.error));
+        if (result.isErr() ){
+            writeErrorResponse(res,result.error)
             return
         }
         res.send(AppResponse.SimpleResponse(result.data))
