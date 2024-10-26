@@ -5,6 +5,7 @@ import {Message, Topic} from "../components/pubsub";
 import EventEmitter from "node:events";
 import {TopicTest} from "../libs/topics";
 
+//TODO:  Implement retry feature
 type Handler = (m : Message) => ResultAsync<void>;
 
 export class SubscriberEngine {
