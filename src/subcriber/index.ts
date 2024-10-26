@@ -10,7 +10,7 @@ type Handler = (m : Message) => ResultAsync<void>;
 export class SubscriberEngine {
     private readonly subscribers: Map<Topic, {
         messages: Message[],
-        handler: Handler,
+        handler: Handler[],
         emitter: EventEmitter,
         cleanup: () => void
     }[]> = new Map();
@@ -24,14 +24,24 @@ export class SubscriberEngine {
                 console.log("Subscriber engine started!");
 
 
-                await this.subscribe(TopicTest,(m : Message) : ResultAsync<void> => {
-                    return ResultAsync.fromPromise(
-                        (async () => {
-                            console.log("Subcriber1")
-                            return Ok()
-                        })()
+                await this.subscribe(TopicTest,
+                    (m : Message) : ResultAsync<void> => {
+                        return ResultAsync.fromPromise(
+                            (async () => {
+                                console.log(m.id)
+                                return Ok()
+                            })()
+                        )
+                    },
+                    (m : Message) : ResultAsync<void> => {
+                        return ResultAsync.fromPromise(
+                            (async () => {
+                                console.log(m.id)
+                                return Ok()
+                            })()
+                        )
+                    },
                     )
-                })
 
                 await this.subscribe(TopicTest+"1",(m : Message) : ResultAsync<void> => {
                     return ResultAsync.fromPromise(
@@ -42,15 +52,7 @@ export class SubscriberEngine {
                         })()
                     )
                 })
-                await this.subscribe(TopicTest,(m : Message) : ResultAsync<void> => {
-                    return ResultAsync.fromPromise(
-                        (async () => {
-                            console.log("Subcriber2")
 
-                            return Ok()
-                        })()
-                    )
-                })
 
 
 
@@ -59,19 +61,19 @@ export class SubscriberEngine {
         );
     }
 
-    public subscribe = (topic: Topic, handler: Handler): ResultAsync<void> => {
+    public subscribe = (topic: Topic, ...handler: Handler[]): ResultAsync<void> => {
 
         return ResultAsync.fromPromise(
             (async () => {
 
-                const result = await this.startSubTopic(topic, handler);
+                const result = await this.startSubTopic(topic, ...handler);
 
                 return Ok<void>();
             })()
         );
     }
 
-    private startSubTopic = (topic: Topic, handler: Handler): ResultAsync<() => void>  =>  {
+    private startSubTopic = (topic: Topic, ...handlers: Handler[]): ResultAsync<() => void>  =>  {
         return ResultAsync.fromPromise(
             (async () => {
                 // Subscribe to the topic
@@ -86,7 +88,9 @@ export class SubscriberEngine {
                     while (messages.length > 0) {
                         const message = messages.shift()!;
                         try {
-                            handler(message);
+                            for(const handler of handlers) {
+                                handler(message);
+                            }
                         } catch (error) {
                             console.error(`Error processing message for topic ${topic}:`, error);
                         }
@@ -110,7 +114,7 @@ export class SubscriberEngine {
 
                 const subscriberInfo = {
                     messages,
-                    handler,
+                    handler: handlers,
                     emitter,
                     cleanup: unsubscribe
                 };
