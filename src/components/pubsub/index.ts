@@ -1,7 +1,9 @@
 type Topic = string;
 
 type Message = {
+    id: string;
     data: any;
+    topic: Topic;
 }
 
 interface IPubSub {

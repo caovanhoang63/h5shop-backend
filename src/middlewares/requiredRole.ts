@@ -11,7 +11,6 @@ const requiredRole = (appCtx: IAppContext, ...roles: SystemRole[]): express.Hand
     const userRepo = new UserMysqlRepo(appCtx.GetDbConnectionPool());
     const userBiz = new UserBiz(userRepo);
 
-
     return async (req, res, next) => {
         const requester = res.locals[RequesterKey] as Requester;
         if (!requester) {
