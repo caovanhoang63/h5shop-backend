@@ -1,14 +1,16 @@
-type Topic = string;
+import {ResultAsync} from "../../libs/resultAsync";
 
-type Message = {
+export type Topic = string;
+
+export type Message = {
     id: string;
     data: any;
     topic: Topic;
 }
 
-interface IPubSub {
-    Publish: (topic: Topic, message: Message) => void;
-    Subscribe: (topic: Topic) => Message[];
+export interface IPubSub {
+    Publish: (topic: Topic, message: Message) =>  ResultAsync<never>;
+    Subscribe: (topic: Topic) =>  ResultAsync<[Message[],() => void]> ;
 }
 
 

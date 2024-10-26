@@ -10,6 +10,8 @@ import {AppContext} from "./components/appContext/appContext";
 import recovery from "./middlewares/recovery";
 import helmet from "helmet";
 import bodyParser from "body-parser";
+import {LocalPubSub} from "./components/pubsub/local";
+import {SubscriberEngine} from "./subcriber";
 
 dotenv.config();
 const app: Express = express();
@@ -34,8 +36,14 @@ try {
     throw e;
 }
 
+const localPubsub = new LocalPubSub();
+const appContext = new AppContext(pool,localPubsub);
+const subcriberEngine = new SubscriberEngine(appContext);
 
-const appContext = new AppContext(pool);
+(async () => {
+    await localPubsub.Serve()
+    await subcriberEngine.run();
+})()
 
 app.use(logger('dev'));
 app.use(cors());
