@@ -110,6 +110,18 @@ CREATE TABLE `spu`
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4;
 
+
+DROP TABLE IF EXISTS `spu_to_provider`;
+CREATE TABLE `spu_to_provider`
+(
+    `provider_id` INT NOT NULL,
+    `spu_id`      INT NOT NULL,
+    `created_at`  TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (`provider_id`, `spu_id`) USING BTREE,
+    KEY `spu_id` (`spu_id`) USING BTREE
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4;
+
 -- 1 to n
 DROP TABLE IF EXISTS `category_to_spu`;
 CREATE TABLE `category_to_spu`
@@ -117,7 +129,8 @@ CREATE TABLE `category_to_spu`
     `category_id` INT NOT NULL,
     `spu_id`      INT NOT NULL,
     `created_at`  TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    PRIMARY KEY (`category_id`, `spu_id`) USING BTREE
+    PRIMARY KEY (`category_id`, `spu_id`) USING BTREE,
+    KEY `spu_id` (`spu_id`) USING BTREE
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4;
 
@@ -143,29 +156,51 @@ DROP TABLE IF EXISTS `sku`;
 CREATE TABLE `sku`
 (
     `id`         INT            NOT NULL AUTO_INCREMENT,
-    `sku_no`     VARCHAR(32)    NOT NULL, -- {spu-id}{attr1}{attr2}.....
-    `spu_id`     INT            NOT NULL,
+    `sku_no`     VARCHAR(32)    NOT NULL, -- {provider_id}{spu-id}{attr1}{attr2}.....
     `images`     JSON,
-    `price`      DECIMAL(19, 5) NOT NULL DEFAULT 0,
+    `price`      DECIMAL(15, 2) NOT NULL DEFAULT 0,
     `stock`      INT            NOT NULL DEFAULT 0,
     `status`     INT                     DEFAULT 1,
     `created_at` TIMESTAMP               DEFAULT CURRENT_TIMESTAMP,
     `updated_at` TIMESTAMP               DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     PRIMARY KEY (`id`) USING BTREE,
     KEY `status` (`status`) USING BTREE,
-    KEY `sku_no` (`sku_no`) USING BTREE,
-    KEY `spu_id` (`spu_id`) USING BTREE
+    KEY `sku_no` (`sku_no`) USING BTREE
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4;
+
+DROP TABLE IF EXISTS `sku_wholesale_prices`;
+CREATE TABLE `sku_wholesale_prices`
+(
+    `id`           INT            NOT NULL AUTO_INCREMENT,
+    `sku_id`       INT            NOT NULL,
+    `min_quantity` INT            NOT NULL COMMENT 'Số lượng tối thiểu',
+    `price`        DECIMAL(15, 2) NOT NULL COMMENT 'Giá bán sỉ',
+    PRIMARY KEY (`id`),
+    KEY `sku_id` (`sku_id`) USING BTREE
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4;
+
+DROP TABLE IF EXISTS `sku_to_spu`;
+CREATE TABLE `sku_to_spu`
+(
+    `spu_id`     INT NOT NULL,
+    `sku_id`     INT NOT NULL,
+    `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (`spu_id`, `sku_id`) USING BTREE,
+    KEY `sku_id` (`sku_id`) USING BTREE
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4;
+
 
 DROP TABLE IF EXISTS `sku_to_attr`;
 CREATE TABLE `sku_to_attr`
 (
-    `attr_id`    INT NOT NULL,
-    `sku_id`     INT NOT NULL,
-    `status`     INT       DEFAULT 1,
-    `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    PRIMARY KEY (`attr_id`, `sku_id`) USING BTREE,
+    `sku_attr_id` INT NOT NULL,
+    `sku_id`      INT NOT NULL,
+    `status`      INT       DEFAULT 1,
+    `created_at`  TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (`sku_attr_id`, `sku_id`) USING BTREE,
     KEY `status` (`status`) USING BTREE
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4;
@@ -236,18 +271,67 @@ CREATE TABLE `inventory_report_detail`
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4;
 
+# STOCK OUT
+DROP TABLE IF EXISTS `stock_out`;
+CREATE TABLE `stock_out`
+(
+    `id`                  INT NOT NULL AUTO_INCREMENT,
+    `warehouse_men`       INT NOT NULL,
+    `stock_out_reason_id` INT NOT NULL,
+    `status`              INT       DEFAULT 1,
+    `updated_at`          TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    `created_at`          TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (`id`),
+    KEY `status` (`status`) USING BTREE,
+    KEY `warehouse_men` (`warehouse_men`) USING BTREE,
+    KEY `stock_out_reason_id` (`stock_out_reason_id`) USING BTREE
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4;
+
+DROP TABLE IF EXISTS `stock_out_reason`;
+CREATE TABLE `stock_out_reason`
+(
+    `id`          INT          NOT NULL AUTO_INCREMENT,
+    `name`        VARCHAR(255) NOT NULL,
+    `description` TEXT,
+    `status`      INT       DEFAULT 1,
+    `updated_at`  TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    `created_at`  TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (`id`),
+    KEY `status` (`status`) USING BTREE
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4;
+
+DROP TABLE IF EXISTS `stock_out_detail`;
+CREATE TABLE `stock_out_detail`
+(
+    `id`           INT NOT NULL AUTO_INCREMENT,
+    `stock_out_id` INT NOT NULL,
+    `sku_id`       INT NOT NULL,
+    `amount`       INT NOT NULL DEFAULT 1,
+    `updated_at`   TIMESTAMP    DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    `created_at`   TIMESTAMP    DEFAULT CURRENT_TIMESTAMP,
+    `status`       INT          DEFAULT 1,
+    PRIMARY KEY (`id`),
+    KEY `status` (`status`) USING BTREE,
+    KEY `stock_out_id` (`stock_out_id`) USING BTREE,
+    KEY `sku_id` (`sku_id`)
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4;
+
+
 # WARRANTY
 DROP TABLE IF EXISTS `warranty_form`;
 CREATE TABLE `warranty_form`
 (
-    `id`         INT NOT NULL AUTO_INCREMENT,
-    `sku_id`     INT NOT NULL,
-    `amount`     INT NOT NULL DEFAULT 0,
-    `status`     INT          DEFAULT 1,
-    `created_at` TIMESTAMP    DEFAULT CURRENT_TIMESTAMP,
-    `updated_at` TIMESTAMP    DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    `id`            INT NOT NULL AUTO_INCREMENT,
+    `order_item_id` INT NOT NULL,
+    `amount`        INT NOT NULL DEFAULT 0,
+    `status`        INT          DEFAULT 1,
+    `created_at`    TIMESTAMP    DEFAULT CURRENT_TIMESTAMP,
+    `updated_at`    TIMESTAMP    DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     PRIMARY KEY (`id`),
-    KEY `sku_id` (`sku_id`) USING BTREE,
+    KEY `order_item_id` (`order_item_id`) USING BTREE,
     KEY `status` (`status`) USING BTREE
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4;
@@ -257,12 +341,13 @@ CREATE TABLE `warranty_form`
 DROP TABLE IF EXISTS `order`;
 CREATE TABLE `order`
 (
-    `id`          INT NOT NULL AUTO_INCREMENT,
-    `customer_id` INT NOT NULL,
-    `seller_id`   INT NOT NULL, # Reference to user_id
-    `status`      INT       DEFAULT 1,
-    `created_at`  TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    `updated_at`  TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    `id`          INT                          NOT NULL AUTO_INCREMENT,
+    `customer_id` INT                          NOT NULL,
+    `seller_id`   INT                          NOT NULL, # Reference to user_id
+    `status`      INT                                   DEFAULT 1,
+    `order_type`  ENUM ('retail', 'wholesale') NOT NULL DEFAULT 'retail',
+    `created_at`  TIMESTAMP                             DEFAULT CURRENT_TIMESTAMP,
+    `updated_at`  TIMESTAMP                             DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     PRIMARY KEY (`id`),
     KEY `status` (`status`) USING BTREE,
     KEY `customer_id` (`customer_id`) USING BTREE,
@@ -270,14 +355,17 @@ CREATE TABLE `order`
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4;
 
-DROP TABLE IF EXISTS `order_detail`;
-CREATE TABLE `order_detail`
+DROP TABLE IF EXISTS `order_item`;
+CREATE TABLE `order_item`
 (
-    `order_id`   INT NOT NULL,
-    `sku_id`     INT NOT NULL,
-    `amount`     INT NOT NULL DEFAULT 1,
-    `created_at` TIMESTAMP    DEFAULT CURRENT_TIMESTAMP,
-    PRIMARY KEY (`order_id`, `sku_id`),
+    `id`         BIGINT NOT NULL,
+    `order_id`   INT    NOT NULL,
+    `sku_id`     INT    NOT NULL,
+    `amount`     INT    NOT NULL DEFAULT 1,
+    `unit_price` DECIMAL(15, 2)  DEFAULT 0,
+    `created_at` TIMESTAMP       DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (`id`),
+    UNIQUE KEY (`order_id`, `sku_id`) USING BTREE,
     KEY `sku_id` (`sku_id`) USING BTREE
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4;
@@ -324,8 +412,8 @@ CREATE TABLE `payment`
 #     `id` int not null auto_increment,
 #     `payment_id` int not null,
 #     `account_id` int not null,
-#     `debit` decimal(19,4) ,
-#     `credit` decimal(19,4),
+#     `debit` DECIMAL(15,2) ,
+#     `credit` DECIMAL(15,2),
 #     `currency` VARCHAR(3),
 #     `status` int NOT NULL DEFAULT '1',
 #     `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
