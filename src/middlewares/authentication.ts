@@ -31,6 +31,8 @@ export const authentication = (appCtx : IAppContext) : express.Handler =>  {
     const hasher = new Hasher()
     const appSecret = process.env.SYSTEM_SECRET
     const authBiz = new AuthBiz(authRepo,hasher,userRepo,new jwtProvider(appSecret!));
+
+
     return async (req: express.Request, res: express.Response, next: express.NextFunction) => {
         const authHeader = req.header("Authorization")
         const rT = getTokenString(authHeader)
@@ -38,14 +40,13 @@ export const authentication = (appCtx : IAppContext) : express.Handler =>  {
             writeErrorResponse(res,rT.error)
             return
         }
-        const r = await authBiz.IntrospectToken(authHeader!);
+        const r = await authBiz.IntrospectToken(rT.data!);
         if (r.isErr() ){
             writeErrorResponse(res,r.error)
             return
         }
-
-        res.locals[RequesterKey] = r.data
-
+        console.log("data",r.data)
+        res.locals.requester = r.data
         next()
     }
 }

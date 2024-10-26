@@ -21,7 +21,7 @@ CREATE TABLE `user` (
     `id` int NOT NULL AUTO_INCREMENT,
     `phone_number` VARCHAR(20),
     `user_name` VARCHAR(255) NOT NULL UNIQUE ,
-    `email` varchar(255)  NOT NULL  UNIQUE,
+    `email` varchar(255) UNIQUE,
     `address` VARCHAR(255),
     `first_name` VARCHAR(255) NOT NULL ,
     `last_name` VARCHAR(255) NOT NULL ,

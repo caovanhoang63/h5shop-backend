@@ -1,20 +1,20 @@
 import {AuthCreate, AuthLogin, TokenResponse} from "../entity/authVar";
-import {Err, Ok, Result} from "../../../libs/result";
+import {Err, Ok} from "../../../libs/result";
 import {Auth} from "../entity/auth";
-import {errAsync, okAsync, ResultAsync} from "../../../libs/resultAsync";
-import {AppError, ErrKeyDb, newInternalError} from "../../../libs/errors";
+import {ResultAsync} from "../../../libs/resultAsync";
+import {AppError} from "../../../libs/errors";
 import {ErrInvalidCredentials, ErrUserNameAlreadyExists} from "../entity/error";
 import {randomSalt} from "../../../libs/salt";
-import {SystemRole, User} from "../../user/entity/user";
+import {SystemRole} from "../../user/entity/user";
 import {Nullable} from "../../../libs/nullable";
 import {authCreateSchema, authLoginSchema} from "../entity/validate";
 import {Validator} from "../../../libs/validator";
 import {Requester} from "../../../libs/requester";
 import {
-    defaultExpireAccessTokenInSeconds, defaultExpireRefreshTokenInSeconds,
+    defaultExpireAccessTokenInSeconds,
+    defaultExpireRefreshTokenInSeconds,
     JwtClaim,
-    JwtProvider,
-    jwtProvider
+    JwtProvider
 } from "../../../components/jwtProvider/jwtProvider";
 import {randomUUID} from "node:crypto";
 
@@ -43,15 +43,16 @@ export class AuthBiz {
             (async () => {
                 const rP = this.jwtProvider.ParseToken(token);
                 if (rP.isErr()) {
-                    return Err<Requester>(null)
+                    return Err<Requester>(rP.error)
                 }
                 const claim = rP.data as JwtClaim
 
-                const userId = parseInt(claim.sub,64)
+                const userId = parseInt(claim.sub)
                 const uR =  await this.authRepo.FindByUserId(userId)
                 if (uR.isErr()) {
                     return Err<Requester>(uR.error)
                 }
+
 
                 const requester : Requester = {
                     requestId: claim.id,
@@ -122,10 +123,10 @@ export class AuthBiz {
 
                 // Generate token
                 const [accessToken,accessExp] = this.jwtProvider
-                    .IssueToken(randomUUID(),uR.data.userName, defaultExpireAccessTokenInSeconds)
+                    .IssueToken(randomUUID(),uR.data.userId.toString(), defaultExpireAccessTokenInSeconds)
 
                 const [refreshToken,refreshRxp] =  this.jwtProvider
-                    .IssueToken(randomUUID(),uR.data.userName, defaultExpireRefreshTokenInSeconds)
+                    .IssueToken(randomUUID(),uR.data.userId.toString(), defaultExpireRefreshTokenInSeconds)
 
                 return Ok<TokenResponse>(
                     {

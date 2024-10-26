@@ -43,7 +43,7 @@ export class AuthMysqlRepo {
 
 
     FindByUserId =  (userId: number ) :ResultAsync<Auth> => {
-        const query = `SELECT * FROM auth WHERE id = ? LIMIT 1`;
+        const query = `SELECT * FROM auth WHERE user_id = ? LIMIT 1`;
         return ResultAsync.fromPromise(this.pool.promise().query(query,[userId],)
             .then(([r,f]) => {
                 const a = r as RowDataPacket[]

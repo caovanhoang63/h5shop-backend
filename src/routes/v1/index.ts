@@ -2,6 +2,7 @@ import express from "express";
 import usersRouter from "./userRoute";
 import {IAppContext} from "../../components/appContext/appContext";
 import authRouter from "./authRoute";
+import authentication from "../../middlewares/authentication";
 
 const v1Router = (appCtx : IAppContext) => {
     const router = express.Router();

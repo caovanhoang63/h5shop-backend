@@ -39,3 +39,9 @@ export const newUnauthorized = (e? :any ) =>
 export const ErrKeyForbidden = "FORBIDDEN_ERROR"
 export const newForbidden = (e? :any ) =>
     new AppError(e,"Forbidden",ErrKeyForbidden,403)
+
+
+
+export const ErrKeyEntityNotFound = "ENTITY_NOT_FOUND_ERROR"
+export const newEntityNotFound = ( entityName : string, e? :any ,) =>
+    new AppError(e,`${entityName} not found`,ErrKeyEntityNotFound,404)

@@ -7,6 +7,7 @@ import {SqlHelper} from "../../../../libs/sqlHelper";
 import {Paging} from "../../../../libs/paging";
 import {ResultAsync} from "../../../../libs/resultAsync";
 import {MysqlErrHandler} from "../../../../libs/mysqlErrHandler";
+import {Auth} from "../../../auth/entity/auth";
 
 export class UserMysqlRepo {
     private readonly pool: mysql.Pool;
@@ -28,6 +29,26 @@ export class UserMysqlRepo {
             return Err<void>(MysqlErrHandler.handler(err,UserEntityName))
         }))
     }
+
+    public FindByUserId = (id : number):  ResultAsync<User> => {
+        const query = `SELECT * FROM user WHERE id = ? LIMIT 1`;
+        return ResultAsync.fromPromise(this.pool.promise().query(query,[id],)
+            .then(([r,f]) => {
+                const a = r as RowDataPacket[]
+                if (a.length <= 0 ) {
+                    return Ok<User>(null)
+                }
+                const data : User = SqlHelper.toCamelCase(a[0]);
+                return Ok<User>(data)
+
+            })
+            .catch(
+                e =>  Err<User>(e)
+            )
+        )
+
+    }
+
 
     public FindByCondition = (cond: ICondition, paging: Paging): ResultAsync<User[]> => {
         const [whereClause, values] = SqlHelper.buildWhereClause(cond)

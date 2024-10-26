@@ -1,15 +1,15 @@
 import {Nullable} from "./nullable";
-import {AppError} from "./errors";
+import {AppError, newInternalError} from "./errors";
 import {Paging} from "./paging";
 
 export class Result<T> {
-    constructor(value? : Nullable<T>, err? : Nullable<AppError>) {
+    constructor(value : Nullable<T>, err : Nullable<AppError>) {
         this.data = value;
-        this.error =err;
+        this.error = err;
     }
 
-    error?: Nullable<AppError>;
-    data?: Nullable<T>;
+    error: Nullable<AppError>;
+    data: Nullable<T>;
 
     public wrap(error: AppError): Result<T>  {
         this.error ? this.error.error = error : this.error = error;
@@ -32,14 +32,22 @@ export class Result<T> {
     }
 
     public isOk(): boolean {
-        return !this.error
+        return this.error === null
     }
 
     public isErr(): boolean {
-        return !!this.error
+        return this.error !== null
     }
 }
 
-export const Ok = <T>(value?: Nullable<T> ): Result<T> => new Result<T>(value)
-export const Err = <T>(err? : Nullable<AppError>): Result<T> => new Result<T>(null, err )
-
+export const Ok = <T>(value?: Nullable<T> ): Result<T> => {
+    if (!value) {
+        return new Result<T>(null,null)
+    }
+    return new Result<T>(value,null)
+}
+export const Err = <T>(err? : Nullable<AppError>): Result<T> => {
+    if (!err)
+        return new Result<T>(null, newInternalError(err))
+    return new Result<T>(null, err )
+}
