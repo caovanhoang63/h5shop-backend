@@ -258,6 +258,7 @@ DROP TABLE IF EXISTS `inventory_report_detail`;
 CREATE TABLE `inventory_report_detail`
 (
     `id`            INT     NOT NULL AUTO_INCREMENT,
+    `inventory_report_id` INT  NOT NULL ,
     `sku_id`        INT     NOT NULL,
     `amount`        INT     NOT NULL,
     `inventory_dif` INT     NOT NULL DEFAULT 0,
@@ -267,7 +268,8 @@ CREATE TABLE `inventory_report_detail`
     PRIMARY KEY (`id`),
     KEY `status` (`status`) USING BTREE,
     KEY `sku_id` (`sku_id`) USING BTREE,
-    KEY `is_true` (`is_true`) USING BTREE
+    KEY `is_true` (`is_true`) USING BTREE,
+    KEY `inventory_report_id` (`inventory_report_id`) USING BTREE
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4;
 
