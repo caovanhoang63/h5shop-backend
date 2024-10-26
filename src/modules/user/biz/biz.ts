@@ -44,7 +44,7 @@ export class UserBiz  {
                 }
 
                 if (!uR.data) {
-                    return uR.wrapBy(newEntityNotFound)
+                    return uR.wrapErr(newEntityNotFound)
                 }
                 const data = uR.data
 

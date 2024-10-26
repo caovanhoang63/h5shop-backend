@@ -15,15 +15,11 @@ export class Result<T> {
         return this
     }
 
-    public wrapBy(fn : (e: any) => AppError): Result<T>  {
+    public wrapErr(fn : (...e: any[]) => AppError): Result<T>  {
         const err = fn(this.error)
         err.error = err
         this.error = err
         return this
-    }
-
-    public isSameErr(Err:AppError) : boolean {
-        return this.error?.code === Err.code
     }
 
     public errIs(key : string) : boolean {
