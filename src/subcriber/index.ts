@@ -1,10 +1,11 @@
 import {ResultAsync} from "../libs/resultAsync";
-import {Ok, Result} from "../libs/result";
+import {Ok} from "../libs/result";
 import {IAppContext} from "../components/appContext/appContext";
 import {Message, Topic} from "../components/pubsub";
 import EventEmitter from "node:events";
+import {TopicTest} from "../libs/topics";
 
-type Handler = (m : Message) => ResultAsync<never>;
+type Handler = (m : Message) => ResultAsync<void>;
 
 export class SubscriberEngine {
     private readonly subscribers: Map<Topic, {
@@ -21,15 +22,50 @@ export class SubscriberEngine {
                 // The run method now just ensures the engine is ready
                 // and returns a never-resolving promise to keep the service running
                 console.log("Subscriber engine started!");
+
+
+                await this.subscribe(TopicTest,(m : Message) : ResultAsync<void> => {
+                    return ResultAsync.fromPromise(
+                        (async () => {
+                            console.log("Subcriber1")
+                            return Ok()
+                        })()
+                    )
+                })
+
+                await this.subscribe(TopicTest+"1",(m : Message) : ResultAsync<void> => {
+                    return ResultAsync.fromPromise(
+                        (async () => {
+                            console.log("Subcriber123")
+
+                            return Ok()
+                        })()
+                    )
+                })
+                await this.subscribe(TopicTest,(m : Message) : ResultAsync<void> => {
+                    return ResultAsync.fromPromise(
+                        (async () => {
+                            console.log("Subcriber2")
+
+                            return Ok()
+                        })()
+                    )
+                })
+
+
+
                 return new Promise<never>(() => {});
             })()
         );
     }
 
     public subscribe = (topic: Topic, handler: Handler): ResultAsync<void> => {
+
         return ResultAsync.fromPromise(
             (async () => {
+
                 const result = await this.startSubTopic(topic, handler);
+
                 return Ok<void>();
             })()
         );
@@ -108,7 +144,7 @@ export class SubscriberEngine {
         return this.subscribers.get(topic)?.length || 0;
     }
 
-    // Optional: Method to cleanup all subscriptions
+    // Optional: Method to clean up all subscriptions
     public cleanup(): ResultAsync<void> {
         return ResultAsync.fromPromise(
             (async () => {

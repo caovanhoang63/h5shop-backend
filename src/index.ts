@@ -40,10 +40,15 @@ const localPubsub = new LocalPubSub();
 const appContext = new AppContext(pool,localPubsub);
 const subcriberEngine = new SubscriberEngine(appContext);
 
+
+
+(async () => {
+    await subcriberEngine.run();
+})();
+
 (async () => {
     await localPubsub.Serve()
-    await subcriberEngine.run();
-})()
+})();
 
 app.use(logger('dev'));
 app.use(cors());

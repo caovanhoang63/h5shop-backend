@@ -55,6 +55,7 @@ export class LocalPubSub implements IPubSub {
     public Publish(topic: Topic, message: Message): ResultAsync<never> {
         return ResultAsync.fromPromise(
             (async () => {
+                console.log("Publish", message.id)
                 const release = await this.lock.acquire();
                 try {
                     message.topic = topic;
@@ -72,6 +73,7 @@ export class LocalPubSub implements IPubSub {
         const messages: Message[] = [];
         return ResultAsync.fromPromise(
             (async () => {
+                console.log("Subscribe", topic);
                 const release = await this.lock.acquire();
                 try {
                     if (!this.channelMap[topic]) {
