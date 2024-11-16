@@ -1,23 +1,19 @@
 import {UserCreate, userCreateSchema} from "../entity/userVar";
 import {AppError, newEntityNotFound, newForbidden} from "../../../libs/errors";
-import {ICondition} from "../../../libs/condition";
 import {Paging} from "../../../libs/paging";
-import {SystemRole, User} from "../entity/user";
+import {SystemRole} from "../entity/user";
 import {Validator} from "../../../libs/validator";
 import {Requester} from "../../../libs/requester";
 import {errAsync, ok, ResultAsync} from "neverthrow";
+import {IUserRepository} from "../repository/IUserRepository";
+import {IUserBiz} from "./IUserBiz";
 
-interface IUserRepository {
-    Create: (u: UserCreate) => ResultAsync<void,AppError>
-    FindByCondition: (condition: ICondition, paging: Paging) => ResultAsync<User[],AppError>
-    FindByUserId: (id: number) => ResultAsync<User | null,AppError>
-}
 
-export class UserBiz {
+export class UserService  implements  IUserBiz{
     constructor(private readonly userRepository: IUserRepository) {
     }
 
-    public CreateNewUser = (u: UserCreate) : ResultAsync<void, AppError> => {
+    public createNewUser = (u: UserCreate): ResultAsync<void, AppError> => {
         return ResultAsync.fromPromise(
             (async () => {
                 const vR = (await Validator(userCreateSchema, u))
@@ -34,7 +30,7 @@ export class UserBiz {
         ).andThen(r => r);
     }
 
-    public RequiredRole = (r: Requester, ...roles: SystemRole[]) => {
+    public requiredRole = (r: Requester, ...roles: SystemRole[]) => {
         return ResultAsync.fromPromise(
             (async () => {
                 const uR = await this.userRepository.FindByUserId(r.userId);
@@ -59,14 +55,13 @@ export class UserBiz {
         )
     }
 
-    public ListUsers = () => {
+    public listUsers = () => {
         const cond = {}
 
         const paging: Paging = {
             cursor: 0, limit: 0, nextCursor: 0, page: 0, total: 0
 
         }
-
         return this.userRepository.FindByCondition(cond, paging)
 
     }

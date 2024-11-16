@@ -4,7 +4,7 @@ import EventEmitter from "node:events";
 import {AppError} from "../../../libs/errors";
 import {ok, ResultAsync} from "neverthrow";
 
-interface IQueueMap  {
+interface IQueueMap {
     [topic: string]: Message[][];
 }
 
@@ -39,7 +39,7 @@ export class LocalPubSub implements IPubSub {
         }
     }
 
-    public Serve(): ResultAsync<void,AppError> {
+    public Serve(): ResultAsync<void, AppError> {
         return ResultAsync.fromPromise(
             (async () => {
                 if (!this.isServing) {
@@ -47,13 +47,14 @@ export class LocalPubSub implements IPubSub {
                     console.log("Local pubsub started!");
                 }
                 // This promise never resolves, keeping the service running
-                return new Promise<never>(() => {});
+                return new Promise<never>(() => {
+                });
             })(),
             e => e as AppError,
         ).andThen(r => r);
     }
 
-    public Publish(topic: Topic, message: Message): ResultAsync<void,AppError> {
+    public Publish(topic: Topic, message: Message): ResultAsync<void, AppError> {
         return ResultAsync.fromPromise(
             (async () => {
                 console.log("Publish", message.id)
@@ -71,7 +72,7 @@ export class LocalPubSub implements IPubSub {
         ).andThen(r => r);
     }
 
-    public Subscribe(topic: Topic): ResultAsync<[Message[], () => void],AppError> {
+    public Subscribe(topic: Topic): ResultAsync<[Message[], () => void], AppError> {
         const messages: Message[] = [];
         return ResultAsync.fromPromise(
             (async () => {
@@ -103,6 +104,6 @@ export class LocalPubSub implements IPubSub {
                 ]);
             })(),
             e => e as AppError
-        ).andThen( r => r);
+        ).andThen(r => r);
     }
 }

@@ -4,7 +4,7 @@ generator client {
 }
 
 datasource db {
-  provider = "mysql"
+  provider = "implementation"
   url      = env("DATABASE_URL")
 }
 

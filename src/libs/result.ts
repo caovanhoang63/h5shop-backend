@@ -32,12 +32,12 @@ export class Result<T> {
 }
 
 export const Ok = <T>(value?: T): Result<T> => {
-    const a=  new Result<T>()
+    const a = new Result<T>()
     a.data = value
     return a
 }
 export const Err = <T>(err?: Nullable<AppError>): Result<T> => {
-    const a=  new Result<T>()
+    const a = new Result<T>()
     a.error = newInternalError(err)
     return a
 }

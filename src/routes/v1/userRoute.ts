@@ -1,5 +1,5 @@
 // import express from "express";
-// import {UserBiz} from "../../modules/user/biz/biz";
+// import {UserBiz} from "../../modules/user/service/service";
 // import {UserApi} from "../../modules/user/transport/api/api";
 // import {IAppContext} from "../../components/appContext/appContext";
 // import authentication from "../../middlewares/authentication";

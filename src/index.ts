@@ -12,12 +12,10 @@ import helmet from "helmet";
 import bodyParser from "body-parser";
 import {LocalPubSub} from "./components/pubsub/local";
 import {SubscriberEngine} from "./subcriber";
-import {prisma} from "./components/prisma";
 
 dotenv.config();
 const app: Express = express();
 const port = process.env.PORT || 3000;
-
 
 const pool = mysql.createPool({
     host: process.env.MYSQL_HOST,
@@ -38,7 +36,7 @@ try {
 }
 
 const localPubsub = new LocalPubSub();
-const appContext = new AppContext(pool,localPubsub);
+const appContext = new AppContext(pool, localPubsub);
 const subcriberEngine = new SubscriberEngine(appContext);
 
 
@@ -59,9 +57,6 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 app.use("/v1", v1Router(appContext));
 app.use(recovery)
-
-
-
 
 
 app.listen(port, () => {

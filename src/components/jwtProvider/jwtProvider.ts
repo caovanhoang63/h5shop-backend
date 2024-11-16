@@ -4,7 +4,7 @@ import {Nullable} from "../../libs/nullable";
 import {err, ok, Result} from "neverthrow";
 
 export interface JwtProvider {
-    ParseToken: (token: string) =>  Result<Nullable<JwtClaim>,AppError>
+    ParseToken: (token: string) => Result<Nullable<JwtClaim>, AppError>
     IssueToken: (id: string, sub: string, expiredTime: number) => [string, number]
 }
 
@@ -29,7 +29,7 @@ export class jwtProvider implements JwtProvider {
 
     }
 
-    ParseToken = (token: string): Result<Nullable<JwtClaim>,AppError> => {
+    ParseToken = (token: string): Result<Nullable<JwtClaim>, AppError> => {
         try {
             const claim = jwt.verify(token, this._secret) as JwtClaim
             return ok(claim)

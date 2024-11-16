@@ -5,33 +5,34 @@ import {ResultAsync} from "neverthrow";
 import {AppError, newDBError} from "../../../../libs/errors";
 
 export class PrmAuthRepo implements IAuthRepository {
-    Create =  (u: AuthCreate) : ResultAsync<void,AppError> => {
-        const { firstName,lastName,systemRole, ...authData } = u;
-        return  ResultAsync.fromPromise(
+    Create = (u: AuthCreate): ResultAsync<void, AppError> => {
+        const {firstName, lastName, systemRole, ...authData} = u;
+        return ResultAsync.fromPromise(
             prisma.auth.create({data: authData}).then(
-                r => {}
+                r => {
+                }
             ),
             (r) => newDBError(r)
         )
     }
 
-    FindByUserName=  (userName: string)  => {
+    FindByUserName = (userName: string) => {
         return ResultAsync.fromPromise(
             prisma.auth.findFirst(
-                {where: {userName : userName}},
-            ).then( r => r ),
+                {where: {userName: userName}},
+            ).then(r => r),
             r => newDBError(r)
         )
     };
 
-    FindByUserId =  (id: number)=> {
+    FindByUserId = (id: number) => {
         return ResultAsync.fromPromise(
             prisma.auth.findFirst({
-                where: {
-                       id: id
+                    where: {
+                        id: id
                     }
                 }
-            ).then( r => r ),
+            ).then(r => r),
             r => newDBError(r)
         )
     }

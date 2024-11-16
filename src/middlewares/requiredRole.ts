@@ -1,15 +1,15 @@
 import {IAppContext} from "../components/appContext/appContext";
 import {SystemRole} from "../modules/user/entity/user";
 import express from "express";
-import {UserMysqlRepo} from "../modules/user/repository/mysql/mysqlRepo";
-import {UserBiz} from "../modules/user/biz/biz";
+import {UserMysqlRepo} from "../modules/user/repository/implementation/mysqlRepo";
+import {UserService} from "../modules/user/service/userService";
 import {Requester, RequesterKey} from "../libs/requester";
 import {writeErrorResponse} from "../libs/writeErrorResponse";
 import {newForbidden} from "../libs/errors";
 
 const requiredRole = (appCtx: IAppContext, ...roles: SystemRole[]): express.Handler => {
     const userRepo = new UserMysqlRepo(appCtx.GetDbConnectionPool());
-    const userBiz = new UserBiz(userRepo);
+    const userBiz = new UserService(userRepo);
 
     return async (req, res, next) => {
         const requester = res.locals[RequesterKey] as Requester;
@@ -19,7 +19,7 @@ const requiredRole = (appCtx: IAppContext, ...roles: SystemRole[]): express.Hand
         }
 
         console.log(requester);
-        const r = await userBiz.RequiredRole(requester, ...roles);
+        const r = await userBiz.requiredRole(requester, ...roles);
         if (r.isErr()) {
             writeErrorResponse(res, r.error)
             return

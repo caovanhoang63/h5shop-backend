@@ -1,24 +1,25 @@
-import {AuthCreate, AuthLogin, TokenResponse} from "../entity/authVar";
-import {AppError} from "../../../libs/errors";
-import {ErrInvalidCredentials, ErrUserNameAlreadyExists} from "../entity/error";
-import {randomSalt} from "../../../libs/salt";
-import {SystemRole} from "../../user/entity/user";
-import {Nullable} from "../../../libs/nullable";
-import {authCreateSchema, authLoginSchema} from "../entity/validate";
-import {Validator} from "../../../libs/validator";
-import {Requester} from "../../../libs/requester";
+import {AuthCreate, AuthLogin, TokenResponse} from "../../entity/authVar";
+import {AppError} from "../../../../libs/errors";
+import {ErrInvalidCredentials, ErrUserNameAlreadyExists} from "../../entity/error";
+import {randomSalt} from "../../../../libs/salt";
+import {SystemRole} from "../../../user/entity/user";
+import {Nullable} from "../../../../libs/nullable";
+import {authCreateSchema, authLoginSchema} from "../../entity/validate";
+import {Validator} from "../../../../libs/validator";
+import {Requester} from "../../../../libs/requester";
 import {
     defaultExpireAccessTokenInSeconds,
     defaultExpireRefreshTokenInSeconds,
     JwtClaim,
     JwtProvider
-} from "../../../components/jwtProvider/jwtProvider";
+} from "../../../../components/jwtProvider/jwtProvider";
 import {randomUUID} from "node:crypto";
-import {IAuthRepository} from "../repository/IAuthRepository";
+import {IAuthRepository} from "../../repository/IAuthRepository";
 import {errAsync, okAsync, ResultAsync} from "neverthrow";
+import {IAuthService} from "../interface/IAuthService";
 
 
-interface IUserRepository {
+export interface IUserRepository {
     CreateNewUser(firstName: string, lastName: string, userName: string, systemRole: SystemRole): Promise<[number, Nullable<AppError>]>
 }
 
@@ -26,7 +27,7 @@ export interface IHasher {
     hash: (value: string, salt: string) => string
 }
 
-export class AuthBiz {
+export class AuthService implements IAuthService {
     constructor(private readonly authRepo: IAuthRepository,
                 private readonly hasher: IHasher,
                 private readonly userRepo: IUserRepository,

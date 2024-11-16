@@ -1,25 +1,18 @@
 import {IAppContext} from "../../../../components/appContext/appContext";
-import {UserBiz} from "../../biz/biz";
+import {UserService} from "../../service/userService";
 import express from "express";
 import {UserCreate} from "../../entity/userVar";
-import {SystemRole, User} from "../../entity/user";
+import {SystemRole} from "../../entity/user";
 import {AppResponse} from "../../../../libs/response";
-import {ICondition} from "../../../../libs/condition";
-import {Paging} from "../../../../libs/paging";
 import {writeErrorResponse} from "../../../../libs/writeErrorResponse";
-import {AppError} from "../../../../libs/errors";
-import {ResultAsync} from "neverthrow";
+import {IUserBiz} from "../../service/IUserBiz";
 
-interface IUserBiz {
-    CreateNewUser: (u: UserCreate) => ResultAsync<any,AppError>
-    FindByCondition: (cond: ICondition, paging: Paging) => ResultAsync<User[],AppError>
-}
 
 export class UserApi {
     private readonly appCtx: IAppContext;
-    private readonly userBiz: UserBiz;
+    private readonly userBiz: IUserBiz;
 
-    constructor(appCtx: IAppContext, biz: UserBiz) {
+    constructor(appCtx: IAppContext, biz: UserService) {
         this.appCtx = appCtx;
         this.userBiz = biz;
     }
@@ -28,20 +21,20 @@ export class UserApi {
         const data: UserCreate = {
             firstName: "caovanhoang", lastName: "123", systemRole: SystemRole.Admin, userName: "123"
         };
-        const result = await this.userBiz.CreateNewUser(data);
+        const result = await this.userBiz.createNewUser(data);
         if (result.isErr()) {
             writeErrorResponse(res, result.error)
             return
         }
         res.send(AppResponse.SimpleResponse(true))
     }
-    public ListUsers: express.Handler = async (req, res, next) => {
-        const result = await this.userBiz.ListUsers()
-        if (result.isErr()) {
-            writeErrorResponse(res, result.error)
-            return
-        }
-        res.send(AppResponse.SimpleResponse(result.value))
-    }
+    // public ListUsers: express.Handler = async (req, res, next) => {
+    //     const result = await this.userBiz.listUsers()
+    //     if (result.isErr()) {
+    //         writeErrorResponse(res, result.error)
+    //         return
+    //     }
+    //     res.send(AppResponse.SimpleResponse(result.value))
+    // }
 
 }

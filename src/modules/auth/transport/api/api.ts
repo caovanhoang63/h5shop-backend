@@ -1,17 +1,18 @@
-import {AuthCreate, AuthLogin, TokenResponse} from "../../entity/authVar";
+import {AuthCreate, AuthLogin} from "../../entity/authVar";
 import express from "express";
 import {AppResponse} from "../../../../libs/response";
 import {writeErrorResponse} from "../../../../libs/writeErrorResponse";
-import {AppError} from "../../../../libs/errors";
-import {ResultAsync} from "neverthrow";
+import {IAuthService} from "../../service/interface/IAuthService";
 
-interface IAuthBiz {
-    Register: (u: AuthCreate) => ResultAsync<void,AppError>
-    Login: (u: AuthLogin) => ResultAsync<TokenResponse,AppError>
+export interface IAuthApi {
+    Register : express.Handler
+    Login : express.Handler
 }
 
-export class AuthApi {
-    constructor(private readonly authBiz: IAuthBiz) {
+
+export class AuthApi  implements IAuthApi {
+    constructor(private readonly authBiz: IAuthService) {
+
     }
 
     Register: express.Handler = async (req, res, next) => {

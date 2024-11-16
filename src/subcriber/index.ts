@@ -1,4 +1,3 @@
-import {Ok} from "../libs/result";
 import {IAppContext} from "../components/appContext/appContext";
 import {Message, Topic} from "../components/pubsub";
 import EventEmitter from "node:events";
@@ -7,7 +6,7 @@ import {AppError, newInternalError} from "../libs/errors";
 import {errAsync, okAsync, ResultAsync} from "neverthrow";
 
 //TODO:  Implement retry feature
-type Handler = (m : Message) => ResultAsync<void,AppError>;
+type Handler = (m: Message) => ResultAsync<void, AppError>;
 
 export class SubscriberEngine {
     private readonly subscribers: Map<Topic, {
@@ -16,16 +15,18 @@ export class SubscriberEngine {
         emitter: EventEmitter,
         cleanup: () => void
     }[]> = new Map();
-    constructor(private readonly appContext: IAppContext) {}
 
-    run(): ResultAsync<never,AppError> {
+    constructor(private readonly appContext: IAppContext) {
+    }
+
+    run(): ResultAsync<never, AppError> {
         return ResultAsync.fromPromise(
             (async () => {
                 // The run method now just ensures the engine is ready
                 // and returns a never-resolving promise to keep the service running
                 console.log("Subscriber engine started!");
                 await this.subscribe(TopicTest,
-                    (m : Message) : ResultAsync<void,AppError> => {
+                    (m: Message): ResultAsync<void, AppError> => {
                         return ResultAsync.fromPromise(
                             (async () => {
                                 console.log(m.id)
@@ -33,16 +34,16 @@ export class SubscriberEngine {
                             })(), e => e as AppError
                         ).andThen(r => r)
                     },
-                    (m : Message) : ResultAsync<void,AppError> => {
+                    (m: Message): ResultAsync<void, AppError> => {
                         return ResultAsync.fromPromise(
                             (async () => {
                                 return okAsync(undefined)
                             })(), e => e as AppError
                         ).andThen(r => r)
                     },
-                    )
+                )
 
-                await this.subscribe(TopicTest+"1",(m : Message) : ResultAsync<void,AppError> => {
+                await this.subscribe(TopicTest + "1", (m: Message): ResultAsync<void, AppError> => {
                     return ResultAsync.fromPromise(
                         (async () => {
                             console.log("Subcriber123")
@@ -52,12 +53,13 @@ export class SubscriberEngine {
                     ).andThen(r => r)
                 })
 
-                return new Promise<never>(() => {});
+                return new Promise<never>(() => {
+                });
             })(), e => e as AppError
         ).andThen(r => r);
     }
 
-    public subscribe = (topic: Topic, ...handler: Handler[]): ResultAsync<void,AppError> => {
+    public subscribe = (topic: Topic, ...handler: Handler[]): ResultAsync<void, AppError> => {
 
         return ResultAsync.fromPromise(
             (async () => {
@@ -69,13 +71,13 @@ export class SubscriberEngine {
         ).andThen(r => r)
     }
 
-    private startSubTopic = (topic: Topic, ...handlers: Handler[]): ResultAsync<() => void,AppError>  =>  {
+    private startSubTopic = (topic: Topic, ...handlers: Handler[]): ResultAsync<() => void, AppError> => {
         return ResultAsync.fromPromise(
             (async () => {
                 // Subscribe to the topic
                 const subscribeResult = await this.appContext.GetPubsub().Subscribe(topic);
                 if (subscribeResult.isErr()) {
-                    return  errAsync(subscribeResult.error)
+                    return errAsync(subscribeResult.error)
                 }
                 const [messages, unsubscribe] = subscribeResult.value;
 
@@ -87,7 +89,7 @@ export class SubscriberEngine {
                     while (messages.length > 0) {
                         const message = messages.shift()!;
                         try {
-                            for(const handler of handlers) {
+                            for (const handler of handlers) {
                                 handler(message);
                             }
                         } catch (error) {
@@ -138,7 +140,7 @@ export class SubscriberEngine {
                         }
                     }
                 });
-            })(), e=> newInternalError(e)
+            })(), e => newInternalError(e)
         ).andThen(r => r);
     }
 
@@ -148,7 +150,7 @@ export class SubscriberEngine {
     }
 
     // Optional: Method to clean up all subscriptions
-    public cleanup(): ResultAsync<void,AppError> {
+    public cleanup(): ResultAsync<void, AppError> {
         return ResultAsync.fromPromise(
             (async () => {
                 for (const [topic, subs] of this.subscribers) {

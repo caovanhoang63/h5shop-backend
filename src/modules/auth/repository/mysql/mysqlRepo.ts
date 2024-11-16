@@ -1,27 +1,27 @@
 import mysql, {RowDataPacket} from "mysql2";
-import {AuthCreate, AuthDdCreate} from "../../entity/authVar";
+import {AuthCreate} from "../../entity/authVar";
 import {Auth} from "../../entity/auth";
 import {SqlHelper} from "../../../../libs/sqlHelper";
 import {IAuthRepository} from "../IAuthRepository";
 import {AppError, newDBError} from "../../../../libs/errors";
 import {ok, ResultAsync} from "neverthrow";
 
-export class AuthMysqlRepo implements IAuthRepository{
+export class AuthMysqlRepo implements IAuthRepository {
     constructor(private readonly pool: mysql.Pool) {
     }
 
-    Create = (u: AuthCreate): ResultAsync<void,AppError> => {
+    Create = (u: AuthCreate): ResultAsync<void, AppError> => {
         const query = `INSERT INTO auth (user_id, user_name, salt, password)
                        VALUES (?, ?, ?, ?)`
         return ResultAsync.fromPromise(this.pool.promise().query(query, [u.userId, u.userName, u.salt, u.password])
             .then(([row, field]) => {
                 console.log(row)
                 return ok(undefined)
-            }),e => newDBError(e)
-        ).andThen(r =>r)
+            }), e => newDBError(e)
+        ).andThen(r => r)
     }
 
-    FindByUserName = (userName: string): ResultAsync<Auth | null,AppError> => {
+    FindByUserName = (userName: string): ResultAsync<Auth | null, AppError> => {
         const query = `SELECT *
                        FROM auth
                        WHERE user_name = ?
@@ -35,12 +35,12 @@ export class AuthMysqlRepo implements IAuthRepository{
                 const data: Auth = SqlHelper.toCamelCase(a[0]);
                 return ok(data)
 
-            }),e => newDBError(e)
-        ).andThen(r =>r)
+            }), e => newDBError(e)
+        ).andThen(r => r)
     }
 
 
-    FindByUserId = (userId: number): ResultAsync<Auth | null,AppError> => {
+    FindByUserId = (userId: number): ResultAsync<Auth | null, AppError> => {
         const query = `SELECT *
                        FROM auth
                        WHERE user_id = ?
@@ -53,7 +53,7 @@ export class AuthMysqlRepo implements IAuthRepository{
                 }
                 const data: Auth = SqlHelper.toCamelCase(a[0]);
                 return ok(data)
-            }),e => newDBError(e)
-        ).andThen(r =>r)
+            }), e => newDBError(e)
+        ).andThen(r => r)
     }
 }

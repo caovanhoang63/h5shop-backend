@@ -1,7 +1,6 @@
 import {IAppContext} from "../../components/appContext/appContext";
 import express from "express";
-import {AuthMysqlRepo} from "../../modules/auth/repository/mysql/mysqlRepo";
-import {AuthBiz} from "../../modules/auth/biz/biz";
+import {AuthService} from "../../modules/auth/service/implementation/authService";
 import {AuthApi} from "../../modules/auth/transport/api/api";
 import {UserLocal} from "../../modules/user/transport/local/local";
 import {Hasher} from "../../libs/hasher";
@@ -15,7 +14,7 @@ const authRouter = (appContext: IAppContext) => {
     const hasher = new Hasher()
     const authRepo = new PrmAuthRepo();
     const userRepo = new UserLocal(appContext)
-    const authBiz = new AuthBiz(authRepo, hasher, userRepo, new jwtProvider(appSecret!));
+    const authBiz = new AuthService(authRepo, hasher, userRepo, new jwtProvider(appSecret!));
     const authApi = new AuthApi(authBiz)
     router.post('/register', authApi.Register)
     router.post('/login', authApi.Login)

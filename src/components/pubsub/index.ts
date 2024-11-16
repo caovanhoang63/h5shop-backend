@@ -10,8 +10,8 @@ export type Message = {
 }
 
 export interface IPubSub {
-    Publish: (topic: Topic, message: Message) =>  ResultAsync<void,AppError>;
-    Subscribe: (topic: Topic) =>  ResultAsync<[Message[],() => void],AppError> ;
+    Publish: (topic: Topic, message: Message) => ResultAsync<void, AppError>;
+    Subscribe: (topic: Topic) => ResultAsync<[Message[], () => void], AppError>;
 }
 
 

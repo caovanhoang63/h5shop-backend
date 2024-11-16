@@ -1,6 +1,3 @@
-import {BaseModel} from "../../../libs/baseModel";
-import {Nullable} from "../../../libs/nullable";
-
 export interface Auth {
     id: number;
     userId: number;

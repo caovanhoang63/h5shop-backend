@@ -1,4 +1,4 @@
-import {IHasher} from "../modules/auth/biz/biz";
+import {IHasher} from "../modules/auth/service/implementation/authService";
 import CryptoJS from "crypto-js";
 
 export class Hasher implements IHasher {

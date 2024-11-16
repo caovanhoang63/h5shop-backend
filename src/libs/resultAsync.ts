@@ -5,6 +5,7 @@ export class ResultAsync<T> implements PromiseLike<Result<T>> {
     constructor(res: Promise<Result<T>>) {
         this._promise = res
     }
+
     private _promise: Promise<Result<T>>
 
     then<A, B>(
