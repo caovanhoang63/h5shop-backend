@@ -10,30 +10,33 @@ import {
     defaultExpireAccessTokenInSeconds,
     defaultExpireRefreshTokenInSeconds,
     JwtClaim,
-    JwtProvider
-} from "../../../../components/jwtProvider/jwtProvider";
+    IJwtProvider
+} from "../../../../components/jwtProvider/IJwtProvider";
 import {randomUUID} from "node:crypto";
 import {IAuthRepository} from "../../repository/IAuthRepository";
 import {errAsync, okAsync, ResultAsync} from "neverthrow";
 import {IAuthService} from "../interface/IAuthService";
 import {AuthCreate, authCreateSchema} from "../../entity/authCreate";
 import {AuthLogin, authLoginSchema} from "../../entity/authLogin";
+import {TYPES} from "../../../../types";
+import {inject, injectable} from "inversify";
+import {IUserLocalRepository} from "../../../user/transport/IUserLocalRepository";
 
 
-export interface IUserRepository {
-    CreateNewUser(firstName: string, lastName: string, userName: string, systemRole: SystemRole): Promise<[number, Nullable<Err>]>
-}
+
 
 export interface IHasher {
     hash: (value: string, salt: string) => string
 }
 
+@injectable()
 export class AuthService implements IAuthService {
-    constructor(private readonly authRepo: IAuthRepository,
-                private readonly hasher: IHasher,
-                private readonly userRepo: IUserRepository,
-                private readonly jwtProvider: JwtProvider) {
+    constructor(@inject(TYPES.IAuthRepository) private readonly authRepo: IAuthRepository,
+                @inject(TYPES.IHasher) private readonly hasher: IHasher,
+                @inject(TYPES.IUserLocalRepository) private readonly userRepo: IUserLocalRepository ,
+                @inject(TYPES.IJwtProvider) private readonly jwtProvider: IJwtProvider) {
     }
+
     public register = (u: AuthCreate): ResultAsync<void, Err> => {
         return ResultAsync.fromPromise(
             (async () => {

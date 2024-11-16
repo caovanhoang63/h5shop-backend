@@ -2,8 +2,10 @@ import jwt from "jsonwebtoken";
 import {Err} from "../../libs/errors";
 import {Nullable} from "../../libs/nullable";
 import {err, ok, Result} from "neverthrow";
+import {injectable} from "inversify";
 
-export interface JwtProvider {
+
+export interface IJwtProvider {
     ParseToken: (token: string) => Result<Nullable<JwtClaim>, Err>
     IssueToken: (id: string, sub: string, expiredTime: number) => [string, number]
 }
@@ -24,12 +26,14 @@ export interface JwtClaim {
     expiresAt: number,
 }
 
-export class jwtProvider implements JwtProvider {
+@injectable()
+export class jwtProvider implements IJwtProvider {
     constructor(
-        private readonly _secret: string
     ) {
 
     }
+
+    private readonly _secret = "sjdhaskdhaskdasddjk"
 
     ParseToken = (token: string): Result<Nullable<JwtClaim>, Err> => {
         try {

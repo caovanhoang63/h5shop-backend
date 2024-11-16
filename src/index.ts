@@ -1,3 +1,4 @@
+import "reflect-metadata";
 import express, {Express} from "express";
 import dotenv from "dotenv";
 import path from "path";
@@ -5,7 +6,6 @@ import cookieParser from "cookie-parser";
 import logger from "morgan";
 import v1Router from "./routes/v1";
 import cors from "cors"
-import mysql from "mysql2"
 import {AppContext} from "./components/appContext/appContext";
 import recovery from "./middlewares/recovery";
 import helmet from "helmet";

@@ -19,12 +19,14 @@
     "eslint-plugin-neverthrow": "^1.1.4",
     "express": "~4.16.1",
     "helmet": "^8.0.0",
+    "inversify": "^6.1.4",
     "joi": "^17.13.3",
     "jsonwebtoken": "^9.0.2",
     "lodash": "^4.17.21",
     "morgan": "~1.9.1",
     "mysql2": "^3.11.3",
-    "neverthrow": "^8.1.1"
+    "neverthrow": "^8.1.1",
+    "reflect-metadata": "^0.2.2"
   },
   "devDependencies": {
     "@types/cookie-parser": "^1.4.7",

@@ -1,10 +1,10 @@
 import express from "express";
 import {IAppContext} from "../components/appContext/appContext";
-import {InvalidToken, jwtProvider} from "../components/jwtProvider/jwtProvider";
+import {InvalidToken, jwtProvider} from "../components/jwtProvider/IJwtProvider";
 import {writeErrorResponse} from "../libs/writeErrorResponse";
 import {Requester} from "../libs/requester";
 import {AuthService} from "../modules/auth/service/implementation/authService";
-import {UserLocal} from "../modules/user/transport/local/local";
+import UserLocal from "../modules/user/transport/local/local";
 import {Hasher} from "../libs/hasher";
 import {PrmAuthRepo} from "../modules/auth/repository/implementation/prmAuthRepo";
 import {err, ok, Result, ResultAsync} from "neverthrow";
@@ -27,10 +27,10 @@ const getTokenString = (str?: string): Result<string, Err> => {
 
 export const authentication = (appCtx: IAppContext): express.Handler => {
     const authRepo = new PrmAuthRepo()
-    const userRepo = new UserLocal(appCtx)
+    const userRepo = new UserLocal()
     const hasher = new Hasher()
     const appSecret = process.env.SYSTEM_SECRET
-    const authBiz = new AuthService(authRepo, hasher, userRepo, new jwtProvider(appSecret!));
+    const authBiz = new AuthService(authRepo, hasher, userRepo, new jwtProvider());
 
 
     return async (req: express.Request, res: express.Response, next: express.NextFunction) => {

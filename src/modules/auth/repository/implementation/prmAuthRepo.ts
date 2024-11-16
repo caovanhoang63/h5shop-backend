@@ -3,7 +3,10 @@ import {prisma} from "../../../../components/prisma";
 import {ResultAsync} from "neverthrow";
 import {createDatabaseError, Err} from "../../../../libs/errors";
 import {AuthCreate} from "../../entity/authCreate";
+import {injectable} from "inversify";
 
+
+@injectable()
 export class PrmAuthRepo implements IAuthRepository {
     Create = (u: AuthCreate): ResultAsync<void, Err> => {
         const {firstName, lastName, systemRole, ...authData} = u;

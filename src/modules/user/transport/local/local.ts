@@ -4,18 +4,19 @@ import {UserService} from "../../service/userService";
 import {SystemRole} from "../../entity/user";
 import {Err} from "../../../../libs/errors";
 import {Nullable} from "../../../../libs/nullable";
-import {UserMysqlRepo} from "../../repository/implementation/mysqlRepo";
-import {ResultAsync} from "neverthrow";
 import {PrmUserRepo} from "../../repository/implementation/prmUserRepo";
+import {IUserBiz} from "../../service/IUserBiz";
+import {injectable} from "inversify";
+import {IUserLocalRepository} from "../IUserLocalRepository";
 
-interface IUserBiz {
-    createNewUser: (u: UserCreate) => ResultAsync<void, Err>
-}
 
-export class UserLocal {
+
+
+@injectable()
+ class UserLocal implements IUserLocalRepository {
     private readonly userBiz: IUserBiz;
 
-    constructor(private readonly appContext: IAppContext) {
+    constructor() {
         this.userBiz = new UserService(new PrmUserRepo());
     }
 
@@ -31,3 +32,5 @@ export class UserLocal {
         return [data.id!, null]
     }
 }
+
+export default UserLocal;
