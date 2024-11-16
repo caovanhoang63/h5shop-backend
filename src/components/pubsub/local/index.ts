@@ -1,8 +1,8 @@
-import {ResultAsync} from "../../../libs/resultAsync";
-import {Ok} from "../../../libs/result";
 import {Mutex} from "async-mutex";
 import {IPubSub, Message, Topic} from "../index";
 import EventEmitter from "node:events";
+import {AppError} from "../../../libs/errors";
+import {ok, ResultAsync} from "neverthrow";
 
 interface IQueueMap  {
     [topic: string]: Message[][];
@@ -39,7 +39,7 @@ export class LocalPubSub implements IPubSub {
         }
     }
 
-    public Serve(): ResultAsync<never> {
+    public Serve(): ResultAsync<void,AppError> {
         return ResultAsync.fromPromise(
             (async () => {
                 if (!this.isServing) {
@@ -48,11 +48,12 @@ export class LocalPubSub implements IPubSub {
                 }
                 // This promise never resolves, keeping the service running
                 return new Promise<never>(() => {});
-            })()
-        );
+            })(),
+            e => e as AppError,
+        ).andThen(r => r);
     }
 
-    public Publish(topic: Topic, message: Message): ResultAsync<never> {
+    public Publish(topic: Topic, message: Message): ResultAsync<void,AppError> {
         return ResultAsync.fromPromise(
             (async () => {
                 console.log("Publish", message.id)
@@ -64,16 +65,16 @@ export class LocalPubSub implements IPubSub {
                 } finally {
                     release();
                 }
-                return Ok();
-            })()
-        );
+                return ok(undefined);
+            })(),
+            e => e as AppError
+        ).andThen(r => r);
     }
 
-    public Subscribe(topic: Topic): ResultAsync<[Message[], () => void]> {
+    public Subscribe(topic: Topic): ResultAsync<[Message[], () => void],AppError> {
         const messages: Message[] = [];
         return ResultAsync.fromPromise(
             (async () => {
-                console.log("Subscribe", topic);
                 const release = await this.lock.acquire();
                 try {
                     if (!this.channelMap[topic]) {
@@ -84,7 +85,7 @@ export class LocalPubSub implements IPubSub {
                     release();
                 }
 
-                return Ok<[Message[], () => void]>([
+                return ok<[Message[], () => void]>([
                     messages,
                     async () => {
                         const release = await this.lock.acquire();
@@ -100,7 +101,8 @@ export class LocalPubSub implements IPubSub {
                         }
                     }
                 ]);
-            })()
-        );
+            })(),
+            e => e as AppError
+        ).andThen( r => r);
     }
 }

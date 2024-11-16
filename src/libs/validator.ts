@@ -1,21 +1,15 @@
-import {ResultAsync} from "./resultAsync";
 import {ObjectSchema} from "joi";
-import {Err, Ok} from "./result";
-import {newInternalError, newInvalidData} from "./errors";
+import {AppError, newInternalError, newInvalidData} from "./errors";
+import {err, ok, ResultAsync} from "neverthrow";
 
-export const Validator = (validateSchema: ObjectSchema, data: any): ResultAsync<void> => {
+export const Validator = (validateSchema: ObjectSchema, data: any): ResultAsync<void,AppError> => {
     return ResultAsync.fromPromise(
-        validateSchema.validateAsync(data).then(
-            r => {
-                return Ok<void>(undefined)
-            }
-        ).catch((e: Error) => {
-                return Err<void>(newInvalidData(e))
-            }
-        ).catch(
-            e => {
-                return Err<void>(newInternalError(e))
-            }
-        )
+        validateSchema.validateAsync(data),
+        e => {
+            if (e instanceof Error)
+                return newInvalidData(e);
+            else
+                return newInternalError(e);
+        }
     )
 }

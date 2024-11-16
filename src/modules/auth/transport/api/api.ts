@@ -1,12 +1,13 @@
 import {AuthCreate, AuthLogin, TokenResponse} from "../../entity/authVar";
-import {ResultAsync} from "../../../../libs/resultAsync";
 import express from "express";
 import {AppResponse} from "../../../../libs/response";
 import {writeErrorResponse} from "../../../../libs/writeErrorResponse";
+import {AppError} from "../../../../libs/errors";
+import {ResultAsync} from "neverthrow";
 
 interface IAuthBiz {
-    Register: (u: AuthCreate) => ResultAsync<void>
-    Login: (u: AuthLogin) => ResultAsync<TokenResponse>
+    Register: (u: AuthCreate) => ResultAsync<void,AppError>
+    Login: (u: AuthLogin) => ResultAsync<TokenResponse,AppError>
 }
 
 export class AuthApi {
@@ -39,7 +40,7 @@ export class AuthApi {
                 writeErrorResponse(res, r.error)
                 return
             }
-            res.send(AppResponse.SimpleResponse(r.data))
+            res.send(AppResponse.SimpleResponse(r.value))
         } catch (error) {
             next(error)
         }

@@ -1,7 +1,4 @@
 import {AuthCreate, AuthLogin, TokenResponse} from "../entity/authVar";
-import {Err, Ok} from "../../../libs/result";
-import {Auth} from "../entity/auth";
-import {ResultAsync} from "../../../libs/resultAsync";
 import {AppError} from "../../../libs/errors";
 import {ErrInvalidCredentials, ErrUserNameAlreadyExists} from "../entity/error";
 import {randomSalt} from "../../../libs/salt";
@@ -18,6 +15,7 @@ import {
 } from "../../../components/jwtProvider/jwtProvider";
 import {randomUUID} from "node:crypto";
 import {IAuthRepository} from "../repository/IAuthRepository";
+import {errAsync, okAsync, ResultAsync} from "neverthrow";
 
 
 interface IUserRepository {
@@ -35,109 +33,127 @@ export class AuthBiz {
                 private readonly jwtProvider: JwtProvider) {
     }
 
-    public IntrospectToken = (token: string): ResultAsync<Requester> => {
+    public Register = (u: AuthCreate): ResultAsync<void, AppError> => {
         return ResultAsync.fromPromise(
             (async () => {
+                // Validate
+                const vR = await Validator(authCreateSchema, u);
+                if (vR.isErr()) {
+                    return errAsync(vR.error);
+                }
+
+                // Check if username exists
+                const old = await this.authRepo.FindByUserName(u.userName);
+                if (old.isErr()) {
+                    return errAsync(old.error);
+                }
+                if (old.value) {
+                    return errAsync(ErrUserNameAlreadyExists(u.userName));
+                }
+
+                // Create new user
+                const [user, err] = await this.userRepo.CreateNewUser(
+                    u.firstName,
+                    u.lastName,
+                    u.userName,
+                    u.systemRole
+                );
+                if (err) {
+                    return errAsync(err);
+                }
+
+                // Prepare user data for auth
+                u.userId = user;
+                u.salt = randomSalt(50);
+                u.password = this.hasher.hash(u.password, u.salt);
+
+                // Create auth entry
+                const r = await this.authRepo.Create(u);
+                if (r.isErr()) {
+                    return errAsync(r.error);
+                }
+
+                return okAsync(undefined); // Success case
+            })(),
+            (e) => e as AppError // Catch any unexpected errors
+        ).andThen((result) => result); // Unwrap the ResultAsync for compatibility
+    };
+
+    public IntrospectToken = (token: string): ResultAsync<Requester, AppError> => {
+        return ResultAsync.fromPromise(
+            (async () => {
+                // Parse the token
                 const rP = this.jwtProvider.ParseToken(token);
                 if (rP.isErr()) {
-                    return Err<Requester>(rP.error)
+                    return errAsync(rP.error);
                 }
-                const claim = rP.data as JwtClaim
+                const claim = rP.value as JwtClaim;
 
-                const userId = parseInt(claim.sub)
-                const uR = await this.authRepo.FindByUserId(userId)
+                // Extract userId and find user
+                const userId = parseInt(claim.sub);
+                const uR = await this.authRepo.FindByUserId(userId);
                 if (uR.isErr()) {
-                    return Err<Requester>(uR.error)
+                    return errAsync(uR.error);
                 }
 
-
+                // Build the requester object
                 const requester: Requester = {
                     requestId: claim.id,
-                    userId: userId
-                }
+                    userId: userId,
+                };
 
-                return Ok(requester)
+                return okAsync(requester);
+            })(),
+            (e) => e as AppError // Handle unexpected errors
+        ).andThen((result) => result); // Ensure correct result wrapping
+    };
 
-            })()
-        )
-    }
-
-    public Register = (u: AuthCreate): ResultAsync<void> => {
+    public Login = (u: AuthLogin): ResultAsync<TokenResponse, AppError> => {
         return ResultAsync.fromPromise(
             (async () => {
-                // validate
-                const vR = (await Validator(authCreateSchema, u))
+                // Validate input
+                const vR = await Validator(authLoginSchema, u);
                 if (vR.isErr()) {
-                    return vR
+                    return errAsync(vR.error);
                 }
 
-                const old = await this.authRepo.FindByUserName(u.userName)
-                if (old.isErr()) {
-                    return Err<void>(old.error)
-                }
-
-                if (old.data) {
-                    return Err<void>(ErrUserNameAlreadyExists(u.userName))
-                }
-
-                const [user, err] = await this.userRepo.CreateNewUser(u.firstName, u.lastName, u.userName, u.systemRole)
-
-                if (err != null) {
-                    return Err<void>(err)
-                }
-
-                u.userId = user
-                u.salt = randomSalt(50)
-                u.password = this.hasher.hash(u.password, u.salt)
-
-                const r = await this.authRepo.Create(u)
-
-                if (r.isErr()) {
-                    return r
-                }
-
-                return Ok<void>(undefined)
-            })()
-        )
-    }
-
-    public Login = (u: AuthLogin): ResultAsync<TokenResponse> => {
-        return ResultAsync.fromPromise(
-            (async () => {
-                const vR = (await Validator(authLoginSchema, u))
-                if (vR.isErr()) {
-                    return Err<TokenResponse>(vR.error)
-                }
-
-                const uR = await this.authRepo.FindByUserName(u.userName)
+                // Find user by username
+                const uR = await this.authRepo.FindByUserName(u.userName);
                 if (uR.isErr()) {
-                    return Err<TokenResponse>(uR.error)
+                    return errAsync(uR.error);
                 }
 
-                if (uR.data === null || uR.data?.password !== this.hasher.hash(u.password, uR.data!.salt)) {
-                    return Err<TokenResponse>(ErrInvalidCredentials())
+                // Check credentials
+                if (uR.value === null || uR.value.password !== this.hasher.hash(u.password, uR.value.salt)) {
+                    return errAsync(ErrInvalidCredentials());
                 }
 
-                // Generate token
-                const [accessToken, accessExp] = this.jwtProvider
-                    .IssueToken(randomUUID(), uR.data.userId.toString(), defaultExpireAccessTokenInSeconds)
+                // Generate access and refresh tokens
+                const [accessToken, accessExp] = this.jwtProvider.IssueToken(
+                    randomUUID(),
+                    uR.value.userId.toString(),
+                    defaultExpireAccessTokenInSeconds
+                );
 
-                const [refreshToken, refreshRxp] = this.jwtProvider
-                    .IssueToken(randomUUID(), uR.data.userId.toString(), defaultExpireRefreshTokenInSeconds)
+                const [refreshToken, refreshRxp] = this.jwtProvider.IssueToken(
+                    randomUUID(),
+                    uR.value.userId.toString(),
+                    defaultExpireRefreshTokenInSeconds
+                );
 
-                return Ok<TokenResponse>(
-                    {
-                        accessToken: {
-                            token: accessToken,
-                            expiredIn: accessExp
-                        },
-                        refreshToken: {
-                            token: refreshToken,
-                            expiredIn: refreshRxp
-                        }
-                    }
-                )
-            })()
-        )
-    }
+                return okAsync({
+                    accessToken: {
+                        token: accessToken,
+                        expiredIn: accessExp,
+                    },
+                    refreshToken: {
+                        token: refreshToken,
+                        expiredIn: refreshRxp,
+                    },
+                });
+            })(),
+            (e) => e as AppError // Handle unexpected errors
+        ).andThen((result) => result); // Ensure correct result wrapping
+    };
+
 }

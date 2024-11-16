@@ -1,14 +1,14 @@
 import {UserCreate} from "../../entity/userVar";
-import {ResultAsync} from "../../../../libs/resultAsync";
 import {IAppContext} from "../../../../components/appContext/appContext";
 import {UserBiz} from "../../biz/biz";
 import {SystemRole} from "../../entity/user";
 import {AppError} from "../../../../libs/errors";
 import {Nullable} from "../../../../libs/nullable";
 import {UserMysqlRepo} from "../../repository/mysql/mysqlRepo";
+import {ResultAsync} from "neverthrow";
 
 interface IUserBiz {
-    CreateNewUser: (u: UserCreate) => ResultAsync<void>
+    CreateNewUser: (u: UserCreate) => ResultAsync<void,AppError>
 }
 
 export class UserLocal {

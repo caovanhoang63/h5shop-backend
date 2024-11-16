@@ -2,12 +2,8 @@ import {Nullable} from "./nullable";
 import {AppError, newInternalError} from "./errors";
 
 export class Result<T> {
-    constructor(value: T | undefined, err: Nullable<AppError>) {
-        this.data = value;
-        this.error = err;
-    }
 
-    error: Nullable<AppError>;
+    error: AppError = newInternalError();
     data?: T;
 
     public wrap(error: AppError): Result<T> {
@@ -31,15 +27,17 @@ export class Result<T> {
     }
 
     public isErr(): boolean {
-        return this.error !== null
+        return false;
     }
 }
 
 export const Ok = <T>(value?: T): Result<T> => {
-    return new Result<T>(value, null)
+    const a=  new Result<T>()
+    a.data = value
+    return a
 }
 export const Err = <T>(err?: Nullable<AppError>): Result<T> => {
-    if (!err)
-        return new Result<T>(undefined, newInternalError(err))
-    return new Result<T>(undefined, err)
+    const a=  new Result<T>()
+    a.error = newInternalError(err)
+    return a
 }

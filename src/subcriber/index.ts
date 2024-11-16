@@ -1,12 +1,13 @@
-import {ResultAsync} from "../libs/resultAsync";
 import {Ok} from "../libs/result";
 import {IAppContext} from "../components/appContext/appContext";
 import {Message, Topic} from "../components/pubsub";
 import EventEmitter from "node:events";
 import {TopicTest} from "../libs/topics";
+import {AppError, newInternalError} from "../libs/errors";
+import {errAsync, okAsync, ResultAsync} from "neverthrow";
 
 //TODO:  Implement retry feature
-type Handler = (m : Message) => ResultAsync<void>;
+type Handler = (m : Message) => ResultAsync<void,AppError>;
 
 export class SubscriberEngine {
     private readonly subscribers: Map<Topic, {
@@ -17,69 +18,66 @@ export class SubscriberEngine {
     }[]> = new Map();
     constructor(private readonly appContext: IAppContext) {}
 
-    run(): ResultAsync<never> {
+    run(): ResultAsync<never,AppError> {
         return ResultAsync.fromPromise(
             (async () => {
                 // The run method now just ensures the engine is ready
                 // and returns a never-resolving promise to keep the service running
                 console.log("Subscriber engine started!");
-
-
                 await this.subscribe(TopicTest,
-                    (m : Message) : ResultAsync<void> => {
+                    (m : Message) : ResultAsync<void,AppError> => {
                         return ResultAsync.fromPromise(
                             (async () => {
                                 console.log(m.id)
-                                return Ok()
-                            })()
-                        )
+                                return okAsync(undefined)
+                            })(), e => e as AppError
+                        ).andThen(r => r)
                     },
-                    (m : Message) : ResultAsync<void> => {
+                    (m : Message) : ResultAsync<void,AppError> => {
                         return ResultAsync.fromPromise(
                             (async () => {
-                                console.log(m.id)
-                                return Ok()
-                            })()
-                        )
+                                return okAsync(undefined)
+                            })(), e => e as AppError
+                        ).andThen(r => r)
                     },
                     )
 
-                await this.subscribe(TopicTest+"1",(m : Message) : ResultAsync<void> => {
+                await this.subscribe(TopicTest+"1",(m : Message) : ResultAsync<void,AppError> => {
                     return ResultAsync.fromPromise(
                         (async () => {
                             console.log("Subcriber123")
 
-                            return Ok()
-                        })()
-                    )
+                            return okAsync(undefined)
+                        })(), e => e as AppError
+                    ).andThen(r => r)
                 })
 
-
-
-
                 return new Promise<never>(() => {});
-            })()
-        );
+            })(), e => e as AppError
+        ).andThen(r => r);
     }
 
-    public subscribe = (topic: Topic, ...handler: Handler[]): ResultAsync<void> => {
+    public subscribe = (topic: Topic, ...handler: Handler[]): ResultAsync<void,AppError> => {
 
         return ResultAsync.fromPromise(
             (async () => {
 
                 const result = await this.startSubTopic(topic, ...handler);
 
-                return Ok<void>();
-            })()
-        );
+                return okAsync(undefined)
+            })(), e => e as AppError
+        ).andThen(r => r)
     }
 
-    private startSubTopic = (topic: Topic, ...handlers: Handler[]): ResultAsync<() => void>  =>  {
+    private startSubTopic = (topic: Topic, ...handlers: Handler[]): ResultAsync<() => void,AppError>  =>  {
         return ResultAsync.fromPromise(
             (async () => {
                 // Subscribe to the topic
                 const subscribeResult = await this.appContext.GetPubsub().Subscribe(topic);
-                const [messages, unsubscribe] = subscribeResult.data!;
+                if (subscribeResult.isErr()) {
+                    return  errAsync(subscribeResult.error)
+                }
+                const [messages, unsubscribe] = subscribeResult.value;
 
                 // Create an event emitter for this subscription
                 const emitter = new EventEmitter();
@@ -123,7 +121,7 @@ export class SubscriberEngine {
                 this.subscribers.get(topic)!.push(subscriberInfo);
 
                 // Return cleanup function
-                return Ok(() => {
+                return okAsync(() => {
                     clearInterval(checkInterval);
                     emitter.removeAllListeners();
                     unsubscribe();
@@ -140,8 +138,8 @@ export class SubscriberEngine {
                         }
                     }
                 });
-            })()
-        );
+            })(), e=> newInternalError(e)
+        ).andThen(r => r);
     }
 
     // Optional: Method to get current subscribers count for a topic
@@ -150,7 +148,7 @@ export class SubscriberEngine {
     }
 
     // Optional: Method to clean up all subscriptions
-    public cleanup(): ResultAsync<void> {
+    public cleanup(): ResultAsync<void,AppError> {
         return ResultAsync.fromPromise(
             (async () => {
                 for (const [topic, subs] of this.subscribers) {
@@ -159,8 +157,9 @@ export class SubscriberEngine {
                     }
                 }
                 this.subscribers.clear();
-                return Ok(undefined);
-            })()
-        );
+                return okAsync(undefined);
+            })(),
+            e => newInternalError(e)
+        ).andThen(r => r);
     }
 }

@@ -1,24 +1,23 @@
 import {UserCreate, userCreateSchema} from "../entity/userVar";
-import {Err, Ok} from "../../../libs/result";
-import {newEntityNotFound, newForbidden} from "../../../libs/errors";
+import {AppError, newEntityNotFound, newForbidden} from "../../../libs/errors";
 import {ICondition} from "../../../libs/condition";
 import {Paging} from "../../../libs/paging";
 import {SystemRole, User} from "../entity/user";
-import {ResultAsync} from "../../../libs/resultAsync";
 import {Validator} from "../../../libs/validator";
 import {Requester} from "../../../libs/requester";
+import {errAsync, ok, ResultAsync} from "neverthrow";
 
 interface IUserRepository {
-    Create: (u: UserCreate) => ResultAsync<void>
-    FindByCondition: (condition: ICondition, paging: Paging) => ResultAsync<User[]>
-    FindByUserId: (id: number) => ResultAsync<User>
+    Create: (u: UserCreate) => ResultAsync<void,AppError>
+    FindByCondition: (condition: ICondition, paging: Paging) => ResultAsync<User[],AppError>
+    FindByUserId: (id: number) => ResultAsync<User | null,AppError>
 }
 
 export class UserBiz {
     constructor(private readonly userRepository: IUserRepository) {
     }
 
-    public CreateNewUser = (u: UserCreate) => {
+    public CreateNewUser = (u: UserCreate) : ResultAsync<void, AppError> => {
         return ResultAsync.fromPromise(
             (async () => {
                 const vR = (await Validator(userCreateSchema, u))
@@ -30,12 +29,12 @@ export class UserBiz {
                 if (r.isErr()) {
                     return r
                 }
-                return Ok<void>(undefined);
-            })()
-        )
+                return ok(undefined);
+            })(), e => e as AppError
+        ).andThen(r => r);
     }
 
-    public RequiredRole = (r: Requester, ...roles: SystemRole[]): ResultAsync<any> => {
+    public RequiredRole = (r: Requester, ...roles: SystemRole[]) => {
         return ResultAsync.fromPromise(
             (async () => {
                 const uR = await this.userRepository.FindByUserId(r.userId);
@@ -43,20 +42,20 @@ export class UserBiz {
                     return uR
                 }
 
-                if (!uR.data) {
-                    return uR.wrapErr(newEntityNotFound)
+                if (!uR.value) {
+                    return errAsync(newEntityNotFound("user"))
                 }
-                const data = uR.data
+                const data = uR.value
 
                 if (data.systemRole === SystemRole.Admin) {
-                    return Ok<any>(undefined);
+                    return;
                 }
 
                 if (roles.length > 0 && !roles.includes(data.systemRole)) {
-                    return Err<any>(newForbidden())
+                    return errAsync(newForbidden())
                 }
-                return Ok<any>(undefined);
-            })()
+                return;
+            })(), e => e as AppError
         )
     }
 

@@ -1,10 +1,10 @@
 import jwt from "jsonwebtoken";
-import {Err, Ok, Result} from "../../libs/result";
 import {AppError} from "../../libs/errors";
 import {Nullable} from "../../libs/nullable";
+import {err, ok, Result} from "neverthrow";
 
 export interface JwtProvider {
-    ParseToken: (token: string) => Result<Nullable<JwtClaim>>
+    ParseToken: (token: string) =>  Result<Nullable<JwtClaim>,AppError>
     IssueToken: (id: string, sub: string, expiredTime: number) => [string, number]
 }
 
@@ -29,12 +29,12 @@ export class jwtProvider implements JwtProvider {
 
     }
 
-    ParseToken = (token: string): Result<Nullable<JwtClaim>> => {
+    ParseToken = (token: string): Result<Nullable<JwtClaim>,AppError> => {
         try {
             const claim = jwt.verify(token, this._secret) as JwtClaim
-            return Ok(claim)
-        } catch (err) {
-            return Err<Nullable<JwtClaim>>(InvalidToken(err))
+            return ok(claim)
+        } catch (e) {
+            return err(InvalidToken(e))
         }
     }
 

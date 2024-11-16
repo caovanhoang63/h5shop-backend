@@ -1,32 +1,32 @@
 import express from "express";
 import {IAppContext} from "../components/appContext/appContext";
-import {Err, Ok, Result} from "../libs/result";
 import {InvalidToken, jwtProvider} from "../components/jwtProvider/jwtProvider";
-import {ResultAsync} from "../libs/resultAsync";
 import {writeErrorResponse} from "../libs/writeErrorResponse";
 import {Requester} from "../libs/requester";
 import {AuthBiz} from "../modules/auth/biz/biz";
-import {AuthMysqlRepo} from "../modules/auth/repository/mysql/mysqlRepo";
 import {UserLocal} from "../modules/user/transport/local/local";
 import {Hasher} from "../libs/hasher";
+import {PrmAuthRepo} from "../modules/auth/repository/mysql/prmAuthRepo";
+import {err, ok, Result, ResultAsync} from "neverthrow";
+import {AppError} from "../libs/errors";
 
 interface IAuthBiz {
-    IntrospectToken: (token: string) => ResultAsync<Requester>
+    IntrospectToken: (token: string) => ResultAsync<Requester,AppError>
 }
 
-const getTokenString = (str?: string): Result<string> => {
+const getTokenString = (str?: string): Result<string,AppError> => {
     if (!str) {
-        return Err<string>(InvalidToken())
+        return err(InvalidToken())
     }
     const parts = str.split(" ");
     if (parts[0] != "Bearer" || parts.length < 2 || parts[1].trim() == "" || parts[1].trim() == "null") {
-        return Err<string>(InvalidToken())
+        return err(InvalidToken())
     }
-    return Ok<string>(parts[1])
+    return ok(parts[1])
 }
 
 export const authentication = (appCtx: IAppContext): express.Handler => {
-    const authRepo = new AuthMysqlRepo(appCtx.GetDbConnectionPool());
+    const authRepo = new PrmAuthRepo()
     const userRepo = new UserLocal(appCtx)
     const hasher = new Hasher()
     const appSecret = process.env.SYSTEM_SECRET
@@ -40,13 +40,13 @@ export const authentication = (appCtx: IAppContext): express.Handler => {
             writeErrorResponse(res, rT.error)
             return
         }
-        const r = await authBiz.IntrospectToken(rT.data!);
+        const r = await authBiz.IntrospectToken(rT.value!);
         if (r.isErr()) {
             writeErrorResponse(res, r.error)
             return
         }
-        console.log("data", r.data)
-        res.locals.requester = r.data
+        console.log("data", r.value)
+        res.locals.requester = r.value
         next()
     }
 }

@@ -1,54 +1,39 @@
-import { ResultAsync } from "../../../../libs/resultAsync";
-import { Auth } from "../../entity/auth";
-import {AuthCreate, AuthDdCreate} from "../../entity/authVar";
+import {AuthCreate} from "../../entity/authVar";
 import {IAuthRepository} from "../IAuthRepository";
 import {prisma} from "../../../../components/prisma";
-import {Err, Ok} from "../../../../libs/result";
-import {Nullable} from "../../../../libs/nullable";
+import {ResultAsync} from "neverthrow";
+import {AppError, newDBError} from "../../../../libs/errors";
 
 export class PrmAuthRepo implements IAuthRepository {
-    Create =  (u: AuthCreate) : ResultAsync<void> => {
+    Create =  (u: AuthCreate) : ResultAsync<void,AppError> => {
         const { firstName,lastName,systemRole, ...authData } = u;
-        return ResultAsync.fromPromise(
+        return  ResultAsync.fromPromise(
             prisma.auth.create({data: authData}).then(
-                r => Ok<void>()
-            ).catch(
-                e => Err<void>(e)
-            )
+                r => {}
+            ),
+            (r) => newDBError(r)
         )
     }
-
 
     FindByUserName=  (userName: string)  => {
         return ResultAsync.fromPromise(
             prisma.auth.findFirst(
-                {
-                    where: {
-                        userName: userName
-                    }
-                }
-            ).then( r => {
-                return Ok<Nullable<Auth>>(r)
-            }).catch(
-                r => Err<Nullable<Auth>>(r)
-            )
+                {where: {userName : userName}},
+            ).then( r => r ),
+            r => newDBError(r)
         )
     };
 
-    FindByUserId =  (id: number) : ResultAsync<Auth | null> => {
+    FindByUserId =  (id: number)=> {
         return ResultAsync.fromPromise(
-            prisma.auth.findFirst(
-            {
+            prisma.auth.findFirst({
                 where: {
-                    id: id,
+                       id: id
+                    }
                 }
-            }
-        ).then( r => {
-            return Ok<Nullable<Auth>>(r)
-        }).catch(
-            r => Err<Nullable<Auth>>(r)
-        ))
+            ).then( r => r ),
+            r => newDBError(r)
+        )
     }
-
 
 }

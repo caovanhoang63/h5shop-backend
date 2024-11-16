@@ -2,7 +2,7 @@ import {Nullable} from "./nullable";
 
 export type ErrKey = string
 
-export class AppError extends Error {
+export class AppError extends Error  {
     public constructor(e: any, message: string, key: string, code: number) {
         super(message);
         this.code = code;
@@ -11,7 +11,7 @@ export class AppError extends Error {
     }
 
     public code: number;
-    public error?: Nullable<AppError>;
+    public error: unknown;
     public key: string;
 
     public isSame(e: AppError): boolean {

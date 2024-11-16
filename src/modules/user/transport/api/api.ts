@@ -6,12 +6,13 @@ import {SystemRole, User} from "../../entity/user";
 import {AppResponse} from "../../../../libs/response";
 import {ICondition} from "../../../../libs/condition";
 import {Paging} from "../../../../libs/paging";
-import {ResultAsync} from "../../../../libs/resultAsync";
 import {writeErrorResponse} from "../../../../libs/writeErrorResponse";
+import {AppError} from "../../../../libs/errors";
+import {ResultAsync} from "neverthrow";
 
 interface IUserBiz {
-    CreateNewUser: (u: UserCreate) => ResultAsync<any>
-    FindByCondition: (cond: ICondition, paging: Paging) => ResultAsync<User[]>
+    CreateNewUser: (u: UserCreate) => ResultAsync<any,AppError>
+    FindByCondition: (cond: ICondition, paging: Paging) => ResultAsync<User[],AppError>
 }
 
 export class UserApi {
@@ -40,7 +41,7 @@ export class UserApi {
             writeErrorResponse(res, result.error)
             return
         }
-        res.send(AppResponse.SimpleResponse(result.data))
+        res.send(AppResponse.SimpleResponse(result.value))
     }
 
 }
