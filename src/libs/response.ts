@@ -10,6 +10,8 @@ export interface IResponse {
 export interface IErrorResponse {
     message: string,
     code: number,
+    key: string,
+    metadata?:  Record<string, unknown>;
 }
 
 export class AppResponse {
@@ -31,6 +33,8 @@ export class AppResponse {
         return {
             code: err.code,
             message: err.message,
+            key: err.key,
+            metadata: err.metadata
         }
     }
 }
