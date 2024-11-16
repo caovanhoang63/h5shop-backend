@@ -1,4 +1,4 @@
-import {AppError} from "../../libs/errors";
+import {Err} from "../../libs/errors";
 import {ResultAsync} from "neverthrow";
 
 export type Topic = string;
@@ -10,8 +10,8 @@ export type Message = {
 }
 
 export interface IPubSub {
-    Publish: (topic: Topic, message: Message) => ResultAsync<void, AppError>;
-    Subscribe: (topic: Topic) => ResultAsync<[Message[], () => void], AppError>;
+    Publish: (topic: Topic, message: Message) => ResultAsync<void, Err>;
+    Subscribe: (topic: Topic) => ResultAsync<[Message[], () => void], Err>;
 }
 
 

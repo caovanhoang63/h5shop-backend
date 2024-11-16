@@ -8,13 +8,13 @@ import {UserLocal} from "../modules/user/transport/local/local";
 import {Hasher} from "../libs/hasher";
 import {PrmAuthRepo} from "../modules/auth/repository/mysql/prmAuthRepo";
 import {err, ok, Result, ResultAsync} from "neverthrow";
-import {AppError} from "../libs/errors";
+import {Err} from "../libs/errors";
 
 interface IAuthBiz {
-    IntrospectToken: (token: string) => ResultAsync<Requester, AppError>
+    IntrospectToken: (token: string) => ResultAsync<Requester, Err>
 }
 
-const getTokenString = (str?: string): Result<string, AppError> => {
+const getTokenString = (str?: string): Result<string, Err> => {
     if (!str) {
         return err(InvalidToken())
     }

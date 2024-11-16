@@ -2,11 +2,11 @@ import {IAppContext} from "../components/appContext/appContext";
 import {Message, Topic} from "../components/pubsub";
 import EventEmitter from "node:events";
 import {TopicTest} from "../libs/topics";
-import {AppError, newInternalError} from "../libs/errors";
+import {createInternalError, Err,} from "../libs/errors";
 import {errAsync, okAsync, ResultAsync} from "neverthrow";
 
 //TODO:  Implement retry feature
-type Handler = (m: Message) => ResultAsync<void, AppError>;
+type Handler = (m: Message) => ResultAsync<void, Err>;
 
 export class SubscriberEngine {
     private readonly subscribers: Map<Topic, {
@@ -19,47 +19,47 @@ export class SubscriberEngine {
     constructor(private readonly appContext: IAppContext) {
     }
 
-    run(): ResultAsync<never, AppError> {
+    run(): ResultAsync<never, Err> {
         return ResultAsync.fromPromise(
             (async () => {
                 // The run method now just ensures the engine is ready
                 // and returns a never-resolving promise to keep the service running
                 console.log("Subscriber engine started!");
                 await this.subscribe(TopicTest,
-                    (m: Message): ResultAsync<void, AppError> => {
+                    (m: Message): ResultAsync<void, Err> => {
                         return ResultAsync.fromPromise(
                             (async () => {
                                 console.log(m.id)
                                 return okAsync(undefined)
-                            })(), e => e as AppError
+                            })(), e => e as Err
                         ).andThen(r => r)
                     },
-                    (m: Message): ResultAsync<void, AppError> => {
+                    (m: Message): ResultAsync<void, Err> => {
                         return ResultAsync.fromPromise(
                             (async () => {
                                 return okAsync(undefined)
-                            })(), e => e as AppError
+                            })(), e => e as Err
                         ).andThen(r => r)
                     },
                 )
 
-                await this.subscribe(TopicTest + "1", (m: Message): ResultAsync<void, AppError> => {
+                await this.subscribe(TopicTest + "1", (m: Message): ResultAsync<void, Err> => {
                     return ResultAsync.fromPromise(
                         (async () => {
                             console.log("Subcriber123")
 
                             return okAsync(undefined)
-                        })(), e => e as AppError
+                        })(), e => e as Err
                     ).andThen(r => r)
                 })
 
                 return new Promise<never>(() => {
                 });
-            })(), e => e as AppError
+            })(), e => e as Err
         ).andThen(r => r);
     }
 
-    public subscribe = (topic: Topic, ...handler: Handler[]): ResultAsync<void, AppError> => {
+    public subscribe = (topic: Topic, ...handler: Handler[]): ResultAsync<void, Err> => {
 
         return ResultAsync.fromPromise(
             (async () => {
@@ -67,11 +67,11 @@ export class SubscriberEngine {
                 const result = await this.startSubTopic(topic, ...handler);
 
                 return okAsync(undefined)
-            })(), e => e as AppError
+            })(), e => e as Err
         ).andThen(r => r)
     }
 
-    private startSubTopic = (topic: Topic, ...handlers: Handler[]): ResultAsync<() => void, AppError> => {
+    private startSubTopic = (topic: Topic, ...handlers: Handler[]): ResultAsync<() => void, Err> => {
         return ResultAsync.fromPromise(
             (async () => {
                 // Subscribe to the topic
@@ -140,7 +140,7 @@ export class SubscriberEngine {
                         }
                     }
                 });
-            })(), e => newInternalError(e)
+            })(), e => createInternalError(e)
         ).andThen(r => r);
     }
 
@@ -150,7 +150,7 @@ export class SubscriberEngine {
     }
 
     // Optional: Method to clean up all subscriptions
-    public cleanup(): ResultAsync<void, AppError> {
+    public cleanup(): ResultAsync<void, Err> {
         return ResultAsync.fromPromise(
             (async () => {
                 for (const [topic, subs] of this.subscribers) {
@@ -161,7 +161,7 @@ export class SubscriberEngine {
                 this.subscribers.clear();
                 return okAsync(undefined);
             })(),
-            e => newInternalError(e)
+            e => createInternalError(e)
         ).andThen(r => r);
     }
 }

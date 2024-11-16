@@ -2,13 +2,13 @@ import {UserCreate} from "../../entity/userVar";
 import {IAppContext} from "../../../../components/appContext/appContext";
 import {UserService} from "../../service/userService";
 import {SystemRole} from "../../entity/user";
-import {AppError} from "../../../../libs/errors";
+import {Err} from "../../../../libs/errors";
 import {Nullable} from "../../../../libs/nullable";
 import {UserMysqlRepo} from "../../repository/implementation/mysqlRepo";
 import {ResultAsync} from "neverthrow";
 
 interface IUserBiz {
-    createNewUser: (u: UserCreate) => ResultAsync<void, AppError>
+    createNewUser: (u: UserCreate) => ResultAsync<void, Err>
 }
 
 export class UserLocal {
@@ -19,7 +19,7 @@ export class UserLocal {
     }
 
     public CreateNewUser = async (firstName: string, lastName: string, userName: string, systemRole: SystemRole)
-        : Promise<[number, Nullable<AppError>]> => {
+        : Promise<[number, Nullable<Err>]> => {
         const data: UserCreate = {
             firstName: firstName, lastName: lastName, systemRole: systemRole, userName: userName
         };

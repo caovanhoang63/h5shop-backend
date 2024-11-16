@@ -3,14 +3,14 @@ import {AuthCreate} from "../../entity/authVar";
 import {Auth} from "../../entity/auth";
 import {SqlHelper} from "../../../../libs/sqlHelper";
 import {IAuthRepository} from "../IAuthRepository";
-import {AppError, newDBError} from "../../../../libs/errors";
+import {Err, newDBError} from "../../../../libs/errors";
 import {ok, ResultAsync} from "neverthrow";
 
 export class AuthMysqlRepo implements IAuthRepository {
     constructor(private readonly pool: mysql.Pool) {
     }
 
-    Create = (u: AuthCreate): ResultAsync<void, AppError> => {
+    Create = (u: AuthCreate): ResultAsync<void, Err> => {
         const query = `INSERT INTO auth (user_id, user_name, salt, password)
                        VALUES (?, ?, ?, ?)`
         return ResultAsync.fromPromise(this.pool.promise().query(query, [u.userId, u.userName, u.salt, u.password])
@@ -21,7 +21,7 @@ export class AuthMysqlRepo implements IAuthRepository {
         ).andThen(r => r)
     }
 
-    FindByUserName = (userName: string): ResultAsync<Auth | null, AppError> => {
+    FindByUserName = (userName: string): ResultAsync<Auth | null, Err> => {
         const query = `SELECT *
                        FROM auth
                        WHERE user_name = ?
@@ -40,7 +40,7 @@ export class AuthMysqlRepo implements IAuthRepository {
     }
 
 
-    FindByUserId = (userId: number): ResultAsync<Auth | null, AppError> => {
+    FindByUserId = (userId: number): ResultAsync<Auth | null, Err> => {
         const query = `SELECT *
                        FROM auth
                        WHERE user_id = ?

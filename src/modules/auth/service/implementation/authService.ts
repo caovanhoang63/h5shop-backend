@@ -1,5 +1,5 @@
 import {AuthCreate, AuthLogin, TokenResponse} from "../../entity/authVar";
-import {AppError} from "../../../../libs/errors";
+import {Err} from "../../../../libs/errors";
 import {ErrInvalidCredentials, ErrUserNameAlreadyExists} from "../../entity/error";
 import {randomSalt} from "../../../../libs/salt";
 import {SystemRole} from "../../../user/entity/user";
@@ -20,7 +20,7 @@ import {IAuthService} from "../interface/IAuthService";
 
 
 export interface IUserRepository {
-    CreateNewUser(firstName: string, lastName: string, userName: string, systemRole: SystemRole): Promise<[number, Nullable<AppError>]>
+    CreateNewUser(firstName: string, lastName: string, userName: string, systemRole: SystemRole): Promise<[number, Nullable<Err>]>
 }
 
 export interface IHasher {
@@ -34,7 +34,7 @@ export class AuthService implements IAuthService {
                 private readonly jwtProvider: JwtProvider) {
     }
 
-    public Register = (u: AuthCreate): ResultAsync<void, AppError> => {
+    public Register = (u: AuthCreate): ResultAsync<void, Err> => {
         return ResultAsync.fromPromise(
             (async () => {
                 // Validate
@@ -76,11 +76,11 @@ export class AuthService implements IAuthService {
 
                 return okAsync(undefined); // Success case
             })(),
-            (e) => e as AppError // Catch any unexpected errors
+            (e) => e as Err // Catch any unexpected errors
         ).andThen((result) => result); // Unwrap the ResultAsync for compatibility
     };
 
-    public IntrospectToken = (token: string): ResultAsync<Requester, AppError> => {
+    public IntrospectToken = (token: string): ResultAsync<Requester, Err> => {
         return ResultAsync.fromPromise(
             (async () => {
                 // Parse the token
@@ -105,11 +105,11 @@ export class AuthService implements IAuthService {
 
                 return okAsync(requester);
             })(),
-            (e) => e as AppError // Handle unexpected errors
+            (e) => e as Err // Handle unexpected errors
         ).andThen((result) => result); // Ensure correct result wrapping
     };
 
-    public Login = (u: AuthLogin): ResultAsync<TokenResponse, AppError> => {
+    public Login = (u: AuthLogin): ResultAsync<TokenResponse, Err> => {
         return ResultAsync.fromPromise(
             (async () => {
                 // Validate input
@@ -153,7 +153,7 @@ export class AuthService implements IAuthService {
                     },
                 });
             })(),
-            (e) => e as AppError // Handle unexpected errors
+            (e) => e as Err // Handle unexpected errors
         ).andThen((result) => result); // Ensure correct result wrapping
     };
 

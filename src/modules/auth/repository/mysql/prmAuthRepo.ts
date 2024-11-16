@@ -2,17 +2,17 @@ import {AuthCreate} from "../../entity/authVar";
 import {IAuthRepository} from "../IAuthRepository";
 import {prisma} from "../../../../components/prisma";
 import {ResultAsync} from "neverthrow";
-import {AppError, newDBError} from "../../../../libs/errors";
+import {createDatabaseError, Err} from "../../../../libs/errors";
 
 export class PrmAuthRepo implements IAuthRepository {
-    Create = (u: AuthCreate): ResultAsync<void, AppError> => {
+    Create = (u: AuthCreate): ResultAsync<void, Err> => {
         const {firstName, lastName, systemRole, ...authData} = u;
         return ResultAsync.fromPromise(
             prisma.auth.create({data: authData}).then(
                 r => {
                 }
             ),
-            (r) => newDBError(r)
+            (r) => createDatabaseError(r)
         )
     }
 
@@ -21,7 +21,7 @@ export class PrmAuthRepo implements IAuthRepository {
             prisma.auth.findFirst(
                 {where: {userName: userName}},
             ).then(r => r),
-            r => newDBError(r)
+            r => createDatabaseError(r)
         )
     };
 
@@ -33,7 +33,7 @@ export class PrmAuthRepo implements IAuthRepository {
                     }
                 }
             ).then(r => r),
-            r => newDBError(r)
+            r => createDatabaseError(r)
         )
     }
 

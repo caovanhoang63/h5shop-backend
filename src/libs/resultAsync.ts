@@ -1,5 +1,5 @@
 import {Err, Ok, Result} from "./result";
-import {AppError} from "./errors";
+import {Err} from "./errors";
 
 export class ResultAsync<T> implements PromiseLike<Result<T>> {
     constructor(res: Promise<Result<T>>) {
@@ -38,5 +38,5 @@ export class ResultAsync<T> implements PromiseLike<Result<T>> {
 export const okAsync = <T>(value: T): ResultAsync<T> =>
     new ResultAsync(Promise.resolve(Ok(value)));
 
-export const errAsync = <T>(err: AppError): ResultAsync<T> =>
+export const errAsync = <T>(err: Err): ResultAsync<T> =>
     new ResultAsync(Promise.resolve(Err(err)))

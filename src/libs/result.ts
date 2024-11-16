@@ -1,17 +1,17 @@
 import {Nullable} from "./nullable";
-import {AppError, newInternalError} from "./errors";
+import {Err, newInternalError} from "./errors";
 
 export class Result<T> {
 
-    error: AppError = newInternalError();
+    error: Err = newInternalError();
     data?: T;
 
-    public wrap(error: AppError): Result<T> {
+    public wrap(error: Err): Result<T> {
         this.error ? this.error.error = error : this.error = error;
         return this
     }
 
-    public wrapErr(fn: (...e: any[]) => AppError): Result<T> {
+    public wrapErr(fn: (...e: any[]) => Err): Result<T> {
         const err = fn(this.error)
         err.error = err
         this.error = err
@@ -36,7 +36,7 @@ export const Ok = <T>(value?: T): Result<T> => {
     a.data = value
     return a
 }
-export const Err = <T>(err?: Nullable<AppError>): Result<T> => {
+export const Err = <T>(err?: Nullable<Err>): Result<T> => {
     const a = new Result<T>()
     a.error = newInternalError(err)
     return a

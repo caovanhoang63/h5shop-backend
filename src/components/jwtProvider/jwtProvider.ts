@@ -1,10 +1,10 @@
 import jwt from "jsonwebtoken";
-import {AppError} from "../../libs/errors";
+import {Err} from "../../libs/errors";
 import {Nullable} from "../../libs/nullable";
 import {err, ok, Result} from "neverthrow";
 
 export interface JwtProvider {
-    ParseToken: (token: string) => Result<Nullable<JwtClaim>, AppError>
+    ParseToken: (token: string) => Result<Nullable<JwtClaim>, Err>
     IssueToken: (id: string, sub: string, expiredTime: number) => [string, number]
 }
 
@@ -12,8 +12,10 @@ export const defaultExpireAccessTokenInSeconds = 60 * 60; // 1 hour
 export const defaultExpireRefreshTokenInSeconds = 60 * 60 * 24 * 7; // 7 days
 
 export const InvalidToken = (e?: any) =>
-    new AppError(e, "Invalid token", "ERR_INVALID_TOKEN", 403)
+    new Err({
+        code: 403, key: "ERR_INVALID_TOKEN", message: "Invalid token", metadata: undefined, originalError: e
 
+    })
 export interface JwtClaim {
     id: string, // this is the token id
     sub: string,
@@ -29,7 +31,7 @@ export class jwtProvider implements JwtProvider {
 
     }
 
-    ParseToken = (token: string): Result<Nullable<JwtClaim>, AppError> => {
+    ParseToken = (token: string): Result<Nullable<JwtClaim>, Err> => {
         try {
             const claim = jwt.verify(token, this._secret) as JwtClaim
             return ok(claim)

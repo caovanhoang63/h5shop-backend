@@ -1,5 +1,5 @@
 import {UserCreate, userCreateSchema} from "../entity/userVar";
-import {AppError, newEntityNotFound, newForbidden} from "../../../libs/errors";
+import {createEntityNotFoundError, createForbiddenError, Err,} from "../../../libs/errors";
 import {Paging} from "../../../libs/paging";
 import {SystemRole} from "../entity/user";
 import {Validator} from "../../../libs/validator";
@@ -13,7 +13,7 @@ export class UserService  implements  IUserBiz{
     constructor(private readonly userRepository: IUserRepository) {
     }
 
-    public createNewUser = (u: UserCreate): ResultAsync<void, AppError> => {
+    public createNewUser = (u: UserCreate): ResultAsync<void, Err> => {
         return ResultAsync.fromPromise(
             (async () => {
                 const vR = (await Validator(userCreateSchema, u))
@@ -26,7 +26,7 @@ export class UserService  implements  IUserBiz{
                     return r
                 }
                 return ok(undefined);
-            })(), e => e as AppError
+            })(), e => e as Err
         ).andThen(r => r);
     }
 
@@ -39,7 +39,7 @@ export class UserService  implements  IUserBiz{
                 }
 
                 if (!uR.value) {
-                    return errAsync(newEntityNotFound("user"))
+                    return errAsync(createEntityNotFoundError("user"))
                 }
                 const data = uR.value
 
@@ -48,10 +48,10 @@ export class UserService  implements  IUserBiz{
                 }
 
                 if (roles.length > 0 && !roles.includes(data.systemRole)) {
-                    return errAsync(newForbidden())
+                    return errAsync(createForbiddenError())
                 }
                 return;
-            })(), e => e as AppError
+            })(), e => e as Err
         )
     }
 

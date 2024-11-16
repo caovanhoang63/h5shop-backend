@@ -1,7 +1,7 @@
 import {Mutex} from "async-mutex";
 import {IPubSub, Message, Topic} from "../index";
 import EventEmitter from "node:events";
-import {AppError} from "../../../libs/errors";
+import {Err} from "../../../libs/errors";
 import {ok, ResultAsync} from "neverthrow";
 
 interface IQueueMap {
@@ -39,7 +39,7 @@ export class LocalPubSub implements IPubSub {
         }
     }
 
-    public Serve(): ResultAsync<void, AppError> {
+    public Serve(): ResultAsync<void, Err> {
         return ResultAsync.fromPromise(
             (async () => {
                 if (!this.isServing) {
@@ -50,11 +50,11 @@ export class LocalPubSub implements IPubSub {
                 return new Promise<never>(() => {
                 });
             })(),
-            e => e as AppError,
+            e => e as Err,
         ).andThen(r => r);
     }
 
-    public Publish(topic: Topic, message: Message): ResultAsync<void, AppError> {
+    public Publish(topic: Topic, message: Message): ResultAsync<void, Err> {
         return ResultAsync.fromPromise(
             (async () => {
                 console.log("Publish", message.id)
@@ -68,11 +68,11 @@ export class LocalPubSub implements IPubSub {
                 }
                 return ok(undefined);
             })(),
-            e => e as AppError
+            e => e as Err
         ).andThen(r => r);
     }
 
-    public Subscribe(topic: Topic): ResultAsync<[Message[], () => void], AppError> {
+    public Subscribe(topic: Topic): ResultAsync<[Message[], () => void], Err> {
         const messages: Message[] = [];
         return ResultAsync.fromPromise(
             (async () => {
@@ -103,7 +103,7 @@ export class LocalPubSub implements IPubSub {
                     }
                 ]);
             })(),
-            e => e as AppError
+            e => e as Err
         ).andThen(r => r);
     }
 }

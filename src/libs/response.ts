@@ -1,5 +1,5 @@
 import {Paging} from "./paging";
-import {AppError} from "./errors";
+import {Err} from "./errors";
 
 export interface IResponse {
     data: any,
@@ -27,7 +27,7 @@ export class AppResponse {
         }
     }
 
-    public static ErrorResponse(err: AppError): IErrorResponse {
+    public static ErrorResponse(err: Err): IErrorResponse {
         return {
             code: err.code,
             message: err.message,
