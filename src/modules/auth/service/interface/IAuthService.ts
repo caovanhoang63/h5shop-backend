@@ -1,8 +1,10 @@
-import {AuthCreate, AuthLogin, TokenResponse} from "../../entity/authVar";
 import {ResultAsync} from "neverthrow";
 import {Err} from "../../../../libs/errors";
+import {AuthCreate} from "../../entity/authCreate";
+import {AuthLogin} from "../../entity/authLogin";
+import {TokenResponse} from "../../entity/authVar";
 
 export interface IAuthService {
-    Register: (u: AuthCreate) => ResultAsync<void, Err>
-    Login: (u: AuthLogin) => ResultAsync<TokenResponse, Err>
+    register: (u: AuthCreate) => ResultAsync<void, Err>
+    login: (u: AuthLogin) => ResultAsync<TokenResponse, Err>
 }

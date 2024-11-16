@@ -6,7 +6,7 @@ import {Requester} from "../libs/requester";
 import {AuthService} from "../modules/auth/service/implementation/authService";
 import {UserLocal} from "../modules/user/transport/local/local";
 import {Hasher} from "../libs/hasher";
-import {PrmAuthRepo} from "../modules/auth/repository/mysql/prmAuthRepo";
+import {PrmAuthRepo} from "../modules/auth/repository/implementation/prmAuthRepo";
 import {err, ok, Result, ResultAsync} from "neverthrow";
 import {Err} from "../libs/errors";
 
@@ -40,7 +40,7 @@ export const authentication = (appCtx: IAppContext): express.Handler => {
             writeErrorResponse(res, rT.error)
             return
         }
-        const r = await authBiz.IntrospectToken(rT.value!);
+        const r = await authBiz.introspectToken(rT.value!);
         if (r.isErr()) {
             writeErrorResponse(res, r.error)
             return

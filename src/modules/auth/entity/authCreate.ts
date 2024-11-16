@@ -1,6 +1,16 @@
-import Joi from "joi";
+import {BaseModel} from "../../../libs/baseModel";
 import {SystemRole} from "../../user/entity/user";
+import Joi from "joi";
 
+export interface AuthCreate extends BaseModel {
+    userId: number;
+    userName: string;
+    salt: string;
+    password: string;
+    firstName: string;
+    lastName: string;
+    systemRole: SystemRole;
+}
 
 export const authCreateSchema = Joi.object().keys({
     password: Joi.string().regex(new RegExp("^(?=.*[A-Za-z])(?=.*\\d)(?=.*[@$!%*#?&])[A-Za-z\\d@$!%*#?&]{8,}$")).required()
@@ -10,10 +20,4 @@ export const authCreateSchema = Joi.object().keys({
     systemRole: Joi.required().valid(...Object.values(SystemRole)),
     firstName: Joi.string().required(),
     lastName: Joi.string().required()
-})
-
-
-export const authLoginSchema = Joi.object().keys({
-    password: Joi.string().required(),
-    userName: Joi.string().required(),
 })

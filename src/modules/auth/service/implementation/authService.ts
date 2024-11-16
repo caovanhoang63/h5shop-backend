@@ -1,10 +1,9 @@
-import {AuthCreate, AuthLogin, TokenResponse} from "../../entity/authVar";
+import {TokenResponse} from "../../entity/authVar";
 import {Err} from "../../../../libs/errors";
-import {ErrInvalidCredentials, ErrUserNameAlreadyExists} from "../../entity/error";
+import {ErrInvalidCredentials, ErrUserNameAlreadyExists} from "../../entity/authErrors";
 import {randomSalt} from "../../../../libs/salt";
 import {SystemRole} from "../../../user/entity/user";
 import {Nullable} from "../../../../libs/nullable";
-import {authCreateSchema, authLoginSchema} from "../../entity/validate";
 import {Validator} from "../../../../libs/validator";
 import {Requester} from "../../../../libs/requester";
 import {
@@ -17,6 +16,8 @@ import {randomUUID} from "node:crypto";
 import {IAuthRepository} from "../../repository/IAuthRepository";
 import {errAsync, okAsync, ResultAsync} from "neverthrow";
 import {IAuthService} from "../interface/IAuthService";
+import {AuthCreate, authCreateSchema} from "../../entity/authCreate";
+import {AuthLogin, authLoginSchema} from "../../entity/authLogin";
 
 
 export interface IUserRepository {
@@ -33,8 +34,7 @@ export class AuthService implements IAuthService {
                 private readonly userRepo: IUserRepository,
                 private readonly jwtProvider: JwtProvider) {
     }
-
-    public Register = (u: AuthCreate): ResultAsync<void, Err> => {
+    public register = (u: AuthCreate): ResultAsync<void, Err> => {
         return ResultAsync.fromPromise(
             (async () => {
                 // Validate
@@ -80,7 +80,7 @@ export class AuthService implements IAuthService {
         ).andThen((result) => result); // Unwrap the ResultAsync for compatibility
     };
 
-    public IntrospectToken = (token: string): ResultAsync<Requester, Err> => {
+    public introspectToken = (token: string): ResultAsync<Requester, Err> => {
         return ResultAsync.fromPromise(
             (async () => {
                 // Parse the token
@@ -109,7 +109,7 @@ export class AuthService implements IAuthService {
         ).andThen((result) => result); // Ensure correct result wrapping
     };
 
-    public Login = (u: AuthLogin): ResultAsync<TokenResponse, Err> => {
+    public login = (u: AuthLogin): ResultAsync<TokenResponse, Err> => {
         return ResultAsync.fromPromise(
             (async () => {
                 // Validate input

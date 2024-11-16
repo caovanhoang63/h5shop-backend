@@ -1,8 +1,9 @@
-import {AuthCreate, AuthLogin} from "../../entity/authVar";
 import express from "express";
 import {AppResponse} from "../../../../libs/response";
 import {writeErrorResponse} from "../../../../libs/writeErrorResponse";
 import {IAuthService} from "../../service/interface/IAuthService";
+import {AuthCreate} from "../../entity/authCreate";
+import {AuthLogin} from "../../entity/authLogin";
 
 export interface IAuthApi {
     Register : express.Handler
@@ -18,7 +19,7 @@ export class AuthApi  implements IAuthApi {
     Register: express.Handler = async (req, res, next) => {
         const u = req.body as AuthCreate;
 
-        const r = await this.authBiz.Register(u)
+        const r = await this.authBiz.register(u)
         if (r.isErr()) {
             writeErrorResponse(res, r.error)
             return
@@ -30,7 +31,7 @@ export class AuthApi  implements IAuthApi {
     Login: express.Handler = async (req, res, next) => {
         const u = req.body as AuthLogin;
 
-        const r = await this.authBiz.Login(u)
+        const r = await this.authBiz.login(u)
 
         if (r.isErr()) {
             writeErrorResponse(res, r.error)

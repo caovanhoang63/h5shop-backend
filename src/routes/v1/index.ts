@@ -1,9 +1,9 @@
 import express from "express";
-// import usersRouter from "./userRoute";
+import usersRouter from "./userRoute";
 import {IAppContext} from "../../components/appContext/appContext";
-import authRouter from "./authRoute";
 import {TopicTest} from "../../libs/topics";
 import {randomUUID} from "node:crypto";
+import authRouter from "./authRoute";
 
 const v1Router = (appCtx: IAppContext) => {
     const router = express.Router();
@@ -16,7 +16,7 @@ const v1Router = (appCtx: IAppContext) => {
         res.render('index', {title: 'Express'});
     });
 
-    // router.use("/users", usersRouter(appCtx))
+    router.use("/users", usersRouter(appCtx))
     router.use("/auth", authRouter(appCtx))
     router.post("/pubsub/test", async (req, res, next) => {
         await appCtx.GetPubsub().Publish(TopicTest, {data: null, id: randomUUID(), topic: ""})

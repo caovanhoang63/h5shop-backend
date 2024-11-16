@@ -1,5 +1,5 @@
 import mysql, {ResultSetHeader, RowDataPacket} from "mysql2";
-import {UserCreate} from "../../entity/userVar";
+import {UserCreate} from "../../entity/userCreate";
 import {ICondition} from "../../../../libs/condition";
 import {User, UserEntityName} from "../../entity/user";
 import {SqlHelper} from "../../../../libs/sqlHelper";
@@ -16,7 +16,7 @@ export class UserMysqlRepo implements IUserRepository {
         this.pool = pool
     }
 
-    public Create = (u: UserCreate): ResultAsync<void, Err> => {
+    public create = (u: UserCreate): ResultAsync<void, Err> => {
         const query = `INSERT INTO user (user_name, first_name, last_name, system_role)
                        VALUES (?, ?, ?, ?) `;
 
@@ -31,7 +31,7 @@ export class UserMysqlRepo implements IUserRepository {
         ), e => MysqlErrHandler.handler(err, UserEntityName)).andThen(r => r);
     }
 
-    public FindByUserId = (id: number): ResultAsync<User | null, Err> => {
+    public findByUserId = (id: number): ResultAsync<User | null, Err> => {
         const query = `SELECT *
                        FROM user
                        WHERE id = ? LIMIT 1`;
@@ -50,7 +50,7 @@ export class UserMysqlRepo implements IUserRepository {
     }
 
 
-    public FindByCondition = (cond: ICondition, paging: Paging): ResultAsync<User[], Err> => {
+    public findByCondition = (cond: ICondition, paging: Paging): ResultAsync<User[], Err> => {
 
         const [whereClause, values] = SqlHelper.buildWhereClause(cond)
         const query = `SELECT *

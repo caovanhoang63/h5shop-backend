@@ -1,4 +1,4 @@
-import {UserCreate, userCreateSchema} from "../entity/userVar";
+import {UserCreate, userCreateSchema} from "../entity/userCreate";
 import {createEntityNotFoundError, createForbiddenError, Err,} from "../../../libs/errors";
 import {Paging} from "../../../libs/paging";
 import {SystemRole} from "../entity/user";
@@ -7,6 +7,8 @@ import {Requester} from "../../../libs/requester";
 import {errAsync, ok, ResultAsync} from "neverthrow";
 import {IUserRepository} from "../repository/IUserRepository";
 import {IUserBiz} from "./IUserBiz";
+import {UserSystemRole} from "@prisma/client";
+import {ICondition} from "../../../libs/condition";
 
 
 export class UserService  implements  IUserBiz{
@@ -21,7 +23,7 @@ export class UserService  implements  IUserBiz{
                     return vR
                 }
 
-                const r = await this.userRepository.Create(u);
+                const r = await this.userRepository.create(u);
                 if (r.isErr()) {
                     return r
                 }
@@ -30,10 +32,10 @@ export class UserService  implements  IUserBiz{
         ).andThen(r => r);
     }
 
-    public requiredRole = (r: Requester, ...roles: SystemRole[]) => {
+    public requiredRole = (r: Requester, ...roles: UserSystemRole[]) => {
         return ResultAsync.fromPromise(
             (async () => {
-                const uR = await this.userRepository.FindByUserId(r.userId);
+                const uR = await this.userRepository.findByUserId(r.userId);
                 if (uR.isErr()) {
                     return uR
                 }
@@ -47,7 +49,7 @@ export class UserService  implements  IUserBiz{
                     return;
                 }
 
-                if (roles.length > 0 && !roles.includes(data.systemRole)) {
+                if (roles.length > 0 && !roles.includes(data.systemRole!)) {
                     return errAsync(createForbiddenError())
                 }
                 return;
@@ -55,14 +57,9 @@ export class UserService  implements  IUserBiz{
         )
     }
 
-    public listUsers = () => {
-        const cond = {}
+    public listUsers = (cond: ICondition, paging: Paging) => {
 
-        const paging: Paging = {
-            cursor: 0, limit: 0, nextCursor: 0, page: 0, total: 0
-
-        }
-        return this.userRepository.FindByCondition(cond, paging)
+        return this.userRepository.findByCondition(cond, paging)
 
     }
 }

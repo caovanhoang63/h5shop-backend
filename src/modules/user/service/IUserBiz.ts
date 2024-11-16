@@ -1,4 +1,4 @@
-import {UserCreate} from "../entity/userVar";
+import {UserCreate} from "../entity/userCreate";
 import {ResultAsync} from "neverthrow";
 import {Err} from "../../../libs/errors";
 import {ICondition} from "../../../libs/condition";

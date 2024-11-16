@@ -1,4 +1,4 @@
-import {UserCreate} from "../../entity/userVar";
+import {UserCreate} from "../../entity/userCreate";
 import {IAppContext} from "../../../../components/appContext/appContext";
 import {UserService} from "../../service/userService";
 import {SystemRole} from "../../entity/user";

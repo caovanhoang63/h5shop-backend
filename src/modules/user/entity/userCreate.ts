@@ -6,7 +6,7 @@ import Joi from "joi";
 export interface UserCreate extends BaseModel {
     userName: string;
     firstName: string;
-    lastName: Nullable<string>;
+    lastName: string;
     systemRole: SystemRole;
 }
 

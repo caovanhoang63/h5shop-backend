@@ -1,11 +1,12 @@
 import {IAppContext} from "../../../../components/appContext/appContext";
 import {UserService} from "../../service/userService";
 import express from "express";
-import {UserCreate} from "../../entity/userVar";
+import {UserCreate} from "../../entity/userCreate";
 import {SystemRole} from "../../entity/user";
 import {AppResponse} from "../../../../libs/response";
 import {writeErrorResponse} from "../../../../libs/writeErrorResponse";
 import {IUserBiz} from "../../service/IUserBiz";
+import {Paging} from "../../../../libs/paging";
 
 
 export class UserApi {
@@ -28,13 +29,15 @@ export class UserApi {
         }
         res.send(AppResponse.SimpleResponse(true))
     }
-    // public ListUsers: express.Handler = async (req, res, next) => {
-    //     const result = await this.userBiz.listUsers()
-    //     if (result.isErr()) {
-    //         writeErrorResponse(res, result.error)
-    //         return
-    //     }
-    //     res.send(AppResponse.SimpleResponse(result.value))
-    // }
+    public ListUsers: express.Handler = async (req, res, next) => {
+        const paging : Paging ={limit: 2, nextCursor: 0, page: 1, total: 0}
+        const cond  = {}
+        const result = await this.userBiz.listUsers(cond,paging)
+        if (result.isErr()) {
+            writeErrorResponse(res, result.error)
+            return
+        }
+        res.send(AppResponse.SuccessResponse(result.value,paging,cond))
+    }
 
 }

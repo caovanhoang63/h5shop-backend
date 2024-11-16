@@ -5,7 +5,7 @@ import {UserMysqlRepo} from "../modules/user/repository/implementation/mysqlRepo
 import {UserService} from "../modules/user/service/userService";
 import {Requester, RequesterKey} from "../libs/requester";
 import {writeErrorResponse} from "../libs/writeErrorResponse";
-import {newForbidden} from "../libs/errors";
+import {createForbiddenError} from "../libs/errors";
 
 const requiredRole = (appCtx: IAppContext, ...roles: SystemRole[]): express.Handler => {
     const userRepo = new UserMysqlRepo(appCtx.GetDbConnectionPool());
@@ -14,7 +14,7 @@ const requiredRole = (appCtx: IAppContext, ...roles: SystemRole[]): express.Hand
     return async (req, res, next) => {
         const requester = res.locals[RequesterKey] as Requester;
         if (!requester) {
-            writeErrorResponse(res, newForbidden())
+            writeErrorResponse(res, createForbiddenError())
             return
         }
 

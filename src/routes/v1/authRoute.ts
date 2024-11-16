@@ -5,7 +5,7 @@ import {AuthApi} from "../../modules/auth/transport/api/api";
 import {UserLocal} from "../../modules/user/transport/local/local";
 import {Hasher} from "../../libs/hasher";
 import {jwtProvider} from "../../components/jwtProvider/jwtProvider";
-import {PrmAuthRepo} from "../../modules/auth/repository/mysql/prmAuthRepo";
+import {PrmAuthRepo} from "../../modules/auth/repository/implementation/prmAuthRepo";
 
 
 const authRouter = (appContext: IAppContext) => {

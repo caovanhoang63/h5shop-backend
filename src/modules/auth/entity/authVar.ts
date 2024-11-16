@@ -1,24 +1,7 @@
 import {BaseModel} from "../../../libs/baseModel";
 import {SystemRole} from "../../user/entity/user";
 
-export interface AuthCreate extends BaseModel {
-    userId: number;
-    userName: string;
-    salt: string;
-    password: string;
-    firstName: string;
-    lastName: string;
-    systemRole: SystemRole;
-}
 
-export interface AuthDdCreate extends BaseModel {
-    userId: number;
-    userName: string;
-    salt: string;
-    password: string;
-    firstName: string;
-    lastName: string;
-}
 
 
 export interface Token {
@@ -32,10 +15,7 @@ export interface TokenResponse {
 }
 
 
-export interface AuthLogin {
-    userName: string;
-    password: string;
-}
+
 
 
 

@@ -1,8 +1,8 @@
-import {AuthCreate} from "../../entity/authVar";
 import {IAuthRepository} from "../IAuthRepository";
 import {prisma} from "../../../../components/prisma";
 import {ResultAsync} from "neverthrow";
 import {createDatabaseError, Err} from "../../../../libs/errors";
+import {AuthCreate} from "../../entity/authCreate";
 
 export class PrmAuthRepo implements IAuthRepository {
     Create = (u: AuthCreate): ResultAsync<void, Err> => {
