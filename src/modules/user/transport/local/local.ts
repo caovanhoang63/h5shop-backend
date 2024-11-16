@@ -6,6 +6,7 @@ import {Err} from "../../../../libs/errors";
 import {Nullable} from "../../../../libs/nullable";
 import {UserMysqlRepo} from "../../repository/implementation/mysqlRepo";
 import {ResultAsync} from "neverthrow";
+import {PrmUserRepo} from "../../repository/implementation/prmUserRepo";
 
 interface IUserBiz {
     createNewUser: (u: UserCreate) => ResultAsync<void, Err>
@@ -15,7 +16,7 @@ export class UserLocal {
     private readonly userBiz: IUserBiz;
 
     constructor(private readonly appContext: IAppContext) {
-        this.userBiz = new UserService(new UserMysqlRepo(appContext.GetDbConnectionPool()));
+        this.userBiz = new UserService(new PrmUserRepo());
     }
 
     public CreateNewUser = async (firstName: string, lastName: string, userName: string, systemRole: SystemRole)

@@ -6,9 +6,10 @@ import {UserService} from "../modules/user/service/userService";
 import {Requester, RequesterKey} from "../libs/requester";
 import {writeErrorResponse} from "../libs/writeErrorResponse";
 import {createForbiddenError} from "../libs/errors";
+import {PrmUserRepo} from "../modules/user/repository/implementation/prmUserRepo";
 
 const requiredRole = (appCtx: IAppContext, ...roles: SystemRole[]): express.Handler => {
-    const userRepo = new UserMysqlRepo(appCtx.GetDbConnectionPool());
+    const userRepo = new PrmUserRepo();
     const userBiz = new UserService(userRepo);
 
     return async (req, res, next) => {

@@ -17,26 +17,9 @@ dotenv.config();
 const app: Express = express();
 const port = process.env.PORT || 3000;
 
-const pool = mysql.createPool({
-    host: process.env.MYSQL_HOST,
-    user: process.env.MYSQL_USER,
-    password: process.env.MYSQL_PASSWORD,
-    database: process.env.MYSQL_DATABASE,
-    waitForConnections: true,
-    connectionLimit: 10,
-    queueLimit: 0
-});
-
-try {
-    const promisePool = pool.query("SELECT 1 + 1")
-    console.log("Connect database success!")
-} catch (e) {
-    console.error(e);
-    throw e;
-}
 
 const localPubsub = new LocalPubSub();
-const appContext = new AppContext(pool, localPubsub);
+const appContext = new AppContext( localPubsub);
 const subcriberEngine = new SubscriberEngine(appContext);
 
 
