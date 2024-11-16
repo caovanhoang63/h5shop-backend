@@ -60,6 +60,19 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use("/v1", v1Router(appContext));
 app.use(recovery)
 
+async function main() {
+    const allUsers = await prisma.user.findMany()
+
+    console.log(allUsers)
+}
+
+
+(async () => {
+    await main();
+})()
+
+
+
 
 app.listen(port, () => {
     console.log(`[server]: Server is running at http://localhost:${port}`);
