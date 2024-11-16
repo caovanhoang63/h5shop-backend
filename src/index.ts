@@ -60,16 +60,6 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use("/v1", v1Router(appContext));
 app.use(recovery)
 
-async function main() {
-    const allUsers = await prisma.user.findMany()
-
-    console.log(allUsers)
-}
-
-
-(async () => {
-    await main();
-})()
 
 
 

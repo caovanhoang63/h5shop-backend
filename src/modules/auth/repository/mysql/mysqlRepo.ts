@@ -1,11 +1,12 @@
 import mysql, {RowDataPacket} from "mysql2";
-import {AuthCreate} from "../../entity/authVar";
+import {AuthCreate, AuthDdCreate} from "../../entity/authVar";
 import {ResultAsync} from "../../../../libs/resultAsync";
 import {Auth} from "../../entity/auth";
 import {Err, Ok} from "../../../../libs/result";
 import {SqlHelper} from "../../../../libs/sqlHelper";
+import {IAuthRepository} from "../IAuthRepository";
 
-export class AuthMysqlRepo {
+export class AuthMysqlRepo implements IAuthRepository{
     constructor(private readonly pool: mysql.Pool) {
     }
 
@@ -58,7 +59,6 @@ export class AuthMysqlRepo {
                 }
                 const data: Auth = SqlHelper.toCamelCase(a[0]);
                 return Ok<Auth>(data)
-
             })
             .catch(
                 e => Err<Auth>(e)

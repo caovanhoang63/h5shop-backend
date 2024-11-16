@@ -12,8 +12,8 @@ model Auth {
   id        Int       @id @default(autoincrement())
   userId    Int       @map("user_id")
   userName  String    @unique(map: "user_name") @map("user_name") @db.VarChar(255)
-  salt      String?   @db.VarChar(50)
-  password  String?   @db.VarChar(100)
+  salt      String    @db.VarChar(50)
+  password  String    @db.VarChar(100)
   createdAt DateTime? @default(now()) @map("created_at") @db.DateTime(0)
   updatedAt DateTime? @default(now()) @map("updated_at") @db.DateTime(0)
 
@@ -64,8 +64,8 @@ model Customer {
   id          Int            @id @default(autoincrement())
   phoneNumber String?        @map("phone_number") @db.VarChar(20)
   address     String?        @db.VarChar(255)
-  firstName   String?        @map("first_name") @db.VarChar(255)
-  lastName    String?        @map("last_name") @db.VarChar(255)
+  firstName   String         @map("first_name") @db.VarChar(255)
+  lastName    String         @map("last_name") @db.VarChar(255)
   dateOfBirth DateTime?      @map("date_of_birth") @db.Date
   gender      CustomerGender @default(other)
   status      Int?           @default(1)

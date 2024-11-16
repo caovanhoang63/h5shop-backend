@@ -11,6 +11,15 @@ export interface AuthCreate extends BaseModel {
     systemRole: SystemRole;
 }
 
+export interface AuthDdCreate extends BaseModel {
+    userId: number;
+    userName: string;
+    salt: string;
+    password: string;
+    firstName: string;
+    lastName: string;
+}
+
 
 export interface Token {
     token: string;

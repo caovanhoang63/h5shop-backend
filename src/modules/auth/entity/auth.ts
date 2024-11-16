@@ -1,12 +1,13 @@
 import {BaseModel} from "../../../libs/baseModel";
+import {Nullable} from "../../../libs/nullable";
 
-export interface Auth extends BaseModel {
+export interface Auth {
     id: number;
     userId: number;
     userName: string;
     salt: string;
     password: string;
-    createdAt: Date;
-    updatedAt: Date;
+    createdAt: Date | null;
+    updatedAt: Date | null;
 }
 

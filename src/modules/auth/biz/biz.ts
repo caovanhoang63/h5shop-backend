@@ -17,12 +17,8 @@ import {
     JwtProvider
 } from "../../../components/jwtProvider/jwtProvider";
 import {randomUUID} from "node:crypto";
+import {IAuthRepository} from "../repository/IAuthRepository";
 
-interface IAuthRepository {
-    Create: (u: AuthCreate) => ResultAsync<void>
-    FindByUserName: (userName: string) => ResultAsync<Auth>
-    FindByUserId: (id: number) => ResultAsync<Auth>
-}
 
 interface IUserRepository {
     CreateNewUser(firstName: string, lastName: string, userName: string, systemRole: SystemRole): Promise<[number, Nullable<AppError>]>
