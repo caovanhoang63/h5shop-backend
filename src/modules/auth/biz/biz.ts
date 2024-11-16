@@ -32,7 +32,6 @@ export interface IHasher {
     hash: (value: string, salt: string) => string
 }
 
-
 export class AuthBiz {
     constructor(private readonly authRepo: IAuthRepository,
                 private readonly hasher: IHasher,

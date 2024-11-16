@@ -8,6 +8,7 @@
     "dev": "nodemon src/index.ts"
   },
   "dependencies": {
+    "@prisma/client": "^5.22.0",
     "async-mutex": "^0.5.0",
     "body-parser": "^1.20.3",
     "cookie-parser": "~1.4.4",

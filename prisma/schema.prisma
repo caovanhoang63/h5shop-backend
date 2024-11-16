@@ -1,0 +1,370 @@
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["prismaSchemaFolder"]
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model auth {
+  id         Int       @id @default(autoincrement())
+  user_id    Int
+  user_name  String    @unique(map: "user_name") @db.VarChar(255)
+  salt       String?   @db.VarChar(50)
+  password   String?   @db.VarChar(100)
+  created_at DateTime? @default(now()) @db.DateTime(0)
+  updated_at DateTime? @default(now()) @db.DateTime(0)
+
+  @@index([user_id], map: "user_id")
+}
+
+model bill {
+  id         Int       @id @default(autoincrement())
+  order_id   Int
+  cashier_id Int
+  amount     Decimal   @default(0.00) @db.Decimal(15, 2)
+  status     Int?      @default(1)
+  created_at DateTime? @default(now()) @db.Timestamp(0)
+  updated_at DateTime? @default(now()) @db.Timestamp(0)
+
+  @@index([cashier_id], map: "casher_id")
+  @@index([order_id], map: "order_id")
+  @@index([status], map: "status")
+}
+
+model category {
+  id          Int       @id @default(autoincrement())
+  name        String?   @db.VarChar(255)
+  description String?   @db.Text
+  metadata    Json?
+  images      Json?
+  status      Int?      @default(1)
+  created_at  DateTime? @default(now()) @db.Timestamp(0)
+  updated_at  DateTime? @default(now()) @db.Timestamp(0)
+
+  @@index([status], map: "status")
+}
+
+model category_to_spu {
+  category_id Int
+  spu_id      Int
+  created_at  DateTime? @default(now()) @db.Timestamp(0)
+
+  @@id([category_id, spu_id])
+  @@index([spu_id], map: "spu_id")
+}
+
+model customer {
+  id            Int             @id @default(autoincrement())
+  phone_number  String?         @db.VarChar(20)
+  address       String?         @db.VarChar(255)
+  first_name    String?         @db.VarChar(255)
+  last_name     String?         @db.VarChar(255)
+  date_of_birth DateTime?       @db.Date
+  gender        customer_gender @default(other)
+  status        Int?            @default(1)
+  created_at    DateTime?       @default(now()) @db.Timestamp(0)
+  updated_at    DateTime?       @default(now()) @db.Timestamp(0)
+
+  @@index([status], map: "status")
+}
+
+model inventory_report {
+  id              Int       @id @default(autoincrement())
+  warehouse_man_1 Int
+  warehouse_man_2 Int?
+  warehouse_man_3 Int?
+  status          Int?      @default(1)
+  updated_at      DateTime? @default(now()) @db.Timestamp(0)
+  created_at      DateTime? @default(now()) @db.Timestamp(0)
+
+  @@index([status], map: "status")
+}
+
+model inventory_report_detail {
+  id                  Int       @id @default(autoincrement())
+  inventory_report_id Int
+  sku_id              Int
+  amount              Int
+  inventory_dif       Int       @default(0)
+  is_true             Boolean   @default(true)
+  status              Int?      @default(1)
+  created_at          DateTime? @default(now()) @db.Timestamp(0)
+
+  @@index([inventory_report_id], map: "inventory_report_id")
+  @@index([is_true], map: "is_true")
+  @@index([sku_id], map: "sku_id")
+  @@index([status], map: "status")
+}
+
+model order {
+  id          Int              @id @default(autoincrement())
+  customer_id Int
+  seller_id   Int
+  status      Int?             @default(1)
+  order_type  order_order_type @default(retail)
+  created_at  DateTime?        @default(now()) @db.Timestamp(0)
+  updated_at  DateTime?        @default(now()) @db.Timestamp(0)
+
+  @@index([customer_id], map: "customer_id")
+  @@index([seller_id], map: "seller_id")
+  @@index([status], map: "status")
+}
+
+model order_item {
+  id         BigInt    @id
+  order_id   Int
+  sku_id     Int
+  amount     Int       @default(1)
+  unit_price Decimal?  @default(0.00) @db.Decimal(15, 2)
+  created_at DateTime? @default(now()) @db.Timestamp(0)
+
+  @@unique([order_id, sku_id], map: "order_id")
+  @@index([sku_id], map: "sku_id")
+}
+
+model payment {
+  id             Int                     @id @default(autoincrement())
+  bill_id        Int
+  payment_method payment_payment_method?
+  state          payment_state?
+  status         Int?                    @default(1)
+  created_at     DateTime?               @default(now()) @db.Timestamp(0)
+  updated_at     DateTime?               @default(now()) @db.Timestamp(0)
+
+  @@index([status], map: "status")
+}
+
+model provider {
+  id           Int       @id @default(autoincrement())
+  name         String?   @db.VarChar(255)
+  address      String?   @db.VarChar(255)
+  email        String?   @db.VarChar(255)
+  phone_number String?   @db.VarChar(20)
+  status       Int?      @default(1)
+  created_at   DateTime? @default(now()) @db.Timestamp(0)
+  updated_at   DateTime? @default(now()) @db.Timestamp(0)
+
+  @@index([status], map: "status")
+}
+
+model sku {
+  id         Int       @id @default(autoincrement())
+  sku_no     String    @db.VarChar(32)
+  images     Json?
+  price      Decimal   @default(0.00) @db.Decimal(15, 2)
+  stock      Int       @default(0)
+  status     Int?      @default(1)
+  created_at DateTime? @default(now()) @db.Timestamp(0)
+  updated_at DateTime? @default(now()) @db.Timestamp(0)
+
+  @@index([sku_no], map: "sku_no")
+  @@index([status], map: "status")
+}
+
+model sku_attr {
+  id          Int                 @id @default(autoincrement())
+  spu_id      Int
+  name        String?             @db.VarChar(255)
+  description String?             @db.Text
+  data_type   sku_attr_data_type?
+  value       Json?
+  status      Int?                @default(1)
+  created_at  DateTime?           @default(now()) @db.Timestamp(0)
+  updated_at  DateTime?           @default(now()) @db.Timestamp(0)
+
+  @@index([spu_id], map: "spu_id")
+  @@index([status], map: "status")
+}
+
+model sku_to_attr {
+  sku_attr_id Int
+  sku_id      Int
+  status      Int?      @default(1)
+  created_at  DateTime? @default(now()) @db.Timestamp(0)
+
+  @@id([sku_attr_id, sku_id])
+  @@index([status], map: "status")
+}
+
+model sku_to_spu {
+  spu_id     Int
+  sku_id     Int
+  created_at DateTime? @default(now()) @db.Timestamp(0)
+
+  @@id([spu_id, sku_id])
+  @@index([sku_id], map: "sku_id")
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model sku_wholesale_prices {
+  id           Int     @id @default(autoincrement())
+  sku_id       Int
+  min_quantity Int
+  price        Decimal @db.Decimal(15, 2)
+
+  @@index([sku_id], map: "sku_id")
+}
+
+model spu {
+  id           Int       @id @default(autoincrement())
+  name         String?   @db.VarChar(255)
+  description  String?   @db.Text
+  metadata     Json?
+  images       Json?
+  out_of_stock Boolean   @default(false)
+  status       Int?      @default(1)
+  created_at   DateTime? @default(now()) @db.Timestamp(0)
+  updated_at   DateTime? @default(now()) @db.Timestamp(0)
+
+  @@index([status], map: "status")
+}
+
+model spu_to_provider {
+  provider_id Int
+  spu_id      Int
+  created_at  DateTime? @default(now()) @db.Timestamp(0)
+
+  @@id([provider_id, spu_id])
+  @@index([spu_id], map: "spu_id")
+}
+
+model stock_in {
+  id            Int       @id @default(autoincrement())
+  provider_id   Int
+  warehouse_men Int
+  status        Int?      @default(1)
+  updated_at    DateTime? @default(now()) @db.Timestamp(0)
+  created_at    DateTime? @default(now()) @db.Timestamp(0)
+
+  @@index([provider_id], map: "provider_id")
+  @@index([status], map: "status")
+  @@index([warehouse_men], map: "warehouse_men")
+}
+
+model stock_in_detail {
+  id          Int       @id @default(autoincrement())
+  stock_in_id Int
+  sku_id      Int
+  amount      Int       @default(1)
+  created_at  DateTime? @default(now()) @db.Timestamp(0)
+  status      Int?      @default(1)
+
+  @@index([sku_id], map: "sku_id")
+  @@index([status], map: "status")
+  @@index([stock_in_id], map: "stock_in_id")
+}
+
+model stock_out {
+  id                  Int       @id @default(autoincrement())
+  warehouse_men       Int
+  stock_out_reason_id Int
+  status              Int?      @default(1)
+  updated_at          DateTime? @default(now()) @db.Timestamp(0)
+  created_at          DateTime? @default(now()) @db.Timestamp(0)
+
+  @@index([status], map: "status")
+  @@index([stock_out_reason_id], map: "stock_out_reason_id")
+  @@index([warehouse_men], map: "warehouse_men")
+}
+
+model stock_out_detail {
+  id           Int       @id @default(autoincrement())
+  stock_out_id Int
+  sku_id       Int
+  amount       Int       @default(1)
+  updated_at   DateTime? @default(now()) @db.Timestamp(0)
+  created_at   DateTime? @default(now()) @db.Timestamp(0)
+  status       Int?      @default(1)
+
+  @@index([sku_id], map: "sku_id")
+  @@index([status], map: "status")
+  @@index([stock_out_id], map: "stock_out_id")
+}
+
+model stock_out_reason {
+  id          Int       @id @default(autoincrement())
+  name        String    @db.VarChar(255)
+  description String?   @db.Text
+  status      Int?      @default(1)
+  updated_at  DateTime? @default(now()) @db.Timestamp(0)
+  created_at  DateTime? @default(now()) @db.Timestamp(0)
+
+  @@index([status], map: "status")
+}
+
+model user {
+  id            Int               @id @default(autoincrement())
+  phone_number  String?           @db.VarChar(20)
+  user_name     String            @unique(map: "user_name") @db.VarChar(255)
+  email         String?           @unique(map: "email") @db.VarChar(255)
+  address       String?           @db.VarChar(255)
+  first_name    String            @db.VarChar(255)
+  last_name     String            @db.VarChar(255)
+  date_of_birth DateTime?         @db.Date
+  gender        user_gender       @default(other)
+  system_role   user_system_role?
+  avatar        Json?
+  status        Int?              @default(1)
+  created_at    DateTime?         @default(now()) @db.Timestamp(0)
+  updated_at    DateTime?         @default(now()) @db.Timestamp(0)
+
+  @@index([status], map: "status")
+}
+
+model warranty_form {
+  id            Int       @id @default(autoincrement())
+  order_item_id Int
+  amount        Int       @default(0)
+  status        Int?      @default(1)
+  created_at    DateTime? @default(now()) @db.Timestamp(0)
+  updated_at    DateTime? @default(now()) @db.Timestamp(0)
+
+  @@index([order_item_id], map: "order_item_id")
+  @@index([status], map: "status")
+}
+
+enum payment_payment_method {
+  cash
+  banking
+}
+
+enum payment_state {
+  pending
+  success
+  failed
+}
+
+enum order_order_type {
+  retail
+  wholesale
+}
+
+enum sku_attr_data_type {
+  text
+  number
+  boolean
+}
+
+enum customer_gender {
+  male
+  female
+  other
+}
+
+enum user_gender {
+  male
+  female
+  other
+}
+
+enum user_system_role {
+  admin
+  owner
+  sale_staff
+  warehouse_staff
+  technical_staff
+  finance_staff
+}
