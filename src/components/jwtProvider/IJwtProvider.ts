@@ -30,10 +30,9 @@ export interface JwtClaim {
 export class jwtProvider implements IJwtProvider {
     constructor(
     ) {
-
+        this._secret = process.env.SYSTEM_SECRET!;
     }
-
-    private readonly _secret = "sjdhaskdhaskdasddjk"
+    private readonly _secret: string
 
     ParseToken = (token: string): Result<Nullable<JwtClaim>, Err> => {
         try {

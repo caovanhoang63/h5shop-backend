@@ -29,7 +29,6 @@ export const authentication = (appCtx: IAppContext): express.Handler => {
     const authRepo = new PrmAuthRepo()
     const userRepo = new UserLocal()
     const hasher = new Hasher()
-    const appSecret = process.env.SYSTEM_SECRET
     const authBiz = new AuthService(authRepo, hasher, userRepo, new jwtProvider());
 
 

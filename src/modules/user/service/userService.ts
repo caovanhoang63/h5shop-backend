@@ -6,13 +6,15 @@ import {Validator} from "../../../libs/validator";
 import {Requester} from "../../../libs/requester";
 import {errAsync, ok, ResultAsync} from "neverthrow";
 import {IUserRepository} from "../repository/IUserRepository";
-import {IUserBiz} from "./IUserBiz";
+import {IUserService} from "./IUserService";
 import {UserSystemRole} from "@prisma/client";
 import {ICondition} from "../../../libs/condition";
+import {inject, injectable} from "inversify";
+import {TYPES} from "../../../types";
 
-
-export class UserService  implements  IUserBiz{
-    constructor(private readonly userRepository: IUserRepository) {
+@injectable()
+export class UserService  implements  IUserService{
+    constructor(@inject(TYPES.IUserRepository) private readonly userRepository: IUserRepository) {
     }
 
     public createNewUser = (u: UserCreate): ResultAsync<void, Err> => {

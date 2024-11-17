@@ -5,7 +5,7 @@ import {SystemRole} from "../../entity/user";
 import {Err} from "../../../../libs/errors";
 import {Nullable} from "../../../../libs/nullable";
 import {PrmUserRepo} from "../../repository/implementation/prmUserRepo";
-import {IUserBiz} from "../../service/IUserBiz";
+import {IUserService} from "../../service/IUserService";
 import {injectable} from "inversify";
 import {IUserLocalRepository} from "../IUserLocalRepository";
 
@@ -14,7 +14,7 @@ import {IUserLocalRepository} from "../IUserLocalRepository";
 
 @injectable()
  class UserLocal implements IUserLocalRepository {
-    private readonly userBiz: IUserBiz;
+    private readonly userBiz: IUserService;
 
     constructor() {
         this.userBiz = new UserService(new PrmUserRepo());

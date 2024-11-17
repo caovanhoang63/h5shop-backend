@@ -5,16 +5,14 @@ import {UserCreate} from "../../entity/userCreate";
 import {SystemRole} from "../../entity/user";
 import {AppResponse} from "../../../../libs/response";
 import {writeErrorResponse} from "../../../../libs/writeErrorResponse";
-import {IUserBiz} from "../../service/IUserBiz";
+import {IUserService} from "../../service/IUserService";
 import {Paging} from "../../../../libs/paging";
 
 
 export class UserApi {
-    private readonly appCtx: IAppContext;
-    private readonly userBiz: IUserBiz;
+    private readonly userBiz: IUserService;
 
-    constructor(appCtx: IAppContext, biz: UserService) {
-        this.appCtx = appCtx;
+    constructor( biz: IUserService) {
         this.userBiz = biz;
     }
 

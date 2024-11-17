@@ -7,7 +7,10 @@ import {UserCreate} from "../../entity/userCreate";
 import {IUserRepository} from "../IUserRepository";
 import {prisma} from "../../../../components/prisma";
 import {take} from "lodash";
+import {injectable} from "inversify";
 
+
+@injectable()
 export class PrmUserRepo implements IUserRepository {
     create = (u: UserCreate): ResultAsync<void, Err> => {
         return ResultAsync.fromPromise(

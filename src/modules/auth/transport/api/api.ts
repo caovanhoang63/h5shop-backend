@@ -5,13 +5,8 @@ import {IAuthService} from "../../service/interface/IAuthService";
 import {AuthCreate} from "../../entity/authCreate";
 import {AuthLogin} from "../../entity/authLogin";
 
-export interface IAuthApi {
-    Register : express.Handler
-    Login : express.Handler
-}
 
-
-export class AuthApi  implements IAuthApi {
+export class AuthApi  {
     constructor(private readonly authBiz: IAuthService) {
 
     }
