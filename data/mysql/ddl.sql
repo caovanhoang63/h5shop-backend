@@ -408,6 +408,23 @@ CREATE TABLE `payment`
   DEFAULT CHARSET = utf8mb4;
 
 
+DROP TABLE IF EXISTS `audit_log`;
+CREATE TABLE `audit_log` (
+     `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+     `user_id` BIGINT UNSIGNED COMMENT 'id = 0 if it is system action',
+     `action` VARCHAR(50) NOT NULL,
+     `table_name` VARCHAR(100) NOT NULL,
+     `record_id` BIGINT UNSIGNED NOT NULL,
+     `old_values` JSON,
+     `new_values` JSON,
+     `ip_address` VARCHAR(45) COMMENT 'id_address if it is system',
+     `user_agent` VARCHAR(255),
+     `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+     PRIMARY KEY (`id`),
+     INDEX `idx_table_record` (`table_name`, `record_id`),
+     INDEX `idx_user_id` (`user_id`),
+     INDEX `idx_created_at` (`created_at`)
+) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COMMENT = 'Tracks changes to database records';
 
 # DROP TABLE IF EXISTS `ledger`;
 # CREATE TABLE `ledger` (

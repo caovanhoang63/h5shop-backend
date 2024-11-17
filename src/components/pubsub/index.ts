@@ -13,5 +13,3 @@ export interface IPubSub {
     Publish: (topic: Topic, message: Message) => ResultAsync<void, Err>;
     Subscribe: (topic: Topic) => ResultAsync<[Message[], () => void], Err>;
 }
-
-

@@ -19,7 +19,7 @@ const port = process.env.PORT || 3000;
 
 
 const localPubsub = new LocalPubSub();
-const appContext = new AppContext( localPubsub);
+const appContext = new AppContext(localPubsub);
 const subcriberEngine = new SubscriberEngine(appContext);
 
 

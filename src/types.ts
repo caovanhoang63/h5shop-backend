@@ -14,5 +14,6 @@ const TYPES = {
     // UTILS
     IHasher: Symbol.for("IHasher"),
     IJwtProvider: Symbol.for("IJwtProvider"),
+    IPubSub : Symbol.for("IPubSub"),
 };
 export { TYPES };

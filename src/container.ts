@@ -13,6 +13,8 @@ import {IUserService} from "./modules/user/service/IUserService";
 import {UserService} from "./modules/user/service/userService";
 import {IUserRepository} from "./modules/user/repository/IUserRepository";
 import {PrmUserRepo} from "./modules/user/repository/implementation/prmUserRepo";
+import {IPubSub} from "./components/pubsub";
+import {LocalPubSub} from "./components/pubsub/local";
 
 
 const container = new Container();
@@ -29,7 +31,7 @@ container.bind<IUserService>(TYPES.IUserService).to(UserService)
 // Util
 container.bind<IHasher>(TYPES.IHasher).to(Hasher);
 container.bind<IJwtProvider>(TYPES.IJwtProvider).to(jwtProvider);
-
+container.bind<IPubSub>(TYPES.IPubSub).to(LocalPubSub);
 
 
 

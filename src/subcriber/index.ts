@@ -25,6 +25,7 @@ export class SubscriberEngine {
                 // The run method now just ensures the engine is ready
                 // and returns a never-resolving promise to keep the service running
                 console.log("Subscriber engine started!");
+
                 await this.subscribe(TopicTest,
                     (m: Message): ResultAsync<void, Err> => {
                         return ResultAsync.fromPromise(
@@ -37,6 +38,7 @@ export class SubscriberEngine {
                     (m: Message): ResultAsync<void, Err> => {
                         return ResultAsync.fromPromise(
                             (async () => {
+                                console.log(m.id)
                                 return okAsync(undefined)
                             })(), e => e as Err
                         ).andThen(r => r)
@@ -144,12 +146,12 @@ export class SubscriberEngine {
         ).andThen(r => r);
     }
 
-    // Optional: Method to get current subscribers count for a topic
+    // Method to get current subscribers count for a topic
     public getSubscribersCount(topic: Topic): number {
         return this.subscribers.get(topic)?.length || 0;
     }
 
-    // Optional: Method to clean up all subscriptions
+    // Method to clean up all subscriptions
     public cleanup(): ResultAsync<void, Err> {
         return ResultAsync.fromPromise(
             (async () => {

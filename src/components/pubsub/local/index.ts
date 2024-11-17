@@ -3,11 +3,13 @@ import {IPubSub, Message, Topic} from "../index";
 import EventEmitter from "node:events";
 import {Err} from "../../../libs/errors";
 import {ok, ResultAsync} from "neverthrow";
+import {injectable} from "inversify";
 
 interface IQueueMap {
     [topic: string]: Message[][];
 }
 
+@injectable()
 export class LocalPubSub implements IPubSub {
     private readonly messageEmitter: EventEmitter;
     private readonly channelMap: IQueueMap = {};
