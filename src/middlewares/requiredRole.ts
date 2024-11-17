@@ -3,7 +3,7 @@ import {SystemRole} from "../modules/user/entity/user";
 import express from "express";
 import {UserMysqlRepo} from "../modules/user/repository/implementation/mysqlRepo";
 import {UserService} from "../modules/user/service/userService";
-import {Requester, RequesterKey} from "../libs/requester";
+import {IRequester, RequesterKey} from "../libs/IRequester";
 import {writeErrorResponse} from "../libs/writeErrorResponse";
 import {createForbiddenError} from "../libs/errors";
 import {PrmUserRepo} from "../modules/user/repository/implementation/prmUserRepo";
@@ -13,13 +13,12 @@ const requiredRole = (appCtx: IAppContext, ...roles: SystemRole[]): express.Hand
     const userBiz = new UserService(userRepo);
 
     return async (req, res, next) => {
-        const requester = res.locals[RequesterKey] as Requester;
+        const requester = res.locals[RequesterKey] as IRequester;
         if (!requester) {
             writeErrorResponse(res, createForbiddenError())
             return
         }
 
-        console.log(requester);
         const r = await userBiz.requiredRole(requester, ...roles);
         if (r.isErr()) {
             writeErrorResponse(res, r.error)

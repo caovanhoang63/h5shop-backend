@@ -7,6 +7,7 @@ import {AppResponse} from "../../../../libs/response";
 import {writeErrorResponse} from "../../../../libs/writeErrorResponse";
 import {IUserService} from "../../service/IUserService";
 import {Paging} from "../../../../libs/paging";
+import {ReqHelper} from "../../../../libs/reqHelper";
 
 
 export class UserApi {
@@ -28,7 +29,7 @@ export class UserApi {
         res.send(AppResponse.SimpleResponse(true))
     }
     public ListUsers: express.Handler = async (req, res, next) => {
-        const paging : Paging ={limit: 2, nextCursor: 0, page: 1, total: 0}
+        const paging = ReqHelper.getPaging(req.query);
         const cond  = {}
         const result = await this.userBiz.listUsers(cond,paging)
         if (result.isErr()) {

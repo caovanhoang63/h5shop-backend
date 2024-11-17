@@ -3,7 +3,7 @@ import {createEntityNotFoundError, createForbiddenError, Err,} from "../../../li
 import {Paging} from "../../../libs/paging";
 import {SystemRole} from "../entity/user";
 import {Validator} from "../../../libs/validator";
-import {Requester} from "../../../libs/requester";
+import {IRequester} from "../../../libs/IRequester";
 import {errAsync, ok, ResultAsync} from "neverthrow";
 import {IUserRepository} from "../repository/IUserRepository";
 import {IUserService} from "./IUserService";
@@ -34,7 +34,7 @@ export class UserService  implements  IUserService{
         ).andThen(r => r);
     }
 
-    public requiredRole = (r: Requester, ...roles: UserSystemRole[]) => {
+    public requiredRole = (r: IRequester, ...roles: UserSystemRole[]) => {
         return ResultAsync.fromPromise(
             (async () => {
                 const uR = await this.userRepository.findByUserId(r.userId);
@@ -47,6 +47,9 @@ export class UserService  implements  IUserService{
                 }
                 const data = uR.value
 
+                console.log("User",data.systemRole)
+                r.systemRole = data.systemRole
+
                 if (data.systemRole === SystemRole.Admin) {
                     return;
                 }
@@ -54,6 +57,7 @@ export class UserService  implements  IUserService{
                 if (roles.length > 0 && !roles.includes(data.systemRole!)) {
                     return errAsync(createForbiddenError())
                 }
+
                 return;
             })(), e => e as Err
         )

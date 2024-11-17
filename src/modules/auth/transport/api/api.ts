@@ -7,9 +7,7 @@ import {AuthLogin} from "../../entity/authLogin";
 
 
 export class AuthApi  {
-    constructor(private readonly authBiz: IAuthService) {
-
-    }
+    constructor(private readonly authBiz: IAuthService) {}
 
     Register: express.Handler = async (req, res, next) => {
         const u = req.body as AuthCreate;

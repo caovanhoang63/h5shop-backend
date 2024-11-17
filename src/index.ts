@@ -6,52 +6,28 @@ import cookieParser from "cookie-parser";
 import logger from "morgan";
 import v1Router from "./routes/v1";
 import cors from "cors"
-import {AppContext} from "./components/appContext/appContext";
+import {AppContext, IAppContext} from "./components/appContext/appContext";
 import recovery from "./middlewares/recovery";
 import helmet from "helmet";
 import bodyParser from "body-parser";
 import {LocalPubSub} from "./components/pubsub/local";
-import {SubscriberEngine} from "./subcriber";
+import {SubscriberEngine} from "./components/subcriber";
 import {TopicTest} from "./libs/topics";
-import {Message} from "./components/pubsub";
+import {IPubSub, Message} from "./components/pubsub";
 import {okAsync, ResultAsync} from "neverthrow";
 import {Err} from "./libs/errors";
+import subscriberEngine from "./subcribers";
+import {container} from "./container";
+import {TYPES} from "./types";
 
 dotenv.config();
 const app: Express = express();
 const port = process.env.PORT || 3000;
 
-
-const localPubsub = new LocalPubSub();
-const appContext = new AppContext(localPubsub);
-const subcriberEngine = new SubscriberEngine(appContext);
-
-
-subcriberEngine.subscribe(TopicTest + "1",
-    (m: Message): ResultAsync<void, Err> => {
-        return ResultAsync.fromPromise(
-            (async () => {
-                console.log("Subcriber423")
-                return okAsync(undefined)
-            })(), e => e as Err
-        ).andThen(r => r)},
-    (m: Message): ResultAsync<void, Err> => {
-    return ResultAsync.fromPromise(
-        (async () => {
-            console.log("Subcriber123")
-            return okAsync(undefined)
-        })(), e => e as Err
-    ).andThen(r => r)});
-
-
-
 (async () => {
-    await subcriberEngine.run();
+    await subscriberEngine.run();
 })();
 
-(async () => {
-    await localPubsub.Serve()
-})();
 
 app.use(logger('dev'));
 app.use(cors());
@@ -60,7 +36,7 @@ app.use(bodyParser.json());
 app.use(express.urlencoded({extended: false}));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
-app.use("/v1", v1Router(appContext));
+app.use("/v1", v1Router());
 app.use(recovery)
 
 

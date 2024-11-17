@@ -2,7 +2,7 @@ import express from "express";
 import {IAppContext} from "../components/appContext/appContext";
 import {InvalidToken, jwtProvider} from "../components/jwtProvider/IJwtProvider";
 import {writeErrorResponse} from "../libs/writeErrorResponse";
-import {Requester} from "../libs/requester";
+import {IRequester} from "../libs/IRequester";
 import {AuthService} from "../modules/auth/service/implementation/authService";
 import UserLocal from "../modules/user/transport/local/local";
 import {Hasher} from "../libs/hasher";
@@ -11,7 +11,7 @@ import {err, ok, Result, ResultAsync} from "neverthrow";
 import {Err} from "../libs/errors";
 
 interface IAuthBiz {
-    IntrospectToken: (token: string) => ResultAsync<Requester, Err>
+    IntrospectToken: (token: string) => ResultAsync<IRequester, Err>
 }
 
 const getTokenString = (str?: string): Result<string, Err> => {
@@ -25,7 +25,7 @@ const getTokenString = (str?: string): Result<string, Err> => {
     return ok(parts[1])
 }
 
-export const authentication = (appCtx: IAppContext): express.Handler => {
+export const authentication = (): express.Handler => {
     const authRepo = new PrmAuthRepo()
     const userRepo = new UserLocal()
     const hasher = new Hasher()

@@ -1,10 +1,12 @@
-import {IAppContext} from "../components/appContext/appContext";
-import {Message, Topic} from "../components/pubsub";
+import {IAppContext} from "../appContext/appContext";
+import {IPubSub, Message, Topic} from "../pubsub";
 import EventEmitter from "node:events";
-import {TopicTest} from "../libs/topics";
-import {createInternalError, Err,} from "../libs/errors";
+import {TopicTest} from "../../libs/topics";
+import {createInternalError, Err,} from "../../libs/errors";
 import {errAsync, okAsync, ResultAsync} from "neverthrow";
 import {forEach} from "lodash";
+import {container} from "../../container";
+import {TYPES} from "../../types";
 
 //TODO:  Implement retry feature
 type Handler = (m: Message) => ResultAsync<void, Err>;
@@ -16,8 +18,10 @@ export class SubscriberEngine {
         emitter: EventEmitter,
         cleanup: () => void
     }[]> = new Map();
-
-    constructor(private readonly appContext: IAppContext) {}
+    private readonly pubsub  : IPubSub;
+    constructor() {
+        this.pubsub = container.get<IPubSub>(TYPES.IPubSub);
+    }
 
     run(): ResultAsync<never, Err> {
         return ResultAsync.fromPromise(
@@ -47,7 +51,7 @@ export class SubscriberEngine {
         return ResultAsync.fromPromise(
             (async () => {
                 // Subscribe to the topic
-                const subscribeResult = await this.appContext.GetPubsub().Subscribe(topic);
+                const subscribeResult = await this.pubsub.Subscribe(topic);
                 if (subscribeResult.isErr()) {
                     return errAsync(subscribeResult.error)
                 }

@@ -5,7 +5,7 @@ import {randomSalt} from "../../../../libs/salt";
 import {SystemRole} from "../../../user/entity/user";
 import {Nullable} from "../../../../libs/nullable";
 import {Validator} from "../../../../libs/validator";
-import {Requester} from "../../../../libs/requester";
+import {IRequester} from "../../../../libs/IRequester";
 import {
     defaultExpireAccessTokenInSeconds,
     defaultExpireRefreshTokenInSeconds,
@@ -83,7 +83,7 @@ export class AuthService implements IAuthService {
         ).andThen((result) => result); // Unwrap the ResultAsync for compatibility
     };
 
-    public introspectToken = (token: string): ResultAsync<Requester, Err> => {
+    public introspectToken = (token: string): ResultAsync<IRequester, Err> => {
         return ResultAsync.fromPromise(
             (async () => {
                 // Parse the token
@@ -101,9 +101,10 @@ export class AuthService implements IAuthService {
                 }
 
                 // Build the requester object
-                const requester: Requester = {
+                const requester: IRequester = {
                     requestId: claim.id,
                     userId: userId,
+                    systemRole : null
                 };
 
                 return okAsync(requester);
