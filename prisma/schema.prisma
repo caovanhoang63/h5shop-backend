@@ -353,19 +353,18 @@ model WarrantyForm {
 
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
 model AuditLog {
-  id        BigInt   @id @default(autoincrement()) @db.UnsignedBigInt
-  userId    BigInt?  @map("user_id") @db.UnsignedBigInt
-  action    String   @db.VarChar(50)
-  tableName String   @map("table_name") @db.VarChar(100)
-  recordId  BigInt   @map("record_id") @db.UnsignedBigInt
-  oldValues Json?    @map("old_values")
-  newValues Json?    @map("new_values")
-  ipAddress String?  @map("ip_address") @db.VarChar(45)
-  userAgent String?  @map("user_agent") @db.VarChar(255)
-  createdAt DateTime @default(now()) @map("created_at") @db.Timestamp(0)
+  id         BigInt   @id @default(autoincrement()) @db.UnsignedBigInt
+  userId     Int      @map("user_id")
+  action     String   @db.VarChar(50)
+  objectType String   @map("object_type") @db.VarChar(100)
+  objectId   Int      @map("object_id")
+  oldValues  Json?    @map("old_values")
+  newValues  Json?    @map("new_values")
+  ipAddress  String?  @map("ip_address") @db.VarChar(45)
+  userAgent  String?  @map("user_agent") @db.VarChar(255)
+  createdAt  DateTime @default(now()) @map("created_at") @db.Timestamp(0)
 
-  @@index([createdAt], map: "idx_created_at")
-  @@index([tableName, recordId], map: "idx_table_record")
+  @@index([objectType, objectId], map: "idx_table_record")
   @@index([userId], map: "idx_user_id")
   @@map("audit_log")
 }

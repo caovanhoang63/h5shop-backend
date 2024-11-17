@@ -1,0 +1,1 @@
+npx prisma db pull && cd ./prisma && prisma-case-format -p && cd .. && npx prisma generate
