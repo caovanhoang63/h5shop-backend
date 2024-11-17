@@ -19,7 +19,7 @@ export class AuditApi {
                 writeErrorResponse(res, result.error)
                 return
             }
-            console.log(paging)
+            console.log(result.value)
             res.status(200).send(AppResponse.SuccessResponse(result.value,paging,{}))
             return
         }

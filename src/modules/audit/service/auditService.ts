@@ -18,6 +18,7 @@ export class AuditService implements IAuditService {
     create(u: Audit): ResultAsync<void, Err> {
         return ResultAsync.fromPromise(
             (async () => {
+                console.log("service")
                 const r = await this.auditRepo.create(u)
                 if (r.isErr()) return errAsync(r.error)
                 return okAsync(undefined)

@@ -1,7 +1,7 @@
 import {IAppContext} from "../appContext/appContext";
 import {IPubSub, Message, Topic} from "../pubsub";
 import EventEmitter from "node:events";
-import {TopicTest} from "../../libs/topics";
+import {topicTest} from "../../libs/topics";
 import {createInternalError, Err,} from "../../libs/errors";
 import {errAsync, okAsync, ResultAsync} from "neverthrow";
 import {forEach} from "lodash";
@@ -9,12 +9,12 @@ import {container} from "../../container";
 import {TYPES} from "../../types";
 
 //TODO:  Implement retry feature
-type Handler = (m: Message) => ResultAsync<void, Err>;
+export type SubHandler = (m: Message) => ResultAsync<void, Err>;
 
 export class SubscriberEngine {
     private readonly subscribers: Map<Topic, {
         messages: Message[],
-        handler: Handler[],
+        handler: SubHandler[],
         emitter: EventEmitter,
         cleanup: () => void
     }[]> = new Map();
@@ -38,7 +38,7 @@ export class SubscriberEngine {
         ).andThen(r => r);
     }
 
-    public subscribe = (topic: Topic, ...handler: Handler[]): ResultAsync<void, Err> => {
+    public subscribe = (topic: Topic, ...handler: SubHandler[]): ResultAsync<void, Err> => {
         return ResultAsync.fromPromise(
             (async () => {
                 const result = await this.startSubTopic(topic, ...handler);
@@ -47,7 +47,7 @@ export class SubscriberEngine {
         ).andThen(r => r)
     }
 
-    private startSubTopic = (topic: Topic, ...handlers: Handler[]): ResultAsync<() => void, Err> => {
+    private startSubTopic = (topic: Topic, ...handlers: SubHandler[]): ResultAsync<() => void, Err> => {
         return ResultAsync.fromPromise(
             (async () => {
                 // Subscribe to the topic

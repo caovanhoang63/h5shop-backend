@@ -37,7 +37,7 @@ export class UserService  implements  IUserService{
     public requiredRole = (r: IRequester, ...roles: UserSystemRole[]) => {
         return ResultAsync.fromPromise(
             (async () => {
-                const uR = await this.userRepository.findByUserId(r.userId);
+                const uR = await this.userRepository.findByUserId(r.userId!);
                 if (uR.isErr()) {
                     return uR
                 }
@@ -63,10 +63,8 @@ export class UserService  implements  IUserService{
         )
     }
 
-    public listUsers = (cond: ICondition, paging: Paging) => {
-
+    listUsers = (cond: ICondition, paging: Paging) => {
         return this.userRepository.findByCondition(cond, paging)
-
     }
 }
 

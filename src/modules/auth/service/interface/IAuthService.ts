@@ -3,8 +3,10 @@ import {Err} from "../../../../libs/errors";
 import {AuthCreate} from "../../entity/authCreate";
 import {AuthLogin} from "../../entity/authLogin";
 import {TokenResponse} from "../../entity/authVar";
+import {IRequester} from "../../../../libs/IRequester";
 
 export interface IAuthService {
-    register: (u: AuthCreate) => ResultAsync<void, Err>
-    login: (u: AuthLogin) => ResultAsync<TokenResponse, Err>
+    register: (requester : IRequester,u: AuthCreate) => ResultAsync<void, Err>
+    login: (requester : IRequester,u: AuthLogin) => ResultAsync<TokenResponse, Err>
+    introspectToken: (token: string) => ResultAsync<IRequester, Err>
 }

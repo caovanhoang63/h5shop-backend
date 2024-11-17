@@ -21,6 +21,8 @@ import {AuthLogin, authLoginSchema} from "../../entity/authLogin";
 import {TYPES} from "../../../../types";
 import {inject, injectable} from "inversify";
 import {IUserLocalRepository} from "../../../user/transport/IUserLocalRepository";
+import {createMessage, IPubSub} from "../../../../components/pubsub";
+import {topicRegister} from "../../../../libs/topics";
 
 
 
@@ -34,17 +36,20 @@ export class AuthService implements IAuthService {
     constructor(@inject(TYPES.IAuthRepository) private readonly authRepo: IAuthRepository,
                 @inject(TYPES.IHasher) private readonly hasher: IHasher,
                 @inject(TYPES.IUserLocalRepository) private readonly userRepo: IUserLocalRepository ,
-                @inject(TYPES.IJwtProvider) private readonly jwtProvider: IJwtProvider) {
+                @inject(TYPES.IJwtProvider) private readonly jwtProvider: IJwtProvider,
+                @inject(TYPES.IPubSub) private readonly pubSub: IPubSub,) {
     }
 
-    public register = (u: AuthCreate): ResultAsync<void, Err> => {
+    public register = (requester : IRequester,u: AuthCreate): ResultAsync<void, Err> => {
         return ResultAsync.fromPromise(
             (async () => {
+
                 // Validate
                 const vR = await Validator(authCreateSchema, u);
                 if (vR.isErr()) {
                     return errAsync(vR.error);
                 }
+
 
                 // Check if username exists
                 const old = await this.authRepo.FindByUserName(u.userName);
@@ -55,6 +60,8 @@ export class AuthService implements IAuthService {
                     return errAsync(ErrUserNameAlreadyExists(u.userName));
                 }
 
+                console.log(Date.now())
+
                 // Create new user
                 const [user, err] = await this.userRepo.CreateNewUser(
                     u.firstName,
@@ -62,6 +69,8 @@ export class AuthService implements IAuthService {
                     u.userName,
                     u.systemRole
                 );
+                console.log(Date.now())
+
                 if (err) {
                     return errAsync(err);
                 }
@@ -69,6 +78,7 @@ export class AuthService implements IAuthService {
                 // Prepare user data for auth
                 u.userId = user;
                 u.salt = randomSalt(50);
+
                 u.password = this.hasher.hash(u.password, u.salt);
 
                 // Create auth entry
@@ -76,6 +86,8 @@ export class AuthService implements IAuthService {
                 if (r.isErr()) {
                     return errAsync(r.error);
                 }
+
+                this.pubSub.Publish(topicRegister,createMessage(u,requester));
 
                 return okAsync(undefined); // Success case
             })(),
@@ -113,7 +125,7 @@ export class AuthService implements IAuthService {
         ).andThen((result) => result); // Ensure correct result wrapping
     };
 
-    public login = (u: AuthLogin): ResultAsync<TokenResponse, Err> => {
+    public login = (requester : IRequester,u: AuthLogin): ResultAsync<TokenResponse, Err> => {
         return ResultAsync.fromPromise(
             (async () => {
                 // Validate input

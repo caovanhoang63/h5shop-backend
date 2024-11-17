@@ -3,6 +3,7 @@ import {SystemRole} from "../../user/entity/user";
 import Joi from "joi";
 
 export interface AuthCreate extends BaseModel {
+    id?: number;
     userId: number;
     userName: string;
     salt: string;

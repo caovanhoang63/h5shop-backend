@@ -12,8 +12,7 @@ export class PrmAuthRepo implements IAuthRepository {
         const {firstName, lastName, systemRole, ...authData} = u;
         return ResultAsync.fromPromise(
             prisma.auth.create({data: authData}).then(
-                r => {
-                }
+                r => { u.id = r.id }
             ),
             (r) => createDatabaseError(r)
         )

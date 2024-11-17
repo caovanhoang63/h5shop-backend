@@ -1,17 +1,13 @@
 import express from "express";
-import {IAppContext} from "../components/appContext/appContext";
-import {InvalidToken, jwtProvider} from "../components/jwtProvider/IJwtProvider";
+import {InvalidToken} from "../components/jwtProvider/IJwtProvider";
 import {writeErrorResponse} from "../libs/writeErrorResponse";
-import {IRequester} from "../libs/IRequester";
-import {AuthService} from "../modules/auth/service/implementation/authService";
-import UserLocal from "../modules/user/transport/local/local";
-import {Hasher} from "../libs/hasher";
-import {PrmAuthRepo} from "../modules/auth/repository/implementation/prmAuthRepo";
-import {err, ok, Result, ResultAsync} from "neverthrow";
+import {err, ok, Result} from "neverthrow";
 import {Err} from "../libs/errors";
+import {container} from "../container";
+import {TYPES} from "../types";
+import {IAuthService} from "../modules/auth/service/interface/IAuthService";
 
 interface IAuthBiz {
-    IntrospectToken: (token: string) => ResultAsync<IRequester, Err>
 }
 
 const getTokenString = (str?: string): Result<string, Err> => {
@@ -26,12 +22,7 @@ const getTokenString = (str?: string): Result<string, Err> => {
 }
 
 export const authentication = (): express.Handler => {
-    const authRepo = new PrmAuthRepo()
-    const userRepo = new UserLocal()
-    const hasher = new Hasher()
-    const authBiz = new AuthService(authRepo, hasher, userRepo, new jwtProvider());
-
-
+    const authBiz = container.get<IAuthService>(TYPES.IAuthService);
     return async (req: express.Request, res: express.Response, next: express.NextFunction) => {
         const authHeader = req.header("Authorization")
         const rT = getTokenString(authHeader)
@@ -44,7 +35,6 @@ export const authentication = (): express.Handler => {
             writeErrorResponse(res, r.error)
             return
         }
-        console.log("data", r.value)
         res.locals.requester = r.value
         next()
     }

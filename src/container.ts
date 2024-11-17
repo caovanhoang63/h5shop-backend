@@ -26,7 +26,7 @@ const container = new Container();
 //Repository
 container.bind<IAuthRepository>(TYPES.IAuthRepository).to(PrmAuthRepo).inRequestScope();
 container.bind<IUserLocalRepository>(TYPES.IUserLocalRepository).to(UserLocal).inRequestScope();
-container.bind<IUserRepository>(TYPES.IUserService).to(PrmUserRepo).inRequestScope();
+container.bind<IUserRepository>(TYPES.IUserRepository).to(PrmUserRepo).inRequestScope();
 container.bind<IAuditRepository>(TYPES.IAuditRepository).to(AuditPrmRepo).inRequestScope();
 
 

@@ -1,7 +1,7 @@
 import express from "express";
 import usersRouter from "./userRoute";
 import {IAppContext} from "../../components/appContext/appContext";
-import {TopicTest} from "../../libs/topics";
+import {topicTest} from "../../libs/topics";
 import {randomUUID} from "node:crypto";
 import authRouter from "./authRoute";
 import auditRouter from "./auditRoute";
@@ -25,12 +25,12 @@ const v1Router = () => {
     router.use("/audit",auditRouter(appCtx))
 
     router.post("/pubsub/test", async (req, res, next) => {
-        await appCtx.GetPubsub().Publish(TopicTest, {data: null, id: randomUUID(), topic: ""})
+        await appCtx.GetPubsub().Publish(topicTest, {data: null, id: randomUUID(), topic: ""})
         res.status(200).send("oK")
     })
 
     router.post("/pubsub/test1", async (req, res, next) => {
-        await appCtx.GetPubsub().Publish(TopicTest + "1", {data: null, id: randomUUID(), topic: ""})
+        await appCtx.GetPubsub().Publish(topicTest + "1", {data: null, id: randomUUID(), topic: ""})
         res.status(200).send("oK")
     })
     return router;

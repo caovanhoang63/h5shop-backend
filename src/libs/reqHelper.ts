@@ -14,6 +14,11 @@ export class ReqHelper {
     }
 
     static getRequester(res : express.Response) : IRequester {
-        return res.locals[RequesterKey] as IRequester
+        const r =  res.locals[RequesterKey] as IRequester || {}
+        console.log(res.locals["userAgent"])
+        r.userAgent = res.locals["userAgent"]
+        r.ipAddress = res.locals["ipAddress"]
+
+        return r;
     }
 }

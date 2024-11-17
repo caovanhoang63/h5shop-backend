@@ -6,19 +6,11 @@ import cookieParser from "cookie-parser";
 import logger from "morgan";
 import v1Router from "./routes/v1";
 import cors from "cors"
-import {AppContext, IAppContext} from "./components/appContext/appContext";
 import recovery from "./middlewares/recovery";
 import helmet from "helmet";
 import bodyParser from "body-parser";
-import {LocalPubSub} from "./components/pubsub/local";
-import {SubscriberEngine} from "./components/subcriber";
-import {TopicTest} from "./libs/topics";
-import {IPubSub, Message} from "./components/pubsub";
-import {okAsync, ResultAsync} from "neverthrow";
-import {Err} from "./libs/errors";
 import subscriberEngine from "./subcribers";
-import {container} from "./container";
-import {TYPES} from "./types";
+import requestContext from "./middlewares/requestContext";
 
 dotenv.config();
 const app: Express = express();
@@ -28,10 +20,13 @@ const port = process.env.PORT || 3000;
     await subscriberEngine.run();
 })();
 
-
+(BigInt.prototype as any).toJSON = function () {
+    return this.toString();
+};
 app.use(logger('dev'));
 app.use(cors());
 app.use(helmet());
+app.use(requestContext)
 app.use(bodyParser.json());
 app.use(express.urlencoded({extended: false}));
 app.use(cookieParser());

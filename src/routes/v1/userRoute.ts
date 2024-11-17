@@ -10,7 +10,7 @@ import {IUserService} from "../../modules/user/service/IUserService";
 
 const userRouter = (appContext: IAppContext) => {
     const router = express.Router();
-    const authBiz = container.get<IUserService>(TYPES.IAuthService)
+    const authBiz = container.get<IUserService>(TYPES.IUserService)
     const userApi = new UserApi(authBiz );
 
     router.use(authentication())

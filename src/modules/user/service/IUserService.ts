@@ -6,6 +6,6 @@ import {Paging} from "../../../libs/paging";
 import {User} from "../entity/user";
 
 export interface IUserService {
-    createNewUser: (u: UserCreate) => ResultAsync<any, Err>
-    listUsers: (cond: ICondition, paging: Paging) => ResultAsync<User[], Err>
+    createNewUser (u: UserCreate) :ResultAsync<any, Err>
+    listUsers (cond: ICondition, paging: Paging): ResultAsync<User[], Err>
 }

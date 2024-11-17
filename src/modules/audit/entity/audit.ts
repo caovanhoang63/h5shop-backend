@@ -1,11 +1,12 @@
 export interface Audit {
-    id: bigint,
+    id?: bigint,
     userId: number,
     action: string,
     objectType: string,
     objectId: number,
-    oldValues: any | null,
-    newValues: any |null,
+    oldValues: any,
+    newValues: any,
     ipAddress: string | null,
     createdAt: Date,
 }
+

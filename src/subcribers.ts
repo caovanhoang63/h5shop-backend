@@ -1,30 +1,17 @@
-import {TopicTest} from "./libs/topics";
-import {Message} from "./components/pubsub";
-import {okAsync, ResultAsync} from "neverthrow";
-import {Err} from "./libs/errors";
+import {topicRegister} from "./libs/topics";
 import {SubscriberEngine} from "./components/subcriber";
+import {AuditSubscribeHandler} from "./modules/audit/transport/subcriber";
+import {container} from "./container";
+import {IAuditService} from "./modules/audit/service/IAuditService";
+import {TYPES} from "./types";
 
 
 const subscriberEngine = new SubscriberEngine();
 
-subscriberEngine.subscribe(TopicTest + "1",
-    (m: Message): ResultAsync<void, Err> => {
-        return ResultAsync.fromPromise(
-            (async () => {
-                console.log("Subcriber423")
-                return okAsync(undefined)
-            })(), e => e as Err
-        ).andThen(r => r)},
-    (m: Message): ResultAsync<void, Err> => {
-        return ResultAsync.fromPromise(
-            (async () => {
-                console.log("Subcriber123")
-                return okAsync(undefined)
-            })(), e => e as Err
-        ).andThen(r => r)});
 
 
-
+const audit = new AuditSubscribeHandler(container.get<IAuditService>(TYPES.IAuditService))
+subscriberEngine.subscribe(topicRegister,audit.onRegister());
 
 
 export default subscriberEngine
