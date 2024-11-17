@@ -31,7 +31,6 @@ export class UserApi {
     public ListUsers: express.Handler = async (req, res, next) => {
         const paging = ReqHelper.getPaging(req.query);
         const cond  = {}
-        console.log(this.userBiz.createNewUser)
         const result = await this.userBiz.listUsers(cond,paging)
         if (result.isErr()) {
             writeErrorResponse(res, result.error)

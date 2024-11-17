@@ -1,5 +1,5 @@
 import {TokenResponse} from "../../entity/authVar";
-import {Err} from "../../../../libs/errors";
+import {createForbiddenError, Err} from "../../../../libs/errors";
 import {ErrInvalidCredentials, ErrUserNameAlreadyExists} from "../../entity/authErrors";
 import {randomSalt} from "../../../../libs/salt";
 import {SystemRole} from "../../../user/entity/user";
@@ -110,6 +110,12 @@ export class AuthService implements IAuthService {
                 const uR = await this.authRepo.FindByUserId(userId);
                 if (uR.isErr()) {
                     return errAsync(uR.error);
+                }
+
+                console.log(userId);
+
+                if (uR.value == null) {
+                    return errAsync(createForbiddenError());
                 }
 
                 // Build the requester object

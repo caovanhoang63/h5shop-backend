@@ -31,7 +31,7 @@ export class PrmAuthRepo implements IAuthRepository {
         return ResultAsync.fromPromise(
             prisma.auth.findFirst({
                     where: {
-                        id: id
+                        userId: id
                     }
                 }
             ).then(r => r),

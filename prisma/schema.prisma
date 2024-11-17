@@ -321,7 +321,7 @@ model StockOutReason {
 model User {
   id          Int             @id @default(autoincrement())
   phoneNumber String?         @map("phone_number") @db.VarChar(20)
-  userName    String          @unique(map: "user_name") @map("user_name") @db.VarChar(255)
+  userName    String          @map("user_name") @db.VarChar(255)
   email       String?         @unique(map: "email") @db.VarChar(255)
   address     String?         @db.VarChar(255)
   firstName   String          @map("first_name") @db.VarChar(255)
@@ -330,7 +330,7 @@ model User {
   gender      UserGender      @default(other)
   systemRole  UserSystemRole? @map("system_role")
   avatar      Json?
-  status      Int?            @default(1)
+  status      Int             @default(1)
   createdAt   DateTime?       @default(now()) @map("created_at") @db.Timestamp(0)
   updatedAt   DateTime?       @default(now()) @map("updated_at") @db.Timestamp(0)
 
