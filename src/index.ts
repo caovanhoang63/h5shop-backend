@@ -12,6 +12,10 @@ import helmet from "helmet";
 import bodyParser from "body-parser";
 import {LocalPubSub} from "./components/pubsub/local";
 import {SubscriberEngine} from "./subcriber";
+import {TopicTest} from "./libs/topics";
+import {Message} from "./components/pubsub";
+import {okAsync, ResultAsync} from "neverthrow";
+import {Err} from "./libs/errors";
 
 dotenv.config();
 const app: Express = express();
@@ -21,6 +25,24 @@ const port = process.env.PORT || 3000;
 const localPubsub = new LocalPubSub();
 const appContext = new AppContext(localPubsub);
 const subcriberEngine = new SubscriberEngine(appContext);
+
+
+subcriberEngine.subscribe(TopicTest + "1",
+    (m: Message): ResultAsync<void, Err> => {
+        return ResultAsync.fromPromise(
+            (async () => {
+                console.log("Subcriber423")
+                return okAsync(undefined)
+            })(), e => e as Err
+        ).andThen(r => r)},
+    (m: Message): ResultAsync<void, Err> => {
+    return ResultAsync.fromPromise(
+        (async () => {
+            console.log("Subcriber123")
+            return okAsync(undefined)
+        })(), e => e as Err
+    ).andThen(r => r)});
+
 
 
 (async () => {

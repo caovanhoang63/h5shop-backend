@@ -4,6 +4,7 @@ import EventEmitter from "node:events";
 import {TopicTest} from "../libs/topics";
 import {createInternalError, Err,} from "../libs/errors";
 import {errAsync, okAsync, ResultAsync} from "neverthrow";
+import {forEach} from "lodash";
 
 //TODO:  Implement retry feature
 type Handler = (m: Message) => ResultAsync<void, Err>;
@@ -16,8 +17,7 @@ export class SubscriberEngine {
         cleanup: () => void
     }[]> = new Map();
 
-    constructor(private readonly appContext: IAppContext) {
-    }
+    constructor(private readonly appContext: IAppContext) {}
 
     run(): ResultAsync<never, Err> {
         return ResultAsync.fromPromise(
@@ -26,48 +26,18 @@ export class SubscriberEngine {
                 // and returns a never-resolving promise to keep the service running
                 console.log("Subscriber engine started!");
 
-                await this.subscribe(TopicTest,
-                    (m: Message): ResultAsync<void, Err> => {
-                        return ResultAsync.fromPromise(
-                            (async () => {
-                                console.log(m.id)
-                                return okAsync(undefined)
-                            })(), e => e as Err
-                        ).andThen(r => r)
-                    },
-                    (m: Message): ResultAsync<void, Err> => {
-                        return ResultAsync.fromPromise(
-                            (async () => {
-                                console.log(m.id)
-                                return okAsync(undefined)
-                            })(), e => e as Err
-                        ).andThen(r => r)
-                    },
-                )
 
-                await this.subscribe(TopicTest + "1", (m: Message): ResultAsync<void, Err> => {
-                    return ResultAsync.fromPromise(
-                        (async () => {
-                            console.log("Subcriber123")
 
-                            return okAsync(undefined)
-                        })(), e => e as Err
-                    ).andThen(r => r)
-                })
+                return new Promise<never>(() => {});
 
-                return new Promise<never>(() => {
-                });
             })(), e => e as Err
         ).andThen(r => r);
     }
 
     public subscribe = (topic: Topic, ...handler: Handler[]): ResultAsync<void, Err> => {
-
         return ResultAsync.fromPromise(
             (async () => {
-
                 const result = await this.startSubTopic(topic, ...handler);
-
                 return okAsync(undefined)
             })(), e => e as Err
         ).andThen(r => r)
