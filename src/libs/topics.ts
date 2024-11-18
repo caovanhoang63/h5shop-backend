@@ -6,3 +6,8 @@ export const topicDeleteUser = "TopicDeleteUser";
 export const topicCreateCategory = "TopicCreateCategory";
 export const topicDeleteCategory = "TopicDeleteCategory";
 export const topicUpdateCategory = "TopicUpdateCategory";
+
+
+export const topicCreateSpu = "TopicCreateSpu";
+export const topicDeleteSpu = "TopicDeleteSpu";
+export const topicUpdateSpu = "TopicUpdateSpu";

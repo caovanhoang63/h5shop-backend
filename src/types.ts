@@ -6,12 +6,13 @@ const TYPES = {
     IUserRepository: Symbol.for("IUserRepository"),
     IAuditRepository: Symbol.for("IAuditRepository"),
     ICategoryRepository: Symbol.for("ICategoryRepository"),
-
+    ISpuRepository: Symbol.for("ISpuRepository"),
     // SERVICE
     IAuthService: Symbol.for("IAuthService"),
     IUserService: Symbol.for("IUserService"),
     IAuditService: Symbol.for("IAuditService"),
     ICategoryService: Symbol.for("ICategoryService"),
+    ISpuService: Symbol.for("ISpuService"),
 
     // UTILS
     IHasher: Symbol.for("IHasher"),

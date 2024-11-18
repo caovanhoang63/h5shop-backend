@@ -8,6 +8,7 @@ import auditRouter from "./auditRoute";
 import {container} from "../../container";
 import {TYPES} from "../../types";
 import categoryRouter from "./categoryRoute";
+import spuRouter from "./spuRoute";
 
 const v1Router = () => {
     const appCtx = container.get<IAppContext>(TYPES.IAppContext)
@@ -25,7 +26,7 @@ const v1Router = () => {
     router.use("/auth", authRouter(appCtx))
     router.use("/audit", auditRouter(appCtx))
     router.use("/category", categoryRouter(appCtx))
-
+    router.use("/spu", spuRouter(appCtx))
     router.post("/pubsub/test", async (req, res, next) => {
         await appCtx.GetPubsub().Publish(topicTest, {data: null, id: randomUUID(), topic: ""})
         res.status(200).send("oK")

@@ -1,0 +1,15 @@
+import {image} from "../../../../libs/image";
+import Joi from "joi";
+
+export interface SpuUpdate {
+    name: string;
+    description: string;
+    metadata: any,
+    image? : image[],
+    outOfStock : boolean,
+}
+
+export const spuUpdateSchema = Joi.object().keys({
+    name : Joi.string().max(255).required(),
+    description : Joi.string(),
+})
