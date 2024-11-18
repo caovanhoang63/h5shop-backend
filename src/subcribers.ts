@@ -21,9 +21,11 @@ const user = new UserSubscriberHandler(container.get<IUserService>(TYPES.IUserSe
 
 
 subscriberEngine.subscribe(topicRegister, audit.onCreate("auth"));
+
 subscriberEngine.subscribe(topicCreateCategory, audit.onCreate("category"));
 subscriberEngine.subscribe(topicUpdateCategory, audit.onUpdate("category"));
 subscriberEngine.subscribe(topicDeleteCategory, audit.onDelete("category"));
+
 subscriberEngine.subscribe(topicDeleteUser, user.onHardDelete());
 
 

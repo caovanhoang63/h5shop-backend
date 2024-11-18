@@ -65,7 +65,7 @@ export class Err extends Error implements ErrorDetails {
 // Error factories
 export const createDatabaseError = (originalError?: unknown, metadata?: Record<string, unknown>) =>
     new Err({
-        message: 'A database error occurred',
+        message: 'An internal server error occurred',
         key: 'DB_ERROR',
         code: HttpStatusCode.INTERNAL_SERVER_ERROR,
         originalError,

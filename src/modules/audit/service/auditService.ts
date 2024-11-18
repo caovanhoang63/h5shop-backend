@@ -6,7 +6,7 @@ import {IRequester} from "../../../libs/IRequester";
 import {Paging} from "../../../libs/paging";
 import {Audit} from "../entity/audit";
 import {IAuditRepository} from "../repository/IAuditRepository";
-import {createForbiddenError, Err} from "../../../libs/errors";
+import {createForbiddenError, createInternalError, Err} from "../../../libs/errors";
 import {SystemRole} from "../../user/entity/user";
 
 
@@ -19,7 +19,7 @@ export class AuditService implements IAuditService {
         return ResultAsync.fromPromise(
             (async () => {
                 const r = await this.auditRepo.create(u)
-                if (r.isErr()) return errAsync(r.error)
+                if (r.isErr()) return errAsync(createInternalError(r.error))
                 return okAsync(undefined)
             })(),
             e => e as Err
@@ -35,7 +35,7 @@ export class AuditService implements IAuditService {
                 }
 
                 const r = await this.auditRepo.list(condition, paging)
-                if (r.isErr()) return errAsync(r.error)
+                if (r.isErr()) return errAsync(createInternalError(r.error))
                 return okAsync(r.value)
             })(),
             e => e as Err

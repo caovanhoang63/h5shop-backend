@@ -24,8 +24,7 @@ export class AuditMysqlRepo extends BaseMysqlRepo implements IAuditRepository {
         const [whereClause, values] = SqlHelper.buildWhereClause(condition);
         const offset = (paging.page - 1) * paging.limit;
         const limit = paging.limit;
-        return ResultAsync.fromPromise(
-            this.executeQuery(`SELECT COUNT(*) as total
+        return this.executeQuery(`SELECT COUNT(*) as total
                                FROM audit_log ${whereClause}`, values)
                 // total
                 .andThen(([r, f]) => {
@@ -49,10 +48,6 @@ export class AuditMysqlRepo extends BaseMysqlRepo implements IAuditRepository {
                             const audits = (r as RowDataPacket[]).map(row => SqlHelper.toCamelCase(row) as Audit);
                             return ok(audits)
                         })
-                }),
-            e => e as Err)
-            // map return value
-            .andThen(r => r)
-
+                })
     }
 }
