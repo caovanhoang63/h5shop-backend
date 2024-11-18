@@ -39,8 +39,6 @@ export class UserMysqlRepo extends BaseMysqlRepo implements IUserRepository {
                     const data: User = SqlHelper.toCamelCase(a[0]);
                     return ok(data)
                 })
-
-
     }
 
     public hardDeleteById(id: number): ResultAsync<void, Err> {
