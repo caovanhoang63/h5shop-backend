@@ -23,6 +23,7 @@ import {AppContext, IAppContext} from "./components/appContext/appContext";
 import {AuthMysqlRepo} from "./modules/auth/repository/implementation/mysqlRepo";
 import {UserMysqlRepo} from "./modules/user/repository/implementation/mysqlRepo";
 import {AuditMysqlRepo} from "./modules/audit/repository/auditMysqlRepo";
+import {IConnectionPool, MysqlConnectionPool} from "./components/mysql/MysqlConnectionPool";
 
 
 const container = new Container();
@@ -46,5 +47,6 @@ container.bind<IPubSub>(TYPES.IPubSub).to(LocalPubSub).inSingletonScope().onActi
     return p;
 });
 container.bind<IAppContext>(TYPES.IAppContext).to(AppContext).inSingletonScope();
+container.bind<IConnectionPool>(TYPES.IConnectionPool).to(MysqlConnectionPool).inSingletonScope();
 
 export { container };
