@@ -20,7 +20,8 @@ export  class AuditSubscribeHandler {
                         newValues: m.data.data,
                         objectId: m.data.data.id,
                         objectType: "auth",
-                        userId: requester.userId ?? 0
+                        userId: requester.userId ?? 0,
+                        userAgent : requester.userAgent ?? null,
                     }
                     const r =  await this.auditService.create(create)
                     if (r.isErr()) {

@@ -20,15 +20,17 @@ import {AuditService} from "./modules/audit/service/auditService";
 import {IAuditRepository} from "./modules/audit/repository/IAuditRepository";
 import {AuditPrmRepo} from "./modules/audit/repository/auditPrmRepo";
 import {AppContext, IAppContext} from "./components/appContext/appContext";
+import {AuthMysqlRepo} from "./modules/auth/repository/implementation/mysqlRepo";
+import {UserMysqlRepo} from "./modules/user/repository/implementation/mysqlRepo";
+import {AuditMysqlRepo} from "./modules/audit/repository/auditMysqlRepo";
 
 
 const container = new Container();
 //Repository
-container.bind<IAuthRepository>(TYPES.IAuthRepository).to(PrmAuthRepo).inRequestScope();
+container.bind<IAuthRepository>(TYPES.IAuthRepository).to(AuthMysqlRepo).inRequestScope();
 container.bind<IUserLocalRepository>(TYPES.IUserLocalRepository).to(UserLocal).inRequestScope();
-container.bind<IUserRepository>(TYPES.IUserRepository).to(PrmUserRepo).inRequestScope();
-container.bind<IAuditRepository>(TYPES.IAuditRepository).to(AuditPrmRepo).inRequestScope();
-
+container.bind<IUserRepository>(TYPES.IUserRepository).to(UserMysqlRepo).inRequestScope();
+container.bind<IAuditRepository>(TYPES.IAuditRepository).to(AuditMysqlRepo).inRequestScope();
 
 //Service
 container.bind<IAuthService>(TYPES.IAuthService).to(AuthService).inRequestScope();

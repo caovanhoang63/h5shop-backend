@@ -33,6 +33,7 @@ export class AuditService implements IAuditService {
                     && requester.systemRole != SystemRole.Owner.toString()) {
                     return errAsync(createForbiddenError())
                 }
+
                 const r = await this.auditRepo.list(condition, paging)
                 if (r.isErr()) return errAsync(r.error)
                 return okAsync(r.value)

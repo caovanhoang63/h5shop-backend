@@ -6,6 +6,7 @@ export interface Audit {
     objectId: number,
     oldValues: any,
     newValues: any,
+    userAgent: string | null,
     ipAddress: string | null,
     createdAt: Date,
 }

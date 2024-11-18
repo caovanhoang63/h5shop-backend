@@ -13,13 +13,11 @@ export class AuditApi {
         return async  (req , res) => {
             const paging = ReqHelper.getPaging(req.query)
             const requester = ReqHelper.getRequester(res)
-            console.log(requester)
             const result =  await this.auditService.list(requester,{},paging)
             if (result.isErr()) {
                 writeErrorResponse(res, result.error)
                 return
             }
-            console.log(result.value)
             res.status(200).send(AppResponse.SuccessResponse(result.value,paging,{}))
             return
         }

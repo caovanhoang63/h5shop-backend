@@ -60,7 +60,6 @@ export class AuthService implements IAuthService {
                     return errAsync(ErrUserNameAlreadyExists(u.userName));
                 }
 
-                console.log(Date.now())
 
                 // Create new user
                 const [user, err] = await this.userRepo.CreateNewUser(
@@ -69,7 +68,6 @@ export class AuthService implements IAuthService {
                     u.userName,
                     u.systemRole
                 );
-                console.log(Date.now())
 
                 if (err) {
                     return errAsync(err);

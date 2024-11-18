@@ -47,7 +47,6 @@ export class UserService  implements  IUserService{
                 }
                 const data = uR.value
 
-                console.log("User",data.systemRole)
                 r.systemRole = data.systemRole
 
                 if (data.systemRole === SystemRole.Admin) {

@@ -8,19 +8,17 @@ import {MysqlErrHandler} from "../../../../libs/mysqlErrHandler";
 import {err, ok, ResultAsync} from "neverthrow";
 import {Err} from "../../../../libs/errors";
 import {IUserRepository} from "../IUserRepository";
+import conPool from "../../../../mysql";
 
 export class UserMysqlRepo implements IUserRepository {
-    private readonly pool: mysql.Pool;
-
     constructor(pool: mysql.Pool) {
-        this.pool = pool
     }
 
     public create = (u: UserCreate): ResultAsync<void, Err> => {
         const query = `INSERT INTO user (user_name, first_name, last_name, system_role)
                        VALUES (?, ?, ?, ?) `;
 
-        return ResultAsync.fromPromise(this.pool.promise().query(query,
+        return ResultAsync.fromPromise(conPool.promise().query(query,
             [u.userName, u.firstName, u.lastName, u.systemRole.toString()],
         ).then(
             ([r, f]) => {
@@ -35,7 +33,7 @@ export class UserMysqlRepo implements IUserRepository {
         const query = `SELECT *
                        FROM user
                        WHERE id = ? LIMIT 1`;
-        return ResultAsync.fromPromise(this.pool.promise().query(query, [id],)
+        return ResultAsync.fromPromise(conPool.promise().query(query, [id],)
             .then(([r, f]) => {
                     const a = r as RowDataPacket[]
                     if (a.length <= 0) {
@@ -55,9 +53,9 @@ export class UserMysqlRepo implements IUserRepository {
         const [whereClause, values] = SqlHelper.buildWhereClause(cond)
         const query = `SELECT *
                        FROM user ${whereClause}`;
-        this.pool.query(query,)
+        conPool.query(query,)
         return ResultAsync.fromPromise(
-            this.pool.promise().query(query, values).then(
+            conPool.promise().query(query, values).then(
                 ([r, f]) => {
                     const rows = r as RowDataPacket[]
                     const data: User[] = []
