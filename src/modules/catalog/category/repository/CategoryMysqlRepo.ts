@@ -18,6 +18,7 @@ export class CategoryMysqlRepo extends BaseMysqlRepo implements ICategoryReposit
         return this.executeQuery(query,[c.name,c.description,c.metadata]).andThen(
             ([r,f]) => {
                 const header = r as ResultSetHeader;
+                c.id = header.insertId;
                 return okAsync(undefined)
             }
         );

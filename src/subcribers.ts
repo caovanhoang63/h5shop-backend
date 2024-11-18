@@ -1,4 +1,10 @@
-import {topicDeleteUser, topicRegister} from "./libs/topics";
+import {
+    topicCreateCategory,
+    topicDeleteCategory,
+    topicDeleteUser,
+    topicRegister,
+    topicUpdateCategory
+} from "./libs/topics";
 import {SubscriberEngine} from "./components/subcriber";
 import {AuditSubscribeHandler} from "./modules/audit/transport/subcriber";
 import {container} from "./container";
@@ -14,7 +20,10 @@ const audit = new AuditSubscribeHandler(container.get<IAuditService>(TYPES.IAudi
 const user = new UserSubscriberHandler(container.get<IUserService>(TYPES.IUserService))
 
 
-subscriberEngine.subscribe(topicRegister, audit.onRegister());
+subscriberEngine.subscribe(topicRegister, audit.onCreate("auth"));
+subscriberEngine.subscribe(topicCreateCategory, audit.onCreate("category"));
+subscriberEngine.subscribe(topicUpdateCategory, audit.onUpdate("category"));
+subscriberEngine.subscribe(topicDeleteCategory, audit.onDelete("category"));
 subscriberEngine.subscribe(topicDeleteUser, user.onHardDelete());
 
 

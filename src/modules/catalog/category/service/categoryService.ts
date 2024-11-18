@@ -31,8 +31,7 @@ export class CategoryService implements ICategoryService {
                 const result = await this.repo.create(c)
                 if (result.isErr())
                     return err(result.error)
-
-
+                
                 this.pubSub.Publish(topicCreateCategory,createMessage(c,requester))
                 return ok(undefined)
             })(), e => createInternalError(e)
@@ -59,6 +58,7 @@ export class CategoryService implements ICategoryService {
                     return err(result.error)
 
                 this.pubSub.Publish(topicUpdateCategory,createMessage({
+                    id: id,
                     old: old.value,
                     new: c
                 },requester))
@@ -71,7 +71,7 @@ export class CategoryService implements ICategoryService {
     delete(requester: IRequester, id: number): ResultAsync<void, Err> {
         return ResultAsync.fromPromise(
             (async () => {
-                if (requester.systemRole != SystemRole.Admin) {
+                if (requester.systemRole != SystemRole.Admin &&  requester.systemRole != SystemRole.Owner) {
                     return err(createForbiddenError())
                 }
 

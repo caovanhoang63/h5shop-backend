@@ -1,4 +1,4 @@
-import {ok, ResultAsync} from "neverthrow";
+import {ok, okAsync, ResultAsync} from "neverthrow";
 import {Err} from "../../../libs/errors";
 import {Paging} from "../../../libs/paging";
 import {Audit} from "../entity/audit";
@@ -10,19 +10,14 @@ import {BaseMysqlRepo} from "../../../components/mysql/BaseMysqlRepo";
 
 @injectable()
 export class AuditMysqlRepo extends BaseMysqlRepo implements IAuditRepository {
-
-
     create(u: Audit): ResultAsync<void, Err> {
         const query = `INSERT INTO audit_log (user_id, action, object_type, object_id, old_values, new_values,
                                               ip_address, user_agent)
                            VALUE (?, ?, ?, ?, ?, ?, ?, ?)`
-        return ResultAsync.fromPromise(
-            this.executeQuery(query,
-                [u.userId, u.action, u.objectType, u.objectId, JSON.stringify(u.oldValues), JSON.stringify(u.newValues), u.ipAddress, u.userAgent])
-                .then(),
-            e => e as Err
-        )
 
+        return this.executeQuery(query,
+                [u.userId, u.action, u.objectType, u.objectId, JSON.stringify(u.oldValues), JSON.stringify(u.newValues), u.ipAddress, u.userAgent])
+                .andThen(r => okAsync(undefined))
     }
 
     list(condition: any, paging: Paging): ResultAsync<Audit[], Err> {

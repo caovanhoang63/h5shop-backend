@@ -1,9 +1,7 @@
 import {IAppContext} from "../../components/appContext/appContext";
 import express from "express";
 import {container} from "../../container";
-import {IAuditService} from "../../modules/audit/service/IAuditService";
 import {TYPES} from "../../types";
-import {AuditApi} from "../../modules/audit/transport/api";
 import authentication from "../../middlewares/authentication";
 import requiredRole from "../../middlewares/requiredRole";
 import {SystemRole} from "../../modules/user/entity/user";
@@ -20,8 +18,8 @@ const categoryRouter = (appContext: IAppContext) => {
     router.get('/', categoryApi.list())
     router.get('/:id', categoryApi.getById())
     router.post('/', categoryApi.create())
-    router.delete('/', categoryApi.delete())
-    router.patch('/', categoryApi.update())
+    router.delete('/:id',requiredRole(appContext,SystemRole.Admin,SystemRole.Owner), categoryApi.delete())
+    router.patch('/:id', categoryApi.update())
     return router
 }
 
