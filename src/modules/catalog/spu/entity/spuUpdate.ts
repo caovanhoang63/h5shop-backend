@@ -5,6 +5,7 @@ export interface SpuUpdate {
     name: string;
     description: string;
     metadata: any,
+    categoryId : number,
     image? : image[],
     outOfStock : boolean,
 }
@@ -12,4 +13,5 @@ export interface SpuUpdate {
 export const spuUpdateSchema = Joi.object().keys({
     name : Joi.string().max(255).required(),
     description : Joi.string(),
+    categoryId : Joi.number(),
 })

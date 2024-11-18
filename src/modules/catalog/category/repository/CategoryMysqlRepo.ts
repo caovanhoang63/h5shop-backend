@@ -47,7 +47,7 @@ export class CategoryMysqlRepo extends BaseMysqlRepo implements ICategoryReposit
     list(cond: ICondition, paging: Paging): ResultAsync<Category[] | null, Err> {
         const [clause,values] = SqlHelper.buildWhereClause(cond)
         const pagingClause = SqlHelper.buildPaginationClause(paging)
-        const countQuery = `SELECT COUNT(*) FROM category ${clause}`;
+        const countQuery = `SELECT COUNT(*) as total FROM category ${clause}`;
         const query = `SELECT * FROM category ${clause} ${pagingClause}`;
         return this.executeQuery(countQuery,values).andThen(
             ([r,f]) => {

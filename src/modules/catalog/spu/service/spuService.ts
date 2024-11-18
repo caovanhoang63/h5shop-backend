@@ -14,10 +14,12 @@ import {topicCreateSpu, topicDeleteSpu, topicUpdateSpu} from "../../../../libs/t
 import {SpuUpdate, spuUpdateSchema} from "../entity/spuUpdate";
 import {SpuCreate, spuCreateSchema} from "../entity/spuCreate";
 import {Spu} from "../entity/spu";
+import {ICategoryRepository} from "../../category/repository/ICategoryRepository";
 
 @injectable()
 export class SpuService implements ISpuService {
     constructor(@inject(TYPES.ISpuRepository) private readonly repo : ISpuRepository,
+                @inject(TYPES.ICategoryRepository) private readonly categoryRepository: ICategoryRepository,
                 @inject(TYPES.IPubSub) private readonly pubSub : IPubSub,) {
     }
 
@@ -27,6 +29,15 @@ export class SpuService implements ISpuService {
                 const vr = await Validator(spuCreateSchema,c)
                 if (vr.isErr())
                     return err(vr.error)
+
+                const cate =  await this.categoryRepository.findById(c.categoryId);
+                if (cate.isErr()) {
+                    return err(cate.error)
+                }
+
+                if (!cate.value) {
+                    return err(createEntityNotFoundError("category"))
+                }
 
                 const result = await this.repo.create(c)
                 if (result.isErr())

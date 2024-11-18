@@ -5,6 +5,7 @@ export interface SpuCreate {
     id?: number;
     name: string;
     description: string;
+    categoryId: number,
     metadata: any,
     image? : image[],
 }
@@ -12,4 +13,5 @@ export interface SpuCreate {
 export const spuCreateSchema = Joi.object().keys({
     name : Joi.string().max(255).required(),
     description : Joi.string(),
+    categoryId : Joi.number().required(),
 })
