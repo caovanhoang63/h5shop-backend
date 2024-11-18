@@ -18,6 +18,7 @@ export const InvalidToken = (e?: any) =>
         code: 403, key: "ERR_INVALID_TOKEN", message: "Invalid token", metadata: undefined, originalError: e
 
     })
+
 export interface JwtClaim {
     id: string, // this is the token id
     sub: string,
@@ -28,10 +29,10 @@ export interface JwtClaim {
 
 @injectable()
 export class jwtProvider implements IJwtProvider {
-    constructor(
-    ) {
+    constructor() {
         this._secret = process.env.SYSTEM_SECRET!;
     }
+
     private readonly _secret: string
 
     ParseToken = (token: string): Result<Nullable<JwtClaim>, Err> => {

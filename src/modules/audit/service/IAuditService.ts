@@ -6,6 +6,7 @@ import {Err} from "../../../libs/errors";
 
 
 export interface IAuditService {
-    create(u : Audit) : ResultAsync<void, Err>
-    list(requester : IRequester ,condition: any, paging : Paging) : ResultAsync<Audit[], Err>
+    create(u: Audit): ResultAsync<void, Err>
+
+    list(requester: IRequester, condition: any, paging: Paging): ResultAsync<Audit[], Err>
 }

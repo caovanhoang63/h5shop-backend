@@ -1,9 +1,3 @@
-import {BaseModel} from "../../../libs/baseModel";
-import {SystemRole} from "../../user/entity/user";
-
-
-
-
 export interface Token {
     token: string;
     expiredIn: number;

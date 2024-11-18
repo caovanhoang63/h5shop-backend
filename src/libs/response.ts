@@ -11,7 +11,7 @@ export interface IErrorResponse {
     message: string,
     code: number,
     key: string,
-    metadata?:  Record<string, unknown>;
+    metadata?: Record<string, unknown>;
 }
 
 export class AppResponse {

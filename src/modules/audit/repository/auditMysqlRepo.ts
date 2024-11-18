@@ -5,9 +5,7 @@ import {Audit} from "../entity/audit";
 import {IAuditRepository} from "./IAuditRepository";
 import {RowDataPacket} from "mysql2";
 import {SqlHelper} from "../../../libs/sqlHelper";
-import {inject, injectable} from "inversify";
-import {IConnectionPool} from "../../../components/mysql/MysqlConnectionPool";
-import {TYPES} from "../../../types";
+import {injectable} from "inversify";
 import {BaseMysqlRepo} from "../../../components/mysql/BaseMysqlRepo";
 
 @injectable()

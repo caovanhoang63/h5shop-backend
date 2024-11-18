@@ -14,9 +14,8 @@ const audit = new AuditSubscribeHandler(container.get<IAuditService>(TYPES.IAudi
 const user = new UserSubscriberHandler(container.get<IUserService>(TYPES.IUserService))
 
 
-
-subscriberEngine.subscribe(topicRegister,audit.onRegister());
-subscriberEngine.subscribe(topicDeleteUser,user.onHardDelete());
+subscriberEngine.subscribe(topicRegister, audit.onRegister());
+subscriberEngine.subscribe(topicDeleteUser, user.onHardDelete());
 
 
 export default subscriberEngine

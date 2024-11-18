@@ -13,8 +13,8 @@ export class ReqHelper {
         return new Paging(page, limit);
     }
 
-    static getRequester(res : express.Response) : IRequester {
-        const r =  res.locals[RequesterKey] as IRequester || {}
+    static getRequester(res: express.Response): IRequester {
+        const r = res.locals[RequesterKey] as IRequester || {}
         r.userAgent = res.locals["userAgent"]
         r.ipAddress = res.locals["ipAddress"]
 

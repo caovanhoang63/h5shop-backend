@@ -1,6 +1,4 @@
 
-import {IConnectionPool} from "./components/mysql/MysqlConnectionPool";
-
 const TYPES = {
     // REPOSITORY
     IAuthRepository: Symbol.for("IAuthRepository"),
@@ -16,9 +14,9 @@ const TYPES = {
     // UTILS
     IHasher: Symbol.for("IHasher"),
     IJwtProvider: Symbol.for("IJwtProvider"),
-    IPubSub : Symbol.for("IPubSub"),
+    IPubSub: Symbol.for("IPubSub"),
     IAppContext: Symbol.for("IAppContext"),
-    IConnectionPool : Symbol.for("IConnectionPool"),
-    ConnPool : Symbol.for("ConnPool"),
+    IConnectionPool: Symbol.for("IConnectionPool"),
+    ConnPool: Symbol.for("ConnPool"),
 };
-export { TYPES };
+export {TYPES};

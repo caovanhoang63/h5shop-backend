@@ -1,8 +1,6 @@
 import {IAppContext} from "../components/appContext/appContext";
 import {SystemRole} from "../modules/user/entity/user";
 import express from "express";
-import {UserMysqlRepo} from "../modules/user/repository/implementation/mysqlRepo";
-import {UserService} from "../modules/user/service/userService";
 import {IRequester, RequesterKey} from "../libs/IRequester";
 import {writeErrorResponse} from "../libs/writeErrorResponse";
 import {createForbiddenError} from "../libs/errors";

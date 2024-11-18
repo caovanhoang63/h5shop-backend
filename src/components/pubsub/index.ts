@@ -11,9 +11,9 @@ export type Message = {
     topic: Topic;
 }
 
-export function createMessage(data : any,requester? : IRequester)  : Message {
+export function createMessage(data: any, requester?: IRequester): Message {
     return {
-        data:{
+        data: {
             requester: requester,
             data: data
         },

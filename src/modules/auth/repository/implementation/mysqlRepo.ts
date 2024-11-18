@@ -1,4 +1,4 @@
-import mysql, {ResultSetHeader, RowDataPacket} from "mysql2";
+import {ResultSetHeader, RowDataPacket} from "mysql2";
 import {Auth} from "../../entity/auth";
 import {SqlHelper} from "../../../../libs/sqlHelper";
 import {IAuthRepository} from "../IAuthRepository";
@@ -23,8 +23,7 @@ export class AuthMysqlRepo extends BaseMysqlRepo implements IAuthRepository {
     FindByUserName = (userName: string): ResultAsync<Auth | null, Err> => {
         const query = `SELECT *
                        FROM auth
-                       WHERE user_name = ?
-                       LIMIT 1`;
+                       WHERE user_name = ? LIMIT 1`;
         return ResultAsync.fromPromise(this.executeQuery(query, [userName],)
             .andThen(([r, f]) => {
                 const a = r as RowDataPacket[]
@@ -41,8 +40,7 @@ export class AuthMysqlRepo extends BaseMysqlRepo implements IAuthRepository {
     FindByUserId = (userId: number): ResultAsync<Auth | null, Err> => {
         const query = `SELECT *
                        FROM auth
-                       WHERE user_id = ?
-                       LIMIT 1`;
+                       WHERE user_id = ? LIMIT 1`;
         return ResultAsync.fromPromise(this.executeQuery(query, [userId],)
             .andThen(([r, f]) => {
                 const a = r as RowDataPacket[]

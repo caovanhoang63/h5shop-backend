@@ -11,7 +11,7 @@ export interface IConnectionPool {
 export class MysqlConnectionPool implements IConnectionPool {
     private readonly pool;
 
-    constructor(@inject(TYPES.ConnPool) pool : Pool) {
+    constructor(@inject(TYPES.ConnPool) pool: Pool) {
         this.pool = pool
     }
 

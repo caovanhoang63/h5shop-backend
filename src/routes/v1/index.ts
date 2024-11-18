@@ -22,7 +22,7 @@ const v1Router = () => {
 
     router.use("/users", usersRouter(appCtx))
     router.use("/auth", authRouter(appCtx))
-    router.use("/audit",auditRouter(appCtx))
+    router.use("/audit", auditRouter(appCtx))
 
     router.post("/pubsub/test", async (req, res, next) => {
         await appCtx.GetPubsub().Publish(topicTest, {data: null, id: randomUUID(), topic: ""})

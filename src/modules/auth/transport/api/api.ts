@@ -7,14 +7,15 @@ import {AuthLogin} from "../../entity/authLogin";
 import {ReqHelper} from "../../../../libs/reqHelper";
 
 
-export class AuthApi  {
-    constructor(private readonly authBiz: IAuthService) {}
+export class AuthApi {
+    constructor(private readonly authBiz: IAuthService) {
+    }
 
     Register: express.Handler = async (req, res, next) => {
         const u = req.body as AuthCreate;
         const requester = ReqHelper.getRequester(res);
 
-        const r = await this.authBiz.register(requester,u)
+        const r = await this.authBiz.register(requester, u)
         if (r.isErr()) {
             writeErrorResponse(res, r.error)
             return
@@ -27,7 +28,7 @@ export class AuthApi  {
         const u = req.body as AuthLogin;
         const requester = ReqHelper.getRequester(res);
 
-        const r = await this.authBiz.login(requester,u)
+        const r = await this.authBiz.login(requester, u)
 
         if (r.isErr()) {
             writeErrorResponse(res, r.error)

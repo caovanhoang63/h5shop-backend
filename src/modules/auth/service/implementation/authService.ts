@@ -1,5 +1,5 @@
 import {TokenResponse} from "../../entity/authVar";
-import {createForbiddenError, createInternalError, Err} from "../../../../libs/errors";
+import {createForbiddenError, Err} from "../../../../libs/errors";
 import {ErrInvalidCredentials, ErrUserNameAlreadyExists} from "../../entity/authErrors";
 import {randomSalt} from "../../../../libs/salt";
 import {Validator} from "../../../../libs/validator";
@@ -20,7 +20,6 @@ import {TYPES} from "../../../../types";
 import {inject, injectable} from "inversify";
 import {createMessage, IPubSub} from "../../../../components/pubsub";
 import {topicDeleteUser, topicRegister} from "../../../../libs/topics";
-import {IUserService} from "../../../user/service/IUserService";
 import {UserCreate} from "../../../user/entity/userCreate";
 import {IUserRepository} from "../../../user/repository/IUserRepository";
 
@@ -33,12 +32,12 @@ export interface IHasher {
 export class AuthService implements IAuthService {
     constructor(@inject(TYPES.IAuthRepository) private readonly authRepo: IAuthRepository,
                 @inject(TYPES.IHasher) private readonly hasher: IHasher,
-                @inject(TYPES.IUserRepository) private readonly userRepo: IUserRepository ,
+                @inject(TYPES.IUserRepository) private readonly userRepo: IUserRepository,
                 @inject(TYPES.IJwtProvider) private readonly jwtProvider: IJwtProvider,
                 @inject(TYPES.IPubSub) private readonly pubSub: IPubSub,) {
     }
 
-    public register = (requester : IRequester,u: AuthCreate): ResultAsync<void, Err> => {
+    public register = (requester: IRequester, u: AuthCreate): ResultAsync<void, Err> => {
         return ResultAsync.fromPromise(
             (async () => {
 
@@ -58,11 +57,11 @@ export class AuthService implements IAuthService {
                     return errAsync(ErrUserNameAlreadyExists(u.userName));
                 }
 
-                const create : UserCreate = {
+                const create: UserCreate = {
                     firstName: u.firstName,
                     lastName: u.lastName,
                     systemRole: u.systemRole,
-                    userName:u.userName
+                    userName: u.userName
                 }
                 // Create new user
                 const createUserR = await this.userRepo.create(create);
@@ -80,12 +79,12 @@ export class AuthService implements IAuthService {
                 // Create auth entry
                 const r = await this.authRepo.Create(u);
 
-                if (r.isErr() ) {
-                    this.pubSub.Publish(topicDeleteUser, createMessage({id : create.id}));
+                if (r.isErr()) {
+                    this.pubSub.Publish(topicDeleteUser, createMessage({id: create.id}));
                     return errAsync(r.error);
                 }
 
-                this.pubSub.Publish(topicRegister,createMessage(u,requester));
+                this.pubSub.Publish(topicRegister, createMessage(u, requester));
 
                 return okAsync(undefined); // Success case
             })(),
@@ -119,7 +118,7 @@ export class AuthService implements IAuthService {
                 const requester: IRequester = {
                     requestId: claim.id,
                     userId: userId,
-                    systemRole : null
+                    systemRole: null
                 };
 
                 return okAsync(requester);
@@ -128,7 +127,7 @@ export class AuthService implements IAuthService {
         ).andThen((result) => result); // Ensure correct result wrapping
     };
 
-    public login = (requester : IRequester,u: AuthLogin): ResultAsync<TokenResponse, Err> => {
+    public login = (requester: IRequester, u: AuthLogin): ResultAsync<TokenResponse, Err> => {
         return ResultAsync.fromPromise(
             (async () => {
                 // Validate input

@@ -1,8 +1,8 @@
-import {FieldPacket, Pool, PoolConnection, QueryResult} from 'mysql2/promise';
-import { ResultAsync, errAsync, okAsync, Result, ok, err } from 'neverthrow';
+import {FieldPacket, PoolConnection, QueryResult} from 'mysql2/promise';
+import {errAsync, ok, okAsync, Result, ResultAsync} from 'neverthrow';
 import {IBaseRepo} from "../../libs/IBaseRepo";
 import {createDatabaseError, Err} from "../../libs/errors";
-import {inject, injectable} from "inversify";
+import {inject} from "inversify";
 import {IConnectionPool} from "./MysqlConnectionPool";
 import {TYPES} from "../../types";
 import {MysqlErrHandler} from "../../libs/mysqlErrHandler";
@@ -12,7 +12,7 @@ export abstract class BaseMysqlRepo implements IBaseRepo {
     protected connection?: PoolConnection;
     protected hasActiveTransaction: boolean = false;
 
-    constructor(@inject(TYPES.IConnectionPool) protected readonly pool : IConnectionPool) {
+    constructor(@inject(TYPES.IConnectionPool) protected readonly pool: IConnectionPool) {
     }
 
     protected getConnection(): ResultAsync<PoolConnection, Err> {
@@ -83,7 +83,7 @@ export abstract class BaseMysqlRepo implements IBaseRepo {
     }
 
 
-        protected executeInTransaction<T>(
+    protected executeInTransaction<T>(
         operation: (conn: PoolConnection) => ResultAsync<T, Err>
     ): ResultAsync<T, Err> {
         const shouldManageTransaction = !this.hasActiveTransaction;
@@ -109,13 +109,13 @@ export abstract class BaseMysqlRepo implements IBaseRepo {
     protected executeQuery<T>(
         query: string,
         params: any[] = []
-    ): ResultAsync<[QueryResult,FieldPacket[]], Err> {
+    ): ResultAsync<[QueryResult, FieldPacket[]], Err> {
         return this.getConnection()
             .andThen(conn =>
                 ResultAsync.fromPromise(
                     conn.query(query, params)
-                        .then((row) => row ),
-                    e =>  MysqlErrHandler.handler(e,"entity")
+                        .then((row) => row),
+                    e => MysqlErrHandler.handler(e, "entity")
                 )
             );
     }

@@ -12,4 +12,10 @@ export class MysqlErrHandler {
 export const KeyAlreadyExists = 'ALREADY_EXISTED_ERROR'
 
 export const ErrEntityAlreadyExists = (e: any, entityName: string) =>
-    new Err({code: 400, key: KeyAlreadyExists, message: `${entityName} already existed`, metadata: undefined, originalError: e})
+    new Err({
+        code: 400,
+        key: KeyAlreadyExists,
+        message: `${entityName} already existed`,
+        metadata: undefined,
+        originalError: e
+    })

@@ -1,5 +1,3 @@
-
-
 // HTTP status codes enum for better type safety
 export enum HttpStatusCode {
     OK = 200,
@@ -83,7 +81,7 @@ export const createInternalError = (originalError?: unknown, metadata?: Record<s
         metadata
     });
 
-export const createInvalidDataError = (e : Error) => {
+export const createInvalidDataError = (e: Error) => {
     return new Err({
         code: HttpStatusCode.BAD_REQUEST, key: "INVALID_DATA_ERROR", message: e.message, originalError: e
     });

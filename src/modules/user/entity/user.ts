@@ -1,5 +1,3 @@
-import {BaseModel} from "../../../libs/baseModel";
-import {Nullable} from "../../../libs/nullable";
 import {UserGender, UserSystemRole} from "@prisma/client";
 
 export const UserEntityName = "User";
@@ -20,16 +18,16 @@ export enum SystemRole {
     FinanceStaff = 'finance_staff',
 }
 
-export interface User  {
+export interface User {
     id: number;
-    phoneNumber: string |null;
+    phoneNumber: string | null;
     email: string | null;
     address: string | null;
     firstName: string;
     lastName: string;
     dateOfBirth: Date | null;
     gender: UserGender | null;
-    systemRole: UserSystemRole |null;
+    systemRole: UserSystemRole | null;
     status: number | null;
     createdAt: Date | null;
     updatedAt: Date | null;

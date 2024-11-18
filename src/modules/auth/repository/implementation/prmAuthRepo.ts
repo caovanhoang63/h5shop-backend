@@ -11,9 +11,11 @@ export class PrmAuthRepo implements IAuthRepository {
     Begin(): ResultAsync<void, Err> {
         throw new Error("Method not implemented.");
     }
+
     Commit(): ResultAsync<void, Err> {
         throw new Error("Method not implemented.");
     }
+
     Rollback(): ResultAsync<void, Err> {
         throw new Error("Method not implemented.");
     }
@@ -22,7 +24,9 @@ export class PrmAuthRepo implements IAuthRepository {
         const {firstName, lastName, systemRole, ...authData} = u;
         return ResultAsync.fromPromise(
             prisma.auth.create({data: authData}).then(
-                r => { u.id = r.id }
+                r => {
+                    u.id = r.id
+                }
             ),
             (r) => createDatabaseError(r)
         )

@@ -2,7 +2,6 @@ import 'reflect-metadata';
 import {Container} from 'inversify';
 import {TYPES} from "./types";
 import {IAuthRepository} from "./modules/auth/repository/IAuthRepository";
-// import  UserLocal from "./modules/user/transport/local/local";
 import {AuthService, IHasher} from "./modules/auth/service/implementation/authService";
 import {Hasher} from "./libs/hasher";
 import {IJwtProvider, jwtProvider} from "./components/jwtProvider/IJwtProvider";
@@ -51,11 +50,11 @@ container.bind<Pool>(TYPES.ConnPool).toConstantValue(mysql.createPool({
 }));
 container.bind<IHasher>(TYPES.IHasher).to(Hasher);
 container.bind<IJwtProvider>(TYPES.IJwtProvider).to(jwtProvider);
-container.bind<IPubSub>(TYPES.IPubSub).to(LocalPubSub).inSingletonScope().onActivation( (r ,p )=> {
-    if( p instanceof LocalPubSub)  p.Serve().then(r => r );
+container.bind<IPubSub>(TYPES.IPubSub).to(LocalPubSub).inSingletonScope().onActivation((r, p) => {
+    if (p instanceof LocalPubSub) p.Serve().then(r => r);
     return p;
 });
 container.bind<IAppContext>(TYPES.IAppContext).to(AppContext).inSingletonScope();
 container.bind<IConnectionPool>(TYPES.IConnectionPool).to(MysqlConnectionPool).inSingletonScope();
 
-export { container };
+export {container};

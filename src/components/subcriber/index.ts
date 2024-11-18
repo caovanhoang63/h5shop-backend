@@ -1,10 +1,7 @@
-import {IAppContext} from "../appContext/appContext";
 import {IPubSub, Message, Topic} from "../pubsub";
 import EventEmitter from "node:events";
-import {topicTest} from "../../libs/topics";
 import {createInternalError, Err,} from "../../libs/errors";
 import {errAsync, okAsync, ResultAsync} from "neverthrow";
-import {forEach} from "lodash";
 import {container} from "../../container";
 import {TYPES} from "../../types";
 
@@ -18,7 +15,8 @@ export class SubscriberEngine {
         emitter: EventEmitter,
         cleanup: () => void
     }[]> = new Map();
-    private readonly pubsub  : IPubSub;
+    private readonly pubsub: IPubSub;
+
     constructor() {
         this.pubsub = container.get<IPubSub>(TYPES.IPubSub);
     }
@@ -31,8 +29,8 @@ export class SubscriberEngine {
                 console.log("Subscriber engine started!");
 
 
-
-                return new Promise<never>(() => {});
+                return new Promise<never>(() => {
+                });
 
             })(), e => e as Err
         ).andThen(r => r);

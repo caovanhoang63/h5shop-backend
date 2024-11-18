@@ -44,14 +44,14 @@ export class UserMysqlRepo extends BaseMysqlRepo implements IUserRepository {
 
     }
 
-    public hardDeleteById(id : number): ResultAsync<void, Err> {
-        const query = `DELETE FROM user WHERE id = ?`;
-        return ResultAsync.fromPromise(this.executeQuery(query, [id]).
-        andThen(([r,f])=> {
+    public hardDeleteById(id: number): ResultAsync<void, Err> {
+        const query = `DELETE
+                       FROM user
+                       WHERE id = ?`;
+        return ResultAsync.fromPromise(this.executeQuery(query, [id]).andThen(([r, f]) => {
             const header = r as ResultSetHeader;
             return ok(undefined)
-        }), e=> e as Err).
-        andThen(r=>r );
+        }), e => e as Err).andThen(r => r);
     }
 
     public findByCondition = (cond: ICondition, paging: Paging): ResultAsync<User[], Err> => {

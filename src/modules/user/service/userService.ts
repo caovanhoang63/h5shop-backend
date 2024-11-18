@@ -4,7 +4,7 @@ import {Paging} from "../../../libs/paging";
 import {SystemRole} from "../entity/user";
 import {Validator} from "../../../libs/validator";
 import {IRequester} from "../../../libs/IRequester";
-import {err, errAsync, ok, okAsync, ResultAsync} from "neverthrow";
+import {err, ok, ResultAsync} from "neverthrow";
 import {IUserRepository} from "../repository/IUserRepository";
 import {IUserService} from "./IUserService";
 import {UserSystemRole} from "@prisma/client";
@@ -13,7 +13,7 @@ import {inject, injectable} from "inversify";
 import {TYPES} from "../../../types";
 
 @injectable()
-export class UserService  implements  IUserService{
+export class UserService implements IUserService {
     constructor(@inject(TYPES.IUserRepository) private readonly userRepository: IUserRepository) {
     }
 
@@ -31,10 +31,10 @@ export class UserService  implements  IUserService{
                 }
                 return ok(undefined);
             })(), e => e as Err
-        ).andThen(r=>r)
+        ).andThen(r => r)
     }
 
-    public requiredRole = (r: IRequester, ...roles: UserSystemRole[]) : ResultAsync<void, Err> => {
+    public requiredRole = (r: IRequester, ...roles: UserSystemRole[]): ResultAsync<void, Err> => {
         return ResultAsync.fromPromise(
             (async () => {
                 const uR = await this.userRepository.findByUserId(r.userId!);
@@ -59,10 +59,10 @@ export class UserService  implements  IUserService{
                 }
                 return ok(undefined);
             })(), e => e as Err
-        ).andThen(r=>r)
+        ).andThen(r => r)
     }
 
-    hardDeleteById( id : number) : ResultAsync<void, Err> {
+    hardDeleteById(id: number): ResultAsync<void, Err> {
         return this.userRepository.hardDeleteById(id)
     }
 
