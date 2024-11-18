@@ -8,6 +8,16 @@ import {injectable} from "inversify";
 
 @injectable()
 export class PrmAuthRepo implements IAuthRepository {
+    Begin(): ResultAsync<void, Err> {
+        throw new Error("Method not implemented.");
+    }
+    Commit(): ResultAsync<void, Err> {
+        throw new Error("Method not implemented.");
+    }
+    Rollback(): ResultAsync<void, Err> {
+        throw new Error("Method not implemented.");
+    }
+
     Create = (u: AuthCreate): ResultAsync<void, Err> => {
         const {firstName, lastName, systemRole, ...authData} = u;
         return ResultAsync.fromPromise(
@@ -38,5 +48,4 @@ export class PrmAuthRepo implements IAuthRepository {
             r => createDatabaseError(r)
         )
     }
-
 }

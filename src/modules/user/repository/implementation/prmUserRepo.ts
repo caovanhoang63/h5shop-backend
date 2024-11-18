@@ -11,7 +11,7 @@ import {injectable} from "inversify";
 
 
 @injectable()
-export class PrmUserRepo implements IUserRepository {
+export class PrmUserRepo  implements IUserRepository {
     create = (u: UserCreate): ResultAsync<void, Err> => {
         return ResultAsync.fromPromise(
             prisma.user.create({data: u}).then(result => {

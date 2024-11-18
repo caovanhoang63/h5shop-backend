@@ -8,4 +8,5 @@ export interface IAuthRepository {
     Create: (u: AuthCreate) => ResultAsync<void, Err>
     FindByUserName: (userName: string) => ResultAsync<Nullable<Auth>, Err>
     FindByUserId: (id: number) => ResultAsync<Nullable<Auth>, Err>
+
 }
