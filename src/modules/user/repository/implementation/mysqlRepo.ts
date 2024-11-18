@@ -16,22 +16,21 @@ export class UserMysqlRepo extends BaseMysqlRepo implements IUserRepository {
         const query = `INSERT INTO user (user_name, first_name, last_name, system_role)
                        VALUES (?, ?, ?, ?) `;
 
-        return ResultAsync.fromPromise(this.executeQuery(query,
+        return this.executeQuery(query,
             [u.userName, u.firstName, u.lastName, u.systemRole.toString()],
         ).andThen(
             ([r, f]) => {
                 const header = r as ResultSetHeader
                 u.id = header.insertId;
                 return ok(undefined)
-            }
-        ), e => MysqlErrHandler.handler(err, UserEntityName)).andThen(r => r);
+            })
     }
 
     public findByUserId = (id: number): ResultAsync<User | null, Err> => {
         const query = `SELECT *
                        FROM user
                        WHERE id = ? LIMIT 1`;
-        return ResultAsync.fromPromise(this.executeQuery(query, [id],)
+        return this.executeQuery(query, [id],)
             .andThen(([r, f]) => {
                     const a = r as RowDataPacket[]
                     if (a.length <= 0) {
@@ -39,8 +38,8 @@ export class UserMysqlRepo extends BaseMysqlRepo implements IUserRepository {
                     }
                     const data: User = SqlHelper.toCamelCase(a[0]);
                     return ok(data)
-                }
-            ), e => MysqlErrHandler.handler(err, UserEntityName)).andThen(r => r);
+                })
+
 
     }
 
@@ -48,10 +47,10 @@ export class UserMysqlRepo extends BaseMysqlRepo implements IUserRepository {
         const query = `DELETE
                        FROM user
                        WHERE id = ?`;
-        return ResultAsync.fromPromise(this.executeQuery(query, [id]).andThen(([r, f]) => {
+        return this.executeQuery(query, [id]).andThen(([r, f]) => {
             const header = r as ResultSetHeader;
             return ok(undefined)
-        }), e => e as Err).andThen(r => r);
+        })
     }
 
     public findByCondition = (cond: ICondition, paging: Paging): ResultAsync<User[], Err> => {
@@ -60,8 +59,7 @@ export class UserMysqlRepo extends BaseMysqlRepo implements IUserRepository {
         const query = `SELECT *
                        FROM user ${whereClause}`;
 
-        return ResultAsync.fromPromise(
-            this.executeQuery(query, values).andThen(
+        return this.executeQuery(query, values).andThen(
                 ([r, f]) => {
                     const rows = r as RowDataPacket[]
                     const data: User[] = []
@@ -70,7 +68,6 @@ export class UserMysqlRepo extends BaseMysqlRepo implements IUserRepository {
                         paging.total = rows.length;
                     }
                     return ok(data)
-                }
-            ), e => MysqlErrHandler.handler(err, UserEntityName)).andThen(r => r);
+                })
     }
 }
