@@ -1,5 +1,6 @@
+import Joi from "joi";
 
-export interface image {
+export type image =  {
     id : string;
     width? : number;
     height? : number;
@@ -7,3 +8,13 @@ export interface image {
     extension : string;
     cloud?: string;
 }
+
+
+export const imageSchema = Joi.object({
+    id: Joi.string().required(),
+    width: Joi.number().integer().positive().optional(),
+    height: Joi.number().integer().positive().optional(),
+    url: Joi.string().uri().required(),
+    extension: Joi.string().valid("jpg", "png", "webp").required(),
+    cloud: Joi.string().optional(),
+});

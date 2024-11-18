@@ -1,4 +1,3 @@
-import { Category } from "@prisma/client";
 import {err, ok, ResultAsync} from "neverthrow";
 import { ICondition } from "../../../../libs/condition";
 import {createEntityNotFoundError, createForbiddenError, createInternalError, Err} from "../../../../libs/errors";
@@ -14,6 +13,7 @@ import {Validator} from "../../../../libs/validator";
 import {SystemRole} from "../../../user/entity/user";
 import {createMessage, IPubSub} from "../../../../components/pubsub";
 import {topicCreateCategory, topicDeleteCategory, topicUpdateCategory} from "../../../../libs/topics";
+import {Category} from "../entity/category";
 
 @injectable()
 export class CategoryService implements ICategoryService {

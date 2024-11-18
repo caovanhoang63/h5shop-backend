@@ -5,7 +5,7 @@ import {Err} from "../../../../libs/errors";
 import {ICondition} from "../../../../libs/condition";
 import {Paging} from "../../../../libs/paging";
 import {categoryUpdate} from "../entity/categoryUpdate";
-import {Category} from "@prisma/client";
+import {Category} from "../entity/category";
 
 
 export interface ICategoryRepository extends IBaseRepo {

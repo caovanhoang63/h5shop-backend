@@ -13,11 +13,11 @@ import {Spu} from "../entity/spu";
 
 export class SpuMysqlRepo extends BaseMysqlRepo implements ISpuRepository {
     create(c: SpuCreate): ResultAsync<void, Err> {
-        const query = `INSERT INTO spu (name, description, metadata,images) VALUES (?, ?, ?,?) `;
+        const query = `INSERT INTO spu (name, description, metadata,images) VALUES (?, ?, ?, ?) `;
         const queryCate = `INSERT INTO category_to_spu (category_id, spu_id) VALUE (?,?)`;
         return this.executeInTransaction(conn => {
             return ResultAsync.fromPromise(
-                conn.query(query,[c.name,c.description,c.metadata,c.image]),
+                conn.query(query,[c.name,c.description,JSON.stringify(c.metadata),JSON.stringify(c.image)]),
                 e => createDatabaseError(e)
             ).andThen(([r,f]) => {
                 const header = r as ResultSetHeader;
@@ -32,8 +32,6 @@ export class SpuMysqlRepo extends BaseMysqlRepo implements ISpuRepository {
                 return ok(undefined)
             });
         })
-
-
     }
 
     update(id: number, c: SpuUpdate): ResultAsync<void, Err> {

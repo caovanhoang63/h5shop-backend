@@ -1,4 +1,3 @@
-import { Category } from "@prisma/client";
 import {errAsync, ok, okAsync, ResultAsync} from "neverthrow";
 import {BaseMysqlRepo} from "../../../../components/mysql/BaseMysqlRepo";
 import {ICondition} from "../../../../libs/condition";
@@ -9,7 +8,7 @@ import {categoryUpdate} from "../entity/categoryUpdate";
 import {ICategoryRepository} from "./ICategoryRepository";
 import {ResultSetHeader, RowDataPacket} from "mysql2";
 import {SqlHelper} from "../../../../libs/sqlHelper";
-import {Audit} from "../../../audit/entity/audit";
+import {Category} from "../entity/category";
 
 
 export class CategoryMysqlRepo extends BaseMysqlRepo implements ICategoryRepository {

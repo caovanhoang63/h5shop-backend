@@ -4,7 +4,7 @@ import {ResultAsync} from "neverthrow";
 import {Audit} from "../entity/audit";
 import {IRequester} from "../../../libs/IRequester";
 import {Err} from "../../../libs/errors";
-
+import _ from "lodash";
 export class AuditSubscribeHandler {
     constructor(private readonly auditService: IAuditService) {
     }
@@ -19,7 +19,7 @@ export class AuditSubscribeHandler {
                         oldValues: undefined,
                         action: "CREATE",
                         ipAddress: requester.ipAddress ?? null,
-                        newValues: m.data.data,
+                        newValues: _.omit(m.data.data, ["createdAt", "updatedAt"]),
                         objectId: m.data.data.id,
                         objectType: entity,
                         userId: requester.userId ?? 0,
@@ -69,10 +69,10 @@ export class AuditSubscribeHandler {
                     const requester: IRequester = m.data.requester
                     const create: Audit = {
                         createdAt: new Date(),
-                        oldValues: m.data.data.old,
+                        oldValues: _.omit(m.data.data.old, ["createdAt", "updatedAt"]),
+                        newValues: _.omit(m.data.data.new,["createdAt", "updatedAt"]),
                         action: "UPDATE",
                         ipAddress: requester.ipAddress ?? null,
-                        newValues: m.data.data.new,
                         objectId: m.data.data.id,
                         objectType: entity,
                         userId: requester.userId ?? 0,

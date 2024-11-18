@@ -13,5 +13,8 @@ export interface SpuUpdate {
 export const spuUpdateSchema = Joi.object().keys({
     name : Joi.string().max(255).required(),
     description : Joi.string(),
+    metadata : Joi.object(),
     categoryId : Joi.number(),
+    image: Joi.object(),
+    outOfStock : Joi.boolean(),
 })
