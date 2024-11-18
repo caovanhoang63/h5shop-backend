@@ -14,11 +14,9 @@ import {SystemRole} from "../../user/entity/user";
 export class AuditService implements IAuditService {
     constructor(@inject(TYPES.IAuditRepository) private readonly auditRepo: IAuditRepository) {
     }
-
     create(u: Audit): ResultAsync<void, Err> {
         return ResultAsync.fromPromise(
             (async () => {
-                console.log("service")
                 const r = await this.auditRepo.create(u)
                 if (r.isErr()) return errAsync(r.error)
                 return okAsync(undefined)
