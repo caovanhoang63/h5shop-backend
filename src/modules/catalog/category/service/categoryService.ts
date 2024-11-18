@@ -31,7 +31,7 @@ export class CategoryService implements ICategoryService {
                 const result = await this.repo.create(c)
                 if (result.isErr())
                     return err(result.error)
-                
+
                 this.pubSub.Publish(topicCreateCategory,createMessage(c,requester))
                 return ok(undefined)
             })(), e => createInternalError(e)
@@ -111,6 +111,9 @@ export class CategoryService implements ICategoryService {
                 const result = await this.repo.findById(id)
                 if (result.isErr())
                     return err(result.error)
+                if (!result.value) {
+                    return err(createEntityNotFoundError("category"))
+                }
                 return ok(result.value)
             })(), e => createInternalError(e)
         ).andThen(r=> r)
