@@ -22,6 +22,10 @@ import {IConnectionPool, MysqlConnectionPool} from "./components/mysql/MysqlConn
 import {Pool} from "mysql2/typings/mysql/lib/Pool";
 import mysql from "mysql2";
 import dotenv from "dotenv";
+import {ICategoryRepository} from "./modules/catalog/category/repository/ICategoryRepository";
+import {CategoryMysqlRepo} from "./modules/catalog/category/repository/CategoryMysqlRepo";
+import {ICategoryService} from "./modules/catalog/category/service/ICategoryService";
+import {CategoryService} from "./modules/catalog/category/service/categoryService";
 
 dotenv.config();
 
@@ -31,11 +35,14 @@ container.bind<IAuthRepository>(TYPES.IAuthRepository).to(AuthMysqlRepo).inReque
 // container.bind<IUserLocalRepository>(TYPES.IUserLocalRepository).to(UserLocal).inRequestScope();
 container.bind<IUserRepository>(TYPES.IUserRepository).to(UserMysqlRepo).inRequestScope();
 container.bind<IAuditRepository>(TYPES.IAuditRepository).to(AuditMysqlRepo).inRequestScope();
+container.bind<ICategoryRepository>(TYPES.ICategoryRepository).to(CategoryMysqlRepo).inRequestScope();
+
 
 //Service
 container.bind<IAuthService>(TYPES.IAuthService).to(AuthService).inRequestScope();
 container.bind<IUserService>(TYPES.IUserService).to(UserService).inRequestScope();
 container.bind<IAuditService>(TYPES.IAuditService).to(AuditService).inRequestScope();
+container.bind<ICategoryService>(TYPES.ICategoryService).to(CategoryService).inRequestScope();
 
 
 // Util

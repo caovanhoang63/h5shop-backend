@@ -81,11 +81,17 @@ export const createInternalError = (originalError?: unknown, metadata?: Record<s
         metadata
     });
 
+export const createInvalidRequestError = (e: Error) => {
+    return new Err({
+        code: HttpStatusCode.BAD_REQUEST, key: "INVALID_REQUEST_ERROR", message: e.message, originalError: e
+    });
+}
+
+
 export const createInvalidDataError = (e: Error) => {
     return new Err({
         code: HttpStatusCode.BAD_REQUEST, key: "INVALID_DATA_ERROR", message: e.message, originalError: e
     });
-
 }
 
 
