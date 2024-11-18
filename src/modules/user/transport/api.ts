@@ -1,13 +1,13 @@
-import {IAppContext} from "../../../../components/appContext/appContext";
-import {UserService} from "../../service/userService";
+import {IAppContext} from "../../../components/appContext/appContext";
+import {UserService} from "../service/userService";
 import express from "express";
-import {UserCreate} from "../../entity/userCreate";
-import {SystemRole} from "../../entity/user";
-import {AppResponse} from "../../../../libs/response";
-import {writeErrorResponse} from "../../../../libs/writeErrorResponse";
-import {IUserService} from "../../service/IUserService";
-import {Paging} from "../../../../libs/paging";
-import {ReqHelper} from "../../../../libs/reqHelper";
+import {UserCreate} from "../entity/userCreate";
+import {SystemRole} from "../entity/user";
+import {AppResponse} from "../../../libs/response";
+import {writeErrorResponse} from "../../../libs/writeErrorResponse";
+import {IUserService} from "../service/IUserService";
+import {Paging} from "../../../libs/paging";
+import {ReqHelper} from "../../../libs/reqHelper";
 
 
 export class UserApi {

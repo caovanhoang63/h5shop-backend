@@ -11,9 +11,9 @@ import helmet from "helmet";
 import bodyParser from "body-parser";
 import subscriberEngine from "./subcribers";
 import requestContext from "./middlewares/requestContext";
-import conPool from "./mysql";
 
 dotenv.config();
+
 const app: Express = express();
 const port = process.env.PORT || 3000;
 
@@ -21,13 +21,7 @@ const port = process.env.PORT || 3000;
     await subscriberEngine.run();
 })();
 
-try {
-    const promisePool = conPool.query("SELECT 1 + 1")
-    console.log("Connect database success!")
-} catch (e) {
-    console.error(e);
-    throw e;
-}
+
 
 (BigInt.prototype as any).toJSON = function () {
     return this.toString();

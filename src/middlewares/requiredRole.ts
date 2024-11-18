@@ -6,11 +6,12 @@ import {UserService} from "../modules/user/service/userService";
 import {IRequester, RequesterKey} from "../libs/IRequester";
 import {writeErrorResponse} from "../libs/writeErrorResponse";
 import {createForbiddenError} from "../libs/errors";
-import {PrmUserRepo} from "../modules/user/repository/implementation/prmUserRepo";
+import {IUserService} from "../modules/user/service/IUserService";
+import {container} from "../container";
+import {TYPES} from "../types";
 
 const requiredRole = (appCtx: IAppContext, ...roles: SystemRole[]): express.Handler => {
-    const userRepo = new PrmUserRepo();
-    const userBiz = new UserService(userRepo);
+    const userBiz = container.get<IUserService>(TYPES.IUserService);
 
     return async (req, res, next) => {
         const requester = res.locals[RequesterKey] as IRequester;

@@ -2,34 +2,34 @@ import 'reflect-metadata';
 import {Container} from 'inversify';
 import {TYPES} from "./types";
 import {IAuthRepository} from "./modules/auth/repository/IAuthRepository";
-import {PrmAuthRepo} from "./modules/auth/repository/implementation/prmAuthRepo";
-import  UserLocal from "./modules/user/transport/local/local";
+// import  UserLocal from "./modules/user/transport/local/local";
 import {AuthService, IHasher} from "./modules/auth/service/implementation/authService";
 import {Hasher} from "./libs/hasher";
 import {IJwtProvider, jwtProvider} from "./components/jwtProvider/IJwtProvider";
 import {IAuthService} from "./modules/auth/service/interface/IAuthService";
-import {IUserLocalRepository} from "./modules/user/transport/IUserLocalRepository";
 import {IUserService} from "./modules/user/service/IUserService";
 import {UserService} from "./modules/user/service/userService";
 import {IUserRepository} from "./modules/user/repository/IUserRepository";
-import {PrmUserRepo} from "./modules/user/repository/implementation/prmUserRepo";
 import {IPubSub} from "./components/pubsub";
 import {LocalPubSub} from "./components/pubsub/local";
 import {IAuditService} from "./modules/audit/service/IAuditService";
 import {AuditService} from "./modules/audit/service/auditService";
 import {IAuditRepository} from "./modules/audit/repository/IAuditRepository";
-import {AuditPrmRepo} from "./modules/audit/repository/auditPrmRepo";
 import {AppContext, IAppContext} from "./components/appContext/appContext";
 import {AuthMysqlRepo} from "./modules/auth/repository/implementation/mysqlRepo";
 import {UserMysqlRepo} from "./modules/user/repository/implementation/mysqlRepo";
 import {AuditMysqlRepo} from "./modules/audit/repository/auditMysqlRepo";
 import {IConnectionPool, MysqlConnectionPool} from "./components/mysql/MysqlConnectionPool";
+import {Pool} from "mysql2/typings/mysql/lib/Pool";
+import mysql from "mysql2";
+import dotenv from "dotenv";
 
+dotenv.config();
 
 const container = new Container();
 //Repository
 container.bind<IAuthRepository>(TYPES.IAuthRepository).to(AuthMysqlRepo).inRequestScope();
-container.bind<IUserLocalRepository>(TYPES.IUserLocalRepository).to(UserLocal).inRequestScope();
+// container.bind<IUserLocalRepository>(TYPES.IUserLocalRepository).to(UserLocal).inRequestScope();
 container.bind<IUserRepository>(TYPES.IUserRepository).to(UserMysqlRepo).inRequestScope();
 container.bind<IAuditRepository>(TYPES.IAuditRepository).to(AuditMysqlRepo).inRequestScope();
 
@@ -40,6 +40,15 @@ container.bind<IAuditService>(TYPES.IAuditService).to(AuditService).inRequestSco
 
 
 // Util
+container.bind<Pool>(TYPES.ConnPool).toConstantValue(mysql.createPool({
+    host: process.env.MYSQL_HOST,
+    user: process.env.MYSQL_USER,
+    password: process.env.MYSQL_PASSWORD,
+    database: process.env.MYSQL_DATABASE,
+    waitForConnections: true,
+    connectionLimit: 10,
+    queueLimit: 0
+}));
 container.bind<IHasher>(TYPES.IHasher).to(Hasher);
 container.bind<IJwtProvider>(TYPES.IJwtProvider).to(jwtProvider);
 container.bind<IPubSub>(TYPES.IPubSub).to(LocalPubSub).inSingletonScope().onActivation( (r ,p )=> {

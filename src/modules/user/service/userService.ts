@@ -4,7 +4,7 @@ import {Paging} from "../../../libs/paging";
 import {SystemRole} from "../entity/user";
 import {Validator} from "../../../libs/validator";
 import {IRequester} from "../../../libs/IRequester";
-import {errAsync, ok, ResultAsync} from "neverthrow";
+import {err, errAsync, ok, okAsync, ResultAsync} from "neverthrow";
 import {IUserRepository} from "../repository/IUserRepository";
 import {IUserService} from "./IUserService";
 import {UserSystemRole} from "@prisma/client";
@@ -22,44 +22,48 @@ export class UserService  implements  IUserService{
             (async () => {
                 const vR = (await Validator(userCreateSchema, u))
                 if (vR.isErr()) {
-                    return vR
+                    return err(vR.error);
                 }
 
                 const r = await this.userRepository.create(u);
                 if (r.isErr()) {
-                    return r
+                    return err(r.error);
                 }
                 return ok(undefined);
             })(), e => e as Err
-        ).andThen(r => r);
+        ).andThen(r=>r)
     }
 
-    public requiredRole = (r: IRequester, ...roles: UserSystemRole[]) => {
+    public requiredRole = (r: IRequester, ...roles: UserSystemRole[]) : ResultAsync<void, Err> => {
         return ResultAsync.fromPromise(
             (async () => {
                 const uR = await this.userRepository.findByUserId(r.userId!);
                 if (uR.isErr()) {
-                    return uR
+                    return err(uR.error)
                 }
 
                 if (!uR.value) {
-                    return errAsync(createEntityNotFoundError("user"))
+                    return err(createEntityNotFoundError("user"))
                 }
                 const data = uR.value
 
                 r.systemRole = data.systemRole
 
                 if (data.systemRole === SystemRole.Admin) {
-                    return;
+                    return ok(undefined);
+
                 }
 
                 if (roles.length > 0 && !roles.includes(data.systemRole!)) {
-                    return errAsync(createForbiddenError())
+                    return err(createForbiddenError())
                 }
-
-                return;
+                return ok(undefined);
             })(), e => e as Err
-        )
+        ).andThen(r=>r)
+    }
+
+    hardDeleteById( id : number) : ResultAsync<void, Err> {
+        return this.userRepository.hardDeleteById(id)
     }
 
     listUsers = (cond: ICondition, paging: Paging) => {

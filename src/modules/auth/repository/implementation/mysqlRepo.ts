@@ -5,14 +5,14 @@ import {IAuthRepository} from "../IAuthRepository";
 import {ok, ResultAsync} from "neverthrow";
 import {AuthCreate} from "../../entity/authCreate";
 import {createDatabaseError, Err} from "../../../../libs/errors";
-import conPool from "../../../../mysql";
+import {BaseMysqlRepo} from "../../../../components/mysql/BaseMysqlRepo";
 
-export class AuthMysqlRepo implements IAuthRepository {
+export class AuthMysqlRepo extends BaseMysqlRepo implements IAuthRepository {
     Create = (u: AuthCreate): ResultAsync<void, Err> => {
         const query = `INSERT INTO auth (user_id, user_name, salt, password)
                        VALUES (?, ?, ?, ?)`
-        return ResultAsync.fromPromise(conPool.promise().query(query, [u.userId, u.userName, u.salt, u.password])
-            .then(([row, field]) => {
+        return ResultAsync.fromPromise(this.executeQuery(query, [u.userId, u.userName, u.salt, u.password])
+            .andThen(([row, field]) => {
                 const header = row as ResultSetHeader
                 u.id = header.insertId
                 return ok(undefined)
@@ -25,8 +25,8 @@ export class AuthMysqlRepo implements IAuthRepository {
                        FROM auth
                        WHERE user_name = ?
                        LIMIT 1`;
-        return ResultAsync.fromPromise(conPool.promise().query(query, [userName],)
-            .then(([r, f]) => {
+        return ResultAsync.fromPromise(this.executeQuery(query, [userName],)
+            .andThen(([r, f]) => {
                 const a = r as RowDataPacket[]
                 if (a.length <= 0) {
                     return ok(null)
@@ -43,8 +43,8 @@ export class AuthMysqlRepo implements IAuthRepository {
                        FROM auth
                        WHERE user_id = ?
                        LIMIT 1`;
-        return ResultAsync.fromPromise(conPool.promise().query(query, [userId],)
-            .then(([r, f]) => {
+        return ResultAsync.fromPromise(this.executeQuery(query, [userId],)
+            .andThen(([r, f]) => {
                 const a = r as RowDataPacket[]
                 if (a.length <= 0) {
                     return ok(null)

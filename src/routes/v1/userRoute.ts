@@ -1,5 +1,5 @@
 import express from "express";
-import {UserApi} from "../../modules/user/transport/api/api";
+import {UserApi} from "../../modules/user/transport/api";
 import {IAppContext} from "../../components/appContext/appContext";
 import authentication from "../../middlewares/authentication";
 import requiredRole from "../../middlewares/requiredRole";

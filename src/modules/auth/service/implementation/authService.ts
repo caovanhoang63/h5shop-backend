@@ -1,16 +1,14 @@
 import {TokenResponse} from "../../entity/authVar";
-import {createForbiddenError, Err} from "../../../../libs/errors";
+import {createForbiddenError, createInternalError, Err} from "../../../../libs/errors";
 import {ErrInvalidCredentials, ErrUserNameAlreadyExists} from "../../entity/authErrors";
 import {randomSalt} from "../../../../libs/salt";
-import {SystemRole} from "../../../user/entity/user";
-import {Nullable} from "../../../../libs/nullable";
 import {Validator} from "../../../../libs/validator";
 import {IRequester} from "../../../../libs/IRequester";
 import {
     defaultExpireAccessTokenInSeconds,
     defaultExpireRefreshTokenInSeconds,
-    JwtClaim,
-    IJwtProvider
+    IJwtProvider,
+    JwtClaim
 } from "../../../../components/jwtProvider/IJwtProvider";
 import {randomUUID} from "node:crypto";
 import {IAuthRepository} from "../../repository/IAuthRepository";
@@ -20,11 +18,11 @@ import {AuthCreate, authCreateSchema} from "../../entity/authCreate";
 import {AuthLogin, authLoginSchema} from "../../entity/authLogin";
 import {TYPES} from "../../../../types";
 import {inject, injectable} from "inversify";
-import {IUserLocalRepository} from "../../../user/transport/IUserLocalRepository";
 import {createMessage, IPubSub} from "../../../../components/pubsub";
-import {topicRegister} from "../../../../libs/topics";
-
-
+import {topicDeleteUser, topicRegister} from "../../../../libs/topics";
+import {IUserService} from "../../../user/service/IUserService";
+import {UserCreate} from "../../../user/entity/userCreate";
+import {IUserRepository} from "../../../user/repository/IUserRepository";
 
 
 export interface IHasher {
@@ -35,7 +33,7 @@ export interface IHasher {
 export class AuthService implements IAuthService {
     constructor(@inject(TYPES.IAuthRepository) private readonly authRepo: IAuthRepository,
                 @inject(TYPES.IHasher) private readonly hasher: IHasher,
-                @inject(TYPES.IUserLocalRepository) private readonly userRepo: IUserLocalRepository ,
+                @inject(TYPES.IUserRepository) private readonly userRepo: IUserRepository ,
                 @inject(TYPES.IJwtProvider) private readonly jwtProvider: IJwtProvider,
                 @inject(TYPES.IPubSub) private readonly pubSub: IPubSub,) {
     }
@@ -60,28 +58,30 @@ export class AuthService implements IAuthService {
                     return errAsync(ErrUserNameAlreadyExists(u.userName));
                 }
 
-
+                const create : UserCreate = {
+                    firstName: u.firstName,
+                    lastName: u.lastName,
+                    systemRole: u.systemRole,
+                    userName:u.userName
+                }
                 // Create new user
-                const [user, err] = await this.userRepo.CreateNewUser(
-                    u.firstName,
-                    u.lastName,
-                    u.userName,
-                    u.systemRole
-                );
+                const createUserR = await this.userRepo.create(create);
 
-                if (err) {
-                    return errAsync(err);
+                if (createUserR.isErr()) {
+                    return errAsync(createUserR.error);
                 }
 
                 // Prepare user data for auth
-                u.userId = user;
+                u.userId = create.id!;
                 u.salt = randomSalt(50);
 
                 u.password = this.hasher.hash(u.password, u.salt);
 
                 // Create auth entry
                 const r = await this.authRepo.Create(u);
-                if (r.isErr()) {
+
+                if (r.isErr() ) {
+                    this.pubSub.Publish(topicDeleteUser, createMessage({id : create.id}));
                     return errAsync(r.error);
                 }
 
@@ -110,7 +110,6 @@ export class AuthService implements IAuthService {
                     return errAsync(uR.error);
                 }
 
-                console.log(userId);
 
                 if (uR.value == null) {
                     return errAsync(createForbiddenError());

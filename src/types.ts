@@ -1,4 +1,4 @@
-import {IUserLocalRepository} from "./modules/user/transport/IUserLocalRepository";
+
 import {IConnectionPool} from "./components/mysql/MysqlConnectionPool";
 
 const TYPES = {
@@ -19,5 +19,6 @@ const TYPES = {
     IPubSub : Symbol.for("IPubSub"),
     IAppContext: Symbol.for("IAppContext"),
     IConnectionPool : Symbol.for("IConnectionPool"),
+    ConnPool : Symbol.for("ConnPool"),
 };
 export { TYPES };

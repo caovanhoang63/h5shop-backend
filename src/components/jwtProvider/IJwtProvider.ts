@@ -54,7 +54,6 @@ export class jwtProvider implements IJwtProvider {
             issuedAt: now,
             expiresAt: expiresAt,
         }
-        console.log(this._secret)
         const token = jwt.sign(
             claim, this._secret, {algorithm: 'HS256'}
         )

@@ -12,9 +12,7 @@ import {BaseMysqlRepo} from "../../../components/mysql/BaseMysqlRepo";
 
 @injectable()
 export class AuditMysqlRepo extends BaseMysqlRepo implements IAuditRepository {
-    constructor(@inject(TYPES.IConnectionPool) protected readonly pool: IConnectionPool) {
-        super(pool)
-    }
+
 
     create(u: Audit): ResultAsync<void, Err> {
         const query = `INSERT INTO audit_log (user_id, action, object_type, object_id, old_values, new_values,
