@@ -1,4 +1,4 @@
-import {image, imageSchema} from "../../../../libs/image";
+import {Image, imageSchema} from "../../../../libs/image";
 import Joi from "joi";
 
 export interface SpuCreate {
@@ -7,7 +7,7 @@ export interface SpuCreate {
     description: string;
     categoryId: number,
     metadata: any,
-    image? : image[],
+    image? : Image[],
 }
 
 export const spuCreateSchema = Joi.object().keys({

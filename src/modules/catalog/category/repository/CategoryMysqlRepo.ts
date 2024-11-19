@@ -21,7 +21,6 @@ export class CategoryMysqlRepo extends BaseMysqlRepo implements ICategoryReposit
                 return okAsync(undefined)
             }
         );
-
     }
     update(id: number, c: categoryUpdate): ResultAsync<void, Err> {
         const [clause,values] = SqlHelper.buildUpdateClause(c)

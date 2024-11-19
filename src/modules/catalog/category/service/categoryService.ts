@@ -38,6 +38,8 @@ export class CategoryService implements ICategoryService {
         ).andThen(r=> r)
     }
 
+
+
     update(requester: IRequester, id: number, c: categoryUpdate): ResultAsync<void, Err> {
         return ResultAsync.fromPromise(
             (async () => {

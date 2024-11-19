@@ -1,4 +1,4 @@
-import {image} from "../../../../libs/image";
+import {Image} from "../../../../libs/image";
 import Joi from "joi";
 
 export interface SpuUpdate {
@@ -6,7 +6,7 @@ export interface SpuUpdate {
     description: string;
     metadata: any,
     categoryId : number,
-    image? : image[],
+    image? : Image[],
     outOfStock : boolean,
 }
 

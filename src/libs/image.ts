@@ -1,6 +1,6 @@
 import Joi from "joi";
 
-export type image =  {
+export type Image =  {
     id : string;
     width? : number;
     height? : number;

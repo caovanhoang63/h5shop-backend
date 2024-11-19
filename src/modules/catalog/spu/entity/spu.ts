@@ -1,4 +1,4 @@
-import {image} from "../../../../libs/image";
+import {Image} from "../../../../libs/image";
 
 export interface Spu {
     id: number;
@@ -6,7 +6,7 @@ export interface Spu {
     description: string;
     metadata: any,
     categoryId: number,
-    image? : image[],
+    image? : Image[],
     outOfStock : boolean,
     status : number,
     createdAt : Date | null;
