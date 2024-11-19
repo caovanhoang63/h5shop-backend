@@ -1,15 +1,18 @@
 import {ICondition} from "./condition";
-import {camelCase, snakeCase} from "lodash";
+import _, {camelCase, snakeCase} from "lodash";
 import {Paging} from "./paging";
 
 
 export class SqlHelper {
 
 
-    public static toCamelCase = (row: any) => {
+    public static toCamelCase = (row: any,...omits: string[]) => {
         const newRow: any = {};
         for (const key in row) {
             newRow[camelCase(key)] = row[key];
+        }
+        if (omits.length > 0) {
+            return _.omit(newRow, omits);
         }
         return newRow;
     };

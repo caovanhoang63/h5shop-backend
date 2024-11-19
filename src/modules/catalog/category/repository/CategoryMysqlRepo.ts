@@ -9,6 +9,7 @@ import {ICategoryRepository} from "./ICategoryRepository";
 import {ResultSetHeader, RowDataPacket} from "mysql2";
 import {SqlHelper} from "../../../../libs/sqlHelper";
 import {Category} from "../entity/category";
+import _ from "lodash";
 
 
 export class CategoryMysqlRepo extends BaseMysqlRepo implements ICategoryRepository {
@@ -74,15 +75,37 @@ export class CategoryMysqlRepo extends BaseMysqlRepo implements ICategoryReposit
     }
 
     findById(id: number): ResultAsync<Category | null, Err> {
-        const query = `SELECT * FROM category WHERE id = ?`
+        const query = `WITH RECURSIVE category_tree AS (
+            SELECT *, 0 as depth
+            FROM category
+            WHERE id = ?
+
+            UNION ALL
+
+            SELECT c.*, ct.depth + 1
+            FROM category c
+                     INNER JOIN category_tree ct ON c.parent_id = ct.id
+        )
+        SELECT * FROM category_tree`
+
         return this.executeQuery(query,[id]).andThen(
             ([r,f]) => {
-                const firstRow = (r as RowDataPacket[])[0];
-                if (!firstRow) {
+                const results = (r as RowDataPacket[]);
+                if (results.length == 0) {
                     return ok(null);
-                } else {
-                    return ok(firstRow as Category);
                 }
+
+                if (results.length == 1) {
+                    return ok(SqlHelper.toCamelCase(results[0]) as Category);
+                }
+
+                const categories = results.map(result  => SqlHelper.toCamelCase(result,"depth") as Category)
+
+                const category = categories[0];
+
+                category.children = categories.slice(1);
+
+                return ok(category)
             }
         )
     }

@@ -6,7 +6,7 @@ export interface Category {
     name : string;
     level: number;
     parentId: number | null;
-    category?: Category[];
+    children?: Category[];
     image?: Image;
     status: number
     createdAt: Date | null;
