@@ -68,8 +68,31 @@ export class SqlHelper {
                     clauses.push(`${field} IN (${placeholders})`);
                     values.push(...value);
                 } else {
-                    clauses.push(`${field} = ?`);
-                    values.push(value);
+                    switch (field) {
+                        case 'gt_created_at' :
+                            clauses.push(`created_at >= ?`);
+                            values.push(value);
+                            break;
+                        case 'lt_created_at' :
+                            clauses.push(`created_at <= ?`);
+                            values.push(value);
+                            break;
+                        case 'gt_updated_at' :
+                            clauses.push(`updated_at >= ?`);
+                            values.push(value);
+
+                            break;
+                        case 'lt_updated_at' :
+                            clauses.push(`updated_at <= ?`);
+                            values.push(value);
+                            break;
+                        default:
+                            clauses.push(`${field} = ?`);
+                            values.push(value);
+                    }
+
+
+
                 }
             }
         });
