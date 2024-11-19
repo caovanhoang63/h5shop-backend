@@ -13,8 +13,8 @@ import {Category} from "../entity/category";
 
 export class CategoryMysqlRepo extends BaseMysqlRepo implements ICategoryRepository {
     create(c: categoryCreate): ResultAsync<void, Err> {
-        const query = `INSERT INTO category (name, description, metadata) VALUES (?, ?, ?) `;
-        return this.executeQuery(query,[c.name,c.description,c.metadata]).andThen(
+        const query = `INSERT INTO category (name,level, parent_id, image) VALUES (?, ?, ?, ?) `;
+        return this.executeQuery(query,[c.name,c.level,c.parentId,JSON.stringify(c.image)]).andThen(
             ([r,f]) => {
                 const header = r as ResultSetHeader;
                 c.id = header.insertId;
