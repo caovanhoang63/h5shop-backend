@@ -1,11 +1,11 @@
 import * as Http from "node:http";
 import {ICategoryService} from "../service/ICategoryService";
 import express from "express";
-import {categoryCreate} from "../entity/categoryCreate";
+import {CategoryCreate} from "../entity/categoryCreate";
 import {ReqHelper} from "../../../../libs/reqHelper";
 import {AppResponse} from "../../../../libs/response";
 import {writeErrorResponse} from "../../../../libs/writeErrorResponse";
-import {categoryUpdate} from "../entity/categoryUpdate";
+import {CategoryUpdate} from "../entity/categoryUpdate";
 import {createInvalidDataError} from "../../../../libs/errors";
 
 
@@ -13,7 +13,7 @@ export class CategoryApi {
     constructor(private readonly service : ICategoryService) {}
     create() : express.Handler {
       return async (req, res, next) => {
-          const body = req.body as categoryCreate;
+          const body = req.body as CategoryCreate;
           const requester =  ReqHelper.getRequester(res)
           const r = await this.service.create(requester,body)
 
@@ -52,7 +52,7 @@ export class CategoryApi {
 
     update() : express.Handler {
         return async (req, res, next) => {
-            const body = req.body as categoryUpdate;
+            const body = req.body as CategoryUpdate;
             const id = parseInt(req.params.id);
 
             if (!id) {

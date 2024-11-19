@@ -1,7 +1,7 @@
 import Joi from "joi";
 import {Image, imageSchema} from "../../../../libs/image";
 
-export interface categoryCreate {
+export interface CategoryCreate {
     id? : number;
     name : string;
     level: number;
@@ -14,7 +14,7 @@ export const categoryCreateScheme = Joi.object().keys({
     level: Joi.number().required(),
     parentId: Joi.number().when('level', {
         is: Joi.number().greater(0), // khi level > 0
-        then: Joi.number().required(), // parentId bắt buộc phải có
+        then: Joi.number().greater(0).required(), // parentId bắt buộc phải có
         otherwise: Joi.number().allow(null) // level = 0 thì parentId có thể null
     }),
     image: Joi.object().schema(imageSchema)

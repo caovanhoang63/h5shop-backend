@@ -3,8 +3,8 @@ import {BaseMysqlRepo} from "../../../../components/mysql/BaseMysqlRepo";
 import {ICondition} from "../../../../libs/condition";
 import {createDatabaseError, Err} from "../../../../libs/errors";
 import {Paging} from "../../../../libs/paging";
-import {categoryCreate} from "../entity/categoryCreate";
-import {categoryUpdate} from "../entity/categoryUpdate";
+import {CategoryCreate} from "../entity/categoryCreate";
+import {CategoryUpdate} from "../entity/categoryUpdate";
 import {ICategoryRepository} from "./ICategoryRepository";
 import {ResultSetHeader, RowDataPacket} from "mysql2";
 import {SqlHelper} from "../../../../libs/sqlHelper";
@@ -12,7 +12,7 @@ import {Category} from "../entity/category";
 
 
 export class CategoryMysqlRepo extends BaseMysqlRepo implements ICategoryRepository {
-    create(c: categoryCreate): ResultAsync<void, Err> {
+    create(c: CategoryCreate): ResultAsync<void, Err> {
         const query = `INSERT INTO category (name,level, parent_id, image) VALUES (?, ?, ?, ?) `;
         return this.executeQuery(query,[c.name,c.level,c.parentId,JSON.stringify(c.image)]).andThen(
             ([r,f]) => {
@@ -22,7 +22,7 @@ export class CategoryMysqlRepo extends BaseMysqlRepo implements ICategoryReposit
             }
         );
     }
-    update(id: number, c: categoryUpdate): ResultAsync<void, Err> {
+    update(id: number, c: CategoryUpdate): ResultAsync<void, Err> {
         const [clause,values] = SqlHelper.buildUpdateClause(c)
         const query = `UPDATE category SET ${clause} WHERE id = ? `;
         return this.executeQuery(query,[...values,id]).andThen(
@@ -38,7 +38,7 @@ export class CategoryMysqlRepo extends BaseMysqlRepo implements ICategoryReposit
             ([r,f]) => {
                 const header = r as ResultSetHeader;
                 return okAsync(undefined)
-            }
+             }
         );
     }
 

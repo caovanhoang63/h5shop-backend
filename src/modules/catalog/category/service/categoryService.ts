@@ -1,10 +1,16 @@
 import {err, ok, ResultAsync} from "neverthrow";
 import { ICondition } from "../../../../libs/condition";
-import {createEntityNotFoundError, createForbiddenError, createInternalError, Err} from "../../../../libs/errors";
+import {
+    createEntityNotFoundError,
+    createForbiddenError,
+    createInternalError,
+    createInvalidDataError,
+    Err
+} from "../../../../libs/errors";
 import { IRequester } from "../../../../libs/IRequester";
 import { Paging } from "../../../../libs/paging";
-import {categoryCreate, categoryCreateScheme} from "../entity/categoryCreate";
-import {categoryUpdate, categoryUpdateScheme} from "../entity/categoryUpdate";
+import {CategoryCreate, categoryCreateScheme} from "../entity/categoryCreate";
+import {CategoryUpdate, categoryUpdateScheme} from "../entity/categoryUpdate";
 import {ICategoryService} from "./ICategoryService";
 import {inject, injectable} from "inversify";
 import {TYPES} from "../../../../types";
@@ -21,12 +27,21 @@ export class CategoryService implements ICategoryService {
                 @inject(TYPES.IPubSub) private readonly pubSub : IPubSub,) {
     }
 
-    create(requester: IRequester, c: categoryCreate): ResultAsync<void, Err> {
+    create(requester: IRequester, c: CategoryCreate): ResultAsync<void, Err> {
         return ResultAsync.fromPromise(
             (async () => {
                 const vr = await Validator(categoryCreateScheme,c)
                 if (vr.isErr())
                     return err(vr.error)
+
+                if (c.parentId) {
+                    const parent = await this.repo.findById(c.parentId)
+                    if (parent.isErr()) return err(parent.error)
+                    console.log(parent.value)
+
+                    if (!parent.value || parent.value.level >= c.level )
+                        return err(createInvalidDataError(new Error("Invalid ParentId")))
+                }
 
                 const result = await this.repo.create(c)
                 if (result.isErr())
@@ -40,12 +55,14 @@ export class CategoryService implements ICategoryService {
 
 
 
-    update(requester: IRequester, id: number, c: categoryUpdate): ResultAsync<void, Err> {
+    update(requester: IRequester, id: number, c: CategoryUpdate): ResultAsync<void, Err> {
         return ResultAsync.fromPromise(
             (async () => {
                 const vr = await Validator(categoryUpdateScheme,c)
                 if (vr.isErr())
                     return err(vr.error)
+
+
 
                 const old = await this.repo.findById(id)
 
