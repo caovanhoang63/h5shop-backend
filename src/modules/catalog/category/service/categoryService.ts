@@ -1,5 +1,4 @@
 import {err, ok, ResultAsync} from "neverthrow";
-import { ICondition } from "../../../../libs/condition";
 import {
     createEntityNotFoundError,
     createForbiddenError,
@@ -7,8 +6,8 @@ import {
     createInvalidDataError,
     Err
 } from "../../../../libs/errors";
-import { IRequester } from "../../../../libs/IRequester";
-import { Paging } from "../../../../libs/paging";
+import {IRequester} from "../../../../libs/IRequester";
+import {Paging} from "../../../../libs/paging";
 import {CategoryCreate, categoryCreateScheme} from "../entity/categoryCreate";
 import {CategoryUpdate, categoryUpdateScheme} from "../entity/categoryUpdate";
 import {ICategoryService} from "./ICategoryService";
@@ -20,6 +19,7 @@ import {SystemRole} from "../../../user/entity/user";
 import {createMessage, IPubSub} from "../../../../components/pubsub";
 import {topicCreateCategory, topicDeleteCategory, topicUpdateCategory} from "../../../../libs/topics";
 import {Category} from "../entity/category";
+import {ICondition} from "../../../../libs/condition";
 
 @injectable()
 export class CategoryService implements ICategoryService {
@@ -116,6 +116,8 @@ export class CategoryService implements ICategoryService {
     list(cond: ICondition, paging: Paging): ResultAsync<Category[] | null, Err> {
         return ResultAsync.fromPromise(
             (async () => {
+
+
                 const result = await this.repo.list(cond,paging)
                 if (result.isErr())
                     return err(result.error)

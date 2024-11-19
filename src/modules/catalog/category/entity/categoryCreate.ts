@@ -13,9 +13,9 @@ export const categoryCreateScheme = Joi.object().keys({
     name : Joi.string().max(255).required(),
     level: Joi.number().required(),
     parentId: Joi.number().when('level', {
-        is: Joi.number().greater(0), // khi level > 0
-        then: Joi.number().greater(0).required(), // parentId bắt buộc phải có
-        otherwise: Joi.number().allow(null) // level = 0 thì parentId có thể null
+        is: Joi.number().greater(0),
+        then: Joi.number().greater(0).required(),
+        otherwise: Joi.number().allow(null) 
     }),
     image: Joi.object().schema(imageSchema)
 })

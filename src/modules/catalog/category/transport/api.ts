@@ -1,12 +1,16 @@
 import * as Http from "node:http";
 import {ICategoryService} from "../service/ICategoryService";
-import express from "express";
+import express, {query} from "express";
 import {CategoryCreate} from "../entity/categoryCreate";
 import {ReqHelper} from "../../../../libs/reqHelper";
 import {AppResponse} from "../../../../libs/response";
 import {writeErrorResponse} from "../../../../libs/writeErrorResponse";
 import {CategoryUpdate} from "../entity/categoryUpdate";
-import {createInvalidDataError} from "../../../../libs/errors";
+import {createInvalidDataError, createInvalidRequestError} from "../../../../libs/errors";
+import {ICondition} from "../../../../libs/condition";
+import {err} from "neverthrow";
+import e from "cors";
+import {categoryFilterSchema} from "../entity/CategoryFilterSchema";
 
 
 export class CategoryApi {
@@ -74,16 +78,26 @@ export class CategoryApi {
         }
     }
 
+
+
     list() : express.Handler {
         return async (req, res, next) => {
             const paging = ReqHelper.getPaging(req.query)
 
+            const value=  categoryFilterSchema.validate(req.query, {stripUnknown: true});
 
-            const r = await this.service.list({},paging)
+            if (value.error) {
+                writeErrorResponse(res,createInvalidRequestError(value.error))
+                return
+            }
 
+
+            const filter = value.value
+
+            const r = await this.service.list(filter,paging)
             r.match(
                 value => {
-                    res.status(200).send(AppResponse.SuccessResponse(value,paging,{}))
+                    res.status(200).send(AppResponse.SuccessResponse(value,paging,{filter :filter}))
                 },
                 e => {
                     writeErrorResponse(res,e)
@@ -114,3 +128,4 @@ export class CategoryApi {
         }
     }
 }
+
