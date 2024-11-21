@@ -71,7 +71,7 @@ jobs:
               docker rm -f ${APP_NAME} && 
               echo pull &&
               docker ps &&
-              docker pull ${ECR_REGISTRY}/${REPO_NAME}:h5shop-backend-${HASH} &&
+              docker pull public.ecr.aws/v2r1j0e6/h5shop:h5shop-backend-7eef3b8 &&
               docker run -d --name ${APP_NAME} \
               -e SYSTEM_SECRET=${SYSTEM_SECRET} \
               -e MYSQL_HOST=${MYSQL_HOST} \
@@ -79,6 +79,6 @@ jobs:
               -e MYSQL_PASSWORD=${MYSQL_PASSWORD} \
               -e MYSQL_DATABASE=${MYSQL_DATABASE} \
               -p 3000:3000 \
-              ${ECR_REGISTRY}/${REPO_NAME}:h5shop-backend-${HASH}
+              public.ecr.aws/v2r1j0e6/h5shop:h5shop-backend-7eef3b8
           '
 
