@@ -4,12 +4,10 @@
   "private": true,
   "scripts": {
     "build": "npx tsc",
-
     "dev": "nodemon src/index.ts",
     "start": "node ./bin/www"
   },
   "dependencies": {
-    "@prisma/client": "^5.22.0",
     "async-mutex": "^0.5.0",
     "body-parser": "^1.20.3",
     "cookie-parser": "~1.4.4",
@@ -40,9 +38,7 @@
     "@types/node": "^22.7.6",
     "concurrently": "^9.0.1",
     "nodemon": "^3.1.7",
-    "prisma-case-format": "^2.2.1",
     "ts-node": "^10.9.2",
     "typescript": "^5.6.3"
   }
 }
-

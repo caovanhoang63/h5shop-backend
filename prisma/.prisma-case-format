@@ -1,1 +1,0 @@
-default: 'table=camel; mapTable=snake; field=camel; mapField=snake; enum=pascal; mapEnum=snake'
