@@ -71,12 +71,12 @@ jobs:
               docker rm -f ${APP_NAME} && 
               docker run -d --name ${APP_NAME} \
               -e PORT=3000 \
-              -e SYSTEM_SECRET= ${SYSTEM_SECRET} \
+              -e SYSTEM_SECRET=${SYSTEM_SECRET} \
               -e MYSQL_HOST=${MYSQL_HOST} \
               -e MYSQL_USER=${MYSQL_USER} \
               -e MYSQL_PASSWORD=${MYSQL_PASSWORD} \
               -e MYSQL_DATABASE=${MYSQL_DATABASE} \
               -p 3000:3000 \
               ${ECR_REGISTRY}/${REPO_NAME}:h5shop-backend-${HASH}
-          
-              '
+          '
+
