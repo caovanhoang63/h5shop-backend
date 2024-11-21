@@ -2,7 +2,7 @@ name: Push the Docker image to AWS ECR Repo
 on:
   push:
     branches:
-      - master
+      - deploy
 jobs:
   Build:
     name: Build
@@ -75,7 +75,11 @@ jobs:
               -e MYSQL_USER=${MYSQL_USER} \
               -e MYSQL_PASSWORD=${MYSQL_PASSWORD} \
               -e MYSQL_DATABASE=${MYSQL_DATABASE} \
+              -e VIRTUAL_HOST="api.h5shop.shop" \
+              -e LETSENCRYPT_HOST="api.h5shop.shop" \
+              -e LETSENCRYPT_EMAIL="caovanhoang204@gmail.com" \
               -p 3000:3000 \
               ${{ needs.Build.outputs.ecr-registry }}/${{ secrets.REPO_NAME }}:h5shop-backend-${{ steps.get-commit-hash.outputs.commit-hash }}
           '
 
+  
