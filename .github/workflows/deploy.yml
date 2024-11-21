@@ -76,7 +76,6 @@ jobs:
               -e MYSQL_USER=${MYSQL_USER} \
               -e MYSQL_PASSWORD=${MYSQL_PASSWORD} \
               -e MYSQL_DATABASE=${MYSQL_DATABASE} \
-              docker run -d --name ${APP_NAME} \
               -p 3000:3000 \
               $ECR_REGISTRY/${REPO_NAME}:h5shop-backend-${HASH}
               '
