@@ -59,11 +59,11 @@ jobs:
           ECR_REGISTRY: ${{ needs.Build.outputs.ecr-registry }}  # Access the output from Build job
           SYSTEM_SECRET: ${{secrets.SYSTEM_SECRET}}
           MYSQL_HOST: ${{secrets.MYSQL_HOST}}
-          MYSQL_USER: ${{secrets.MYSQL_USER}}
-          MYSQL_PASSWORD: ${{secrets.MYSQL_PASSWORD}}
           MYSQL_DATABASE: ${{secrets.MYSQL_DATABASE}}
           REPO_NAME : ${{secrets.REPO_NAME}}
           HASH: ${{ steps.get-commit-hash.outputs.commit-hash }}
+          MYSQL_USER: ${{secrets.MYSQL_USER}}
+          MYSQL_PASSWORD: ${{secrets.MYSQL_PASSWORD}}
         run: |
           echo "$PRIVATE_KEY" > private_key && chmod 600 private_key
           ssh -o StrictHostKeyChecking=no -i private_key ${USER_NAME}@${HOSTNAME} '
