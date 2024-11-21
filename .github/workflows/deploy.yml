@@ -69,8 +69,8 @@ jobs:
           ssh -o StrictHostKeyChecking=no -i private_key ${USER_NAME}@${HOSTNAME} '
               APP_NAME=h5shop &&
               docker rm -f ${APP_NAME} && 
-              docker pull ${ECR_REGISTRY}/${REPO_NAME}:h5shop-backend-${HASH}
-              docker rm -f ${APP_NAME}
+              echo pull
+              docker pull ${ECR_REGISTRY}/${REPO_NAME}:h5shop-backend-${HASH} &&
               docker run -d --name ${APP_NAME} \
               -e SYSTEM_SECRET=${SYSTEM_SECRET} \
               -e MYSQL_HOST=${MYSQL_HOST} \
