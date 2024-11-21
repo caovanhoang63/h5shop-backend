@@ -67,8 +67,9 @@ jobs:
         run: |
           echo "$PRIVATE_KEY" > private_key && chmod 600 private_key
           ssh -o StrictHostKeyChecking=no -i private_key ${USER_NAME}@${HOSTNAME} '
-              APP_NAME=h5shop
-              docker rm -f ${APP_NAME} \
+              APP_NAME=h5shop &&
+              docker rm -f ${APP_NAME} && 
+              docker run -d --name ${APP_NAME} \
               -e PORT=3000 \
               -e SYSTEM_SECRET= ${SYSTEM_SECRET} \
               -e MYSQL_HOST=${MYSQL_HOST} \
