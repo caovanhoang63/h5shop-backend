@@ -68,6 +68,7 @@ jobs:
           echo "$PRIVATE_KEY" > private_key && chmod 600 private_key
           ssh -o StrictHostKeyChecking=no -i private_key ${USER_NAME}@${HOSTNAME} '
               APP_NAME=h5shop &&
+              docker rm -f ${APP_NAME} && 
               docker run -d --name ${APP_NAME} \
               -e PORT=3000 \
               -e SYSTEM_SECRET=${SYSTEM_SECRET} \
@@ -75,6 +76,6 @@ jobs:
               -e MYSQL_USER=${MYSQL_USER} \
               -e MYSQL_PASSWORD=${MYSQL_PASSWORD} \
               -e MYSQL_DATABASE=${MYSQL_DATABASE} \
-              -p 3000:3000 ${ECR_REGISTRY}/${REPO_NAME}:h5shop-backend-${HASH}
+              -p 3000:3000 public.ecr.aws/v2r1j0e6/${REPO_NAME}:h5shop-backend-${HASH}
           '
 
