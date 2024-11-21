@@ -79,6 +79,6 @@ jobs:
               -e MYSQL_PASSWORD=${MYSQL_PASSWORD} \
               -e MYSQL_DATABASE=${MYSQL_DATABASE} \
               -p 3000:3000 \
-              ${ECR_REGISTRY}/${REPO_NAME}:h5shop-backend-${HASH}
+              ${{ needs.Build.outputs.ecr-registry }}/${{ secrets.REPO_NAME }}:h5shop-backend-${{ steps.get-commit-hash.outputs.commit-hash }}
           '
 
