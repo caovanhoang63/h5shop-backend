@@ -1,4 +1,4 @@
-import {UserSystemRole} from "@prisma/client";
+import {SystemRole} from "../modules/user/entity/user";
 
 export const RequesterKey = "requester"
 
@@ -7,5 +7,5 @@ export interface IRequester {
     userId?: number;
     userAgent?: string;
     ipAddress?: string;
-    systemRole?: UserSystemRole | null;
+    systemRole?: SystemRole | null;
 }

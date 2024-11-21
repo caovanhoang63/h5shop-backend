@@ -7,7 +7,6 @@ import {IRequester} from "../../../libs/IRequester";
 import {err, ok, ResultAsync} from "neverthrow";
 import {IUserRepository} from "../repository/IUserRepository";
 import {IUserService} from "./IUserService";
-import {UserSystemRole} from "@prisma/client";
 import {ICondition} from "../../../libs/condition";
 import {inject, injectable} from "inversify";
 import {TYPES} from "../../../types";
@@ -34,7 +33,7 @@ export class UserService implements IUserService {
         ).andThen(r => r)
     }
 
-    public requiredRole = (r: IRequester, ...roles: UserSystemRole[]): ResultAsync<void, Err> => {
+    public requiredRole = (r: IRequester, ...roles: SystemRole[]): ResultAsync<void, Err> => {
         return ResultAsync.fromPromise(
             (async () => {
                 const uR = await this.userRepository.findByUserId(r.userId!);

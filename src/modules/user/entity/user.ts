@@ -1,4 +1,3 @@
-import {UserGender, UserSystemRole} from "@prisma/client";
 
 export const UserEntityName = "User";
 
@@ -26,8 +25,8 @@ export interface User {
     firstName: string;
     lastName: string;
     dateOfBirth: Date | null;
-    gender: UserGender | null;
-    systemRole: UserSystemRole | null;
+    gender: 'male' | 'female' | 'other';
+    systemRole: SystemRole | null;
     status: number | null;
     createdAt: Date | null;
     updatedAt: Date | null;
