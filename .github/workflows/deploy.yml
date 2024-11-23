@@ -53,14 +53,8 @@ jobs:
 
       - name: Build & Deploy
         env:
-          PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
           HOSTNAME: ${{ secrets.SSH_HOST }}
           USER_NAME: ${{ secrets.SSH_USER_NAME }}
-          SYSTEM_SECRET: ${{ secrets.SYSTEM_SECRET }}
-          MYSQL_HOST: ${{ secrets.MYSQL_HOST }}
-          MYSQL_DATABASE: ${{ secrets.MYSQL_DATABASE }}
-          MYSQL_USER: ${{secrets.MYSQL_USER}}
-          MYSQL_PASSWORD: ${{secrets.MYSQL_PASSWORD}}
         run: |
           echo "$PRIVATE_KEY" > private_key && chmod 600 private_key
           ssh -o StrictHostKeyChecking=no -i private_key ${USER_NAME}@${HOSTNAME} '
@@ -70,11 +64,11 @@ jobs:
               docker pull ${{ needs.Build.outputs.ecr-registry }}/${{ secrets.REPO_NAME }}:h5shop-backend-${{ steps.get-commit-hash.outputs.commit-hash }} &&
               docker run -d --name ${APP_NAME} \
               --network h5shop \
-              -e SYSTEM_SECRET=${SYSTEM_SECRET} \
-              -e MYSQL_HOST=${MYSQL_HOST} \
-              -e MYSQL_USER=${MYSQL_USER} \
-              -e MYSQL_PASSWORD=${MYSQL_PASSWORD} \
-              -e MYSQL_DATABASE=${MYSQL_DATABASE} \
+              -e SYSTEM_SECRET= ${{ secrets.SSH_PRIVATE_KEY }} \
+              -e MYSQL_HOST=${{ secrets.MYSQL_HOST }} \
+              -e MYSQL_USER=${{ secrets.MYSQL_USER }} \
+              -e MYSQL_PASSWORD=${{ secrets.MYSQL_PASSWORD }} \
+              -e MYSQL_DATABASE=${{ secrets.MYSQL_DATABASE }} \
               -e VIRTUAL_HOST="api.h5shop.shop" \
               -e LETSENCRYPT_HOST="api.h5shop.shop" \
               -e LETSENCRYPT_EMAIL="caovanhoang204@gmail.com" \
