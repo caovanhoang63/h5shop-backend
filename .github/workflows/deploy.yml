@@ -53,6 +53,7 @@ jobs:
 
       - name: Build & Deploy
         env:
+          PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
           HOSTNAME: ${{ secrets.SSH_HOST }}
           USER_NAME: ${{ secrets.SSH_USER_NAME }}
         run: |
@@ -64,7 +65,7 @@ jobs:
               docker pull ${{ needs.Build.outputs.ecr-registry }}/${{ secrets.REPO_NAME }}:h5shop-backend-${{ steps.get-commit-hash.outputs.commit-hash }} &&
               docker run -d --name ${APP_NAME} \
               --network h5shop \
-              -e SYSTEM_SECRET= ${{ secrets.SSH_PRIVATE_KEY }} \
+              -e SYSTEM_SECRET=${{ secrets.SYSTEM_SECRET }} \
               -e MYSQL_HOST=${{ secrets.MYSQL_HOST }} \
               -e MYSQL_USER=${{ secrets.MYSQL_USER }} \
               -e MYSQL_PASSWORD=${{ secrets.MYSQL_PASSWORD }} \
