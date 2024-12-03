@@ -8,3 +8,7 @@ export interface Auth {
     updatedAt: Date | null;
 }
 
+
+
+
+
