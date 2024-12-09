@@ -2,6 +2,7 @@ import express from "express";
 import usersRouter from "./userRoute";
 import {IAppContext} from "../../components/appContext/appContext";
 import authRouter from "./authRoute";
+import inventoryRoute from "./inventoryRoute";
 
 const v1Router = (appCtx : IAppContext) => {
     const router = express.Router();
@@ -15,6 +16,7 @@ const v1Router = (appCtx : IAppContext) => {
 
     router.use("/users", usersRouter(appCtx))
     router.use("/auth",authRouter(appCtx))
+    router.use("inventory",inventoryRoute(appCtx))
     return router;
 }
 
