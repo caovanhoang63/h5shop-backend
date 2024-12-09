@@ -67,4 +67,24 @@ export class SqlHelper {
         ];
     }
 
+    public static BuildSetClause(updates: any): [string, any[]] {
+        const setClauses: string[] = [];
+        const values: any[] = [];
+
+        const snakeCaseUpdates = this.convertKeysToSnakeCase(updates);
+
+        Object.entries(snakeCaseUpdates).forEach(([field, value]) => {
+            if (value !== undefined && value !== null) {
+                setClauses.push(`${field} = ?`);
+                values.push(value);
+            }
+        });
+
+        return [
+            setClauses.length > 0 ? `SET ${setClauses.join(', ')}` : '',
+            values
+        ];
+    }
+
+
 }
