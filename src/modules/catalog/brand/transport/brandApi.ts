@@ -5,6 +5,7 @@ import {ReqHelper} from "../../../../libs/reqHelper";
 import {AppResponse} from "../../../../libs/response";
 import {writeErrorResponse} from "../../../../libs/writeErrorResponse";
 import {createInvalidDataError} from "../../../../libs/errors";
+import {BrandUpdate} from "../entity/brandUpdate";
 
 export class BrandApi {
     constructor(private readonly service : IBrandService) {}
@@ -13,6 +14,30 @@ export class BrandApi {
             const body = req.body as BrandCreate;
             const requester =  ReqHelper.getRequester(res)
             const r = await this.service.create(requester,body)
+
+            r.match(
+                value => {
+                    res.status(200).send(AppResponse.SimpleResponse(true))
+                },
+                e => {
+                    writeErrorResponse(res,e)
+                }
+            )
+        }
+    }
+
+    update() : express.Handler {
+        return async (req, res, next) => {
+            const body = req.body as BrandUpdate;
+            const id = parseInt(req.params.id);
+
+            if(!id){
+                res.status(400).send(AppResponse.ErrorResponse(createInvalidDataError(new Error("id must a number"))))
+                return
+            }
+
+            const requester = ReqHelper.getRequester(res)
+            const r = await this.service.update(requester,id,body)
 
             r.match(
                 value => {

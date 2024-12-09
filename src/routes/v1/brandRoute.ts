@@ -16,6 +16,7 @@ const brandRouter = (appContext: IAppContext) => {
     router.post('/', brandApi.create())
     router.get('/', brandApi.list())
     router.get('/:id', brandApi.getById())
+    router.patch('/:id', brandApi.update())
     return router
 }
 

@@ -37,7 +37,33 @@ export class BrandService implements IBrandService{
     }
 
     update(requester: IRequester, id: number, c: BrandUpdate): ResultAsync<void, Err> {
-        throw new Error("Method not implemented.");
+        return ResultAsync.fromPromise(
+            (async () => {
+                const vr = await Validator(brandUpdateScheme,c)
+                if (vr.isErr())
+                    return err(vr.error)
+
+                const old = await this.repo.findById(id)
+
+                if (old.isErr())
+                    return err(old.error)
+
+                if (!old.value)
+                    return err(createEntityNotFoundError("Brand"))
+
+                const result = await this.repo.update(id,c)
+                if (result.isErr())
+                    return err(result.error)
+
+                this.pubSub.Publish(topicUpdateBrand,createMessage({
+                    id: id,
+                    old: old.value,
+                    new: c
+                },requester))
+
+                return ok(undefined)
+            })(), e => createInternalError(e)
+        ).andThen(r=> r)
     }
 
     delete(requester: IRequester, id: number): ResultAsync<void, Err> {
