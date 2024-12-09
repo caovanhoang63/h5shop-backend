@@ -1,0 +1,52 @@
+import {IBrandService} from "./IBrandService";
+import {inject, injectable} from "inversify";
+import {IBrandRepository} from "../repository/IBrandRepository";
+import {TYPES} from "../../../../types";
+import {createMessage, IPubSub} from "../../../../components/pubsub";
+import {IRequester} from "../../../../libs/IRequester";
+import {BrandCreate, brandCreateScheme} from "../entity/brandCreate";
+import {err, ok, ResultAsync} from "neverthrow";
+import {createInternalError, Err} from "../../../../libs/errors";
+import {Validator} from "../../../../libs/validator";
+import {topicCreateBrand} from "../../../../libs/topics";
+
+@injectable()
+export class BrandService implements IBrandService{
+    constructor(
+        @inject(TYPES.IBrandRepository) private readonly repo : IBrandRepository,
+        @inject(TYPES.IPubSub) private readonly pubSub : IPubSub,
+    ) {}
+
+    create(requester: IRequester, c: BrandCreate): ResultAsync<void, Err> {
+        return ResultAsync.fromPromise(
+            (async () => {
+                const vr = await Validator(brandCreateScheme,c)
+                if (vr.isErr())
+                    return err(vr.error)
+
+                const result = await this.repo.create(c)
+                if (result.isErr())
+                    return err(result.error)
+
+                this.pubSub.Publish(topicCreateBrand,createMessage(c,requester))
+                return ok(undefined)
+            })(), e => createInternalError(e)
+        ).andThen(r=> r)
+    }
+
+    update(requester: IRequester, id: number, c: BrandCreate): ResultAsync<void, Err> {
+        throw new Error("Method not implemented.");
+    }
+
+    delete(requester: IRequester, id: number): ResultAsync<void, Err> {
+        throw new Error("Method not implemented.");
+    }
+
+    list(cond: any, paging: any): ResultAsync<BrandCreate[] | null, Err> {
+        throw new Error("Method not implemented.");
+    }
+
+    findById(id: number): ResultAsync<BrandCreate | null, Err> {
+        throw new Error("Method not implemented.");
+    }
+}

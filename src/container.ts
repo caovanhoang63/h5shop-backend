@@ -34,6 +34,10 @@ import {ISkuAttrRepository} from "./modules/catalog/sku-attr/repository/ISkuAttr
 import {SkuAttrMysqlRepo} from "./modules/catalog/sku-attr/repository/skuAttrMysqlRepo";
 import {ISkuAttrService} from "./modules/catalog/sku-attr/service/ISkuAttrService";
 import {SkuAttrService} from "./modules/catalog/sku-attr/service/skuAttrService";
+import {BrandMysqlRepo} from "./modules/catalog/brand/repository/BrandMysqlRepo";
+import {IBrandRepository} from "./modules/catalog/brand/repository/IBrandRepository";
+import {IBrandService} from "./modules/catalog/brand/service/IBrandService";
+import {BrandService} from "./modules/catalog/brand/service/BrandService";
 
 dotenv.config();
 
@@ -46,7 +50,7 @@ container.bind<IAuditRepository>(TYPES.IAuditRepository).to(AuditMysqlRepo).inRe
 container.bind<ICategoryRepository>(TYPES.ICategoryRepository).to(CategoryMysqlRepo).inRequestScope();
 container.bind<ISpuRepository>(TYPES.ISpuRepository).to(SpuMysqlRepo).inRequestScope();
 container.bind<ISkuAttrRepository>(TYPES.ISkuAttrRepository).to(SkuAttrMysqlRepo).inRequestScope();
-
+container.bind<IBrandRepository>(TYPES.IBrandRepository).to(BrandMysqlRepo).inRequestScope();
 
 //Service
 container.bind<IAuthService>(TYPES.IAuthService).to(AuthService).inRequestScope();
@@ -55,6 +59,7 @@ container.bind<IAuditService>(TYPES.IAuditService).to(AuditService).inRequestSco
 container.bind<ICategoryService>(TYPES.ICategoryService).to(CategoryService).inRequestScope();
 container.bind<ISpuService>(TYPES.ISpuService).to(SpuService).inRequestScope();
 container.bind<ISkuAttrService>(TYPES.ISkuAttrService).to(SkuAttrService).inRequestScope();
+container.bind<IBrandService>(TYPES.IBrandService).to(BrandService).inRequestScope();
 
 
 // Util
