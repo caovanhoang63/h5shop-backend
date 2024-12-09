@@ -127,5 +127,22 @@ export class CategoryApi {
             )
         }
     }
+
+    getListTree() : express.Handler {
+        return async (req,res,next) => {
+            const paging = ReqHelper.getPaging(req.query)
+
+            const r = await this.service.listTree([],paging)
+
+            r.match(
+                value => {
+                    res.status(200).send(AppResponse.SimpleResponse(value))
+                },
+                e => {
+                    writeErrorResponse(res,e)
+                }
+            )
+        }
+    }
 }
 
