@@ -6,11 +6,12 @@ import {createMessage, IPubSub} from "../../../../components/pubsub";
 import {IRequester} from "../../../../libs/IRequester";
 import {BrandCreate, brandCreateScheme} from "../entity/brandCreate";
 import {err, ok, ResultAsync} from "neverthrow";
-import {createEntityNotFoundError, createInternalError, Err} from "../../../../libs/errors";
+import {createEntityNotFoundError, createForbiddenError, createInternalError, Err} from "../../../../libs/errors";
 import {Validator} from "../../../../libs/validator";
-import {topicCreateBrand, topicUpdateBrand} from "../../../../libs/topics";
+import {topicCreateBrand, topicDeleteBrand, topicUpdateBrand} from "../../../../libs/topics";
 import {BrandUpdate, brandUpdateScheme} from "../entity/brandUpdate";
 import {Brand} from "../entity/brand";
+import {SystemRole} from "../../../user/entity/user";
 
 @injectable()
 export class BrandService implements IBrandService{
@@ -67,7 +68,28 @@ export class BrandService implements IBrandService{
     }
 
     delete(requester: IRequester, id: number): ResultAsync<void, Err> {
-        throw new Error("Method not implemented.");
+        return ResultAsync.fromPromise(
+            (async  () => {
+                if(requester.systemRole != SystemRole.Admin && requester.systemRole != SystemRole.Owner) {
+                    return err(createForbiddenError())
+                }
+
+                const old = await this.repo.findById(id)
+
+                if(old.isErr())
+                    return err(old.error)
+
+                if(!old.value)
+                    return err(createEntityNotFoundError("Brand"))
+
+                const result = await this.repo.delete(id)
+                if(result.isErr())
+                    return err(result.error)
+
+                this.pubSub.Publish(topicDeleteBrand,createMessage(old.value,requester))
+                return ok(undefined)
+            })(), e => createInternalError(e)
+        ).andThen(r=> r)
     }
 
     list(cond: any, paging: any): ResultAsync<Brand[] | null, Err> {

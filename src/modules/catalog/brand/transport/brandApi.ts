@@ -50,6 +50,28 @@ export class BrandApi {
         }
     }
 
+    delete() : express.Handler {
+        return async (req, res, next) => {
+            const id = parseInt(req.params.id);
+            if(!id){
+                res.status(400).send(AppResponse.ErrorResponse(createInvalidDataError(new Error("id must a number"))))
+                return
+            }
+
+            const requester = ReqHelper.getRequester(res)
+            const r = await this.service.delete(requester,id)
+
+            r.match(
+                value => {
+                    res.status(200).send(AppResponse.SimpleResponse(true))
+                },
+                e => {
+                    writeErrorResponse(res,e)
+                }
+            )
+        }
+    }
+
     list() : express.Handler {
         return async (req, res, next) => {
             const cond = req.query
