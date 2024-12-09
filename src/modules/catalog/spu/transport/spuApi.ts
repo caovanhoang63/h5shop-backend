@@ -76,8 +76,9 @@ export class SpuApi {
         return async (req, res, next) => {
             const paging = ReqHelper.getPaging(req.query)
 
+            const r = await this.service.list({
 
-            const r = await this.service.list({},paging)
+            },paging)
 
             r.match(
                 value => {
