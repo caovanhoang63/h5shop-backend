@@ -8,6 +8,7 @@ import {ICondition} from "../../../../libs/condition";
 import {Paging} from "../../../../libs/paging";
 import {SqlHelper} from "../../../../libs/sqlHelper";
 import {Brand} from "../entity/brand";
+import {BrandUpdate} from "../entity/brandUpdate";
 
 export class BrandMysqlRepo extends BaseMysqlRepo implements IBrandRepository {
     create(c: BrandCreate): ResultAsync<void, Err> {
@@ -20,7 +21,7 @@ export class BrandMysqlRepo extends BaseMysqlRepo implements IBrandRepository {
         )
     }
 
-    update(id: number, c: BrandCreate): ResultAsync<void, Err> {
+    update(id: number, c: BrandUpdate): ResultAsync<void, Err> {
         const [clause,values] = SqlHelper.buildUpdateClause(c)
         const query = `UPDATE brand SET ${clause} WHERE id = ? `;
         return this.executeQuery(query,[...values,id]).andThen(
@@ -71,7 +72,7 @@ export class BrandMysqlRepo extends BaseMysqlRepo implements IBrandRepository {
             })
     }
 
-    findById(id: number): ResultAsync<BrandCreate | null, Err> {
+    findById(id: number): ResultAsync<Brand | null, Err> {
         const query = `SELECT * FROM brand WHERE id = ? `;
         return this.executeQuery(query, [id]).andThen(
             ([r,f]) => {
@@ -79,7 +80,7 @@ export class BrandMysqlRepo extends BaseMysqlRepo implements IBrandRepository {
                 if(!firstRow) {
                     return ok(null);
                 }
-                return ok(SqlHelper.toCamelCase(firstRow) as BrandCreate)
+                return ok(SqlHelper.toCamelCase(firstRow) as Brand)
             }
         )
     }

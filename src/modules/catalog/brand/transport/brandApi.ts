@@ -4,6 +4,7 @@ import {BrandCreate} from "../entity/brandCreate";
 import {ReqHelper} from "../../../../libs/reqHelper";
 import {AppResponse} from "../../../../libs/response";
 import {writeErrorResponse} from "../../../../libs/writeErrorResponse";
+import {createInvalidDataError} from "../../../../libs/errors";
 
 export class BrandApi {
     constructor(private readonly service : IBrandService) {}
@@ -30,6 +31,27 @@ export class BrandApi {
             const paging = ReqHelper.getPaging(req.query)
 
             const r = await this.service.list(cond,paging)
+            r.match(
+                value => {
+                    res.status(200).send(AppResponse.SimpleResponse(value))
+                },
+                e => {
+                    writeErrorResponse(res,e)
+                }
+            )
+        }
+    }
+
+    getById() : express.Handler {
+        return async (req, res, next) => {
+            const id = parseInt(req.params.id)
+            if(!id){
+                res.status(400).send(AppResponse.ErrorResponse(createInvalidDataError(new Error("id must a number"))))
+                return
+            }
+
+            const r = await this.service.findById(id)
+
             r.match(
                 value => {
                     res.status(200).send(AppResponse.SimpleResponse(value))

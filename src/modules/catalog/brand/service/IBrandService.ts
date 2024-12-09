@@ -12,5 +12,5 @@ export interface IBrandService {
     update(requester: IRequester, id: number, c: BrandUpdate): ResultAsync<void, Err>
     delete(requester: IRequester, id: number): ResultAsync<void, Err>
     list(cond: ICondition, paging: Paging): ResultAsync<Brand[] | null, Err>
-    findById(id: number): ResultAsync<BrandCreate | null, Err>
+    findById(id: number): ResultAsync<Brand | null, Err>
 }
