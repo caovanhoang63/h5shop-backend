@@ -1,11 +1,14 @@
-import {BaseModel} from "../../../libs/baseModel";
-
-export interface Auth extends BaseModel{
-    id : number;
-    userId : number;
+export interface Auth {
+    id: number;
+    userId: number;
     userName: string;
-    salt : string;
+    salt: string;
     password: string;
-    createdAt: Date;
-    updatedAt: Date;
+    createdAt: Date | null;
+    updatedAt: Date | null;
 }
+
+
+
+
+

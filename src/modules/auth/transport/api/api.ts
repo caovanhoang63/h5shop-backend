@@ -1,35 +1,41 @@
-import {AuthCreate} from "../../entity/authVar";
-import {ResultAsync} from "../../../../libs/resultAsync";
 import express from "express";
 import {AppResponse} from "../../../../libs/response";
-import {SystemRole} from "../../../user/entity/user";
+import {writeErrorResponse} from "../../../../libs/writeErrorResponse";
+import {IAuthService} from "../../service/interface/IAuthService";
+import {AuthCreate} from "../../entity/authCreate";
+import {AuthLogin} from "../../entity/authLogin";
+import {ReqHelper} from "../../../../libs/reqHelper";
 
-interface IAuthBiz {
-    Register : (u : AuthCreate) => ResultAsync<void>
-}
 
 export class AuthApi {
-    constructor(private readonly authBiz : IAuthBiz) {
+    constructor(private readonly authBiz: IAuthService) {
     }
 
-    Register :express.Handler  = async (req, res, next) =>  {
-        const u : AuthCreate = {
-            password: "",
-            salt: "",
-            userId: 1,
-            userName: "12344",
-            firstName: "cap",
-            lastName: "hoang",
-            systemRole: SystemRole.Admin
-        }
+    Register: express.Handler = async (req, res, next) => {
+        const u = req.body as AuthCreate;
+        const requester = ReqHelper.getRequester(res);
 
-        const r = await this.authBiz.Register(u)
-        if (r.isErr() ){
-            res.status(r.error!.code).send(AppResponse.ErrorResponse(r.error!));
+        const r = await this.authBiz.register(requester, u)
+        if (r.isErr()) {
+            writeErrorResponse(res, r.error)
             return
         }
         res.send(AppResponse.SimpleResponse(true))
+
     }
 
+    Login: express.Handler = async (req, res, next) => {
+        const u = req.body as AuthLogin;
+        const requester = ReqHelper.getRequester(res);
+
+        const r = await this.authBiz.login(requester, u)
+
+        if (r.isErr()) {
+            writeErrorResponse(res, r.error)
+            return
+        }
+        res.send(AppResponse.SimpleResponse(r.value))
+
+    }
 
 }

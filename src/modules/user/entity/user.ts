@@ -1,4 +1,5 @@
-import {BaseModel} from "../../../libs/baseModel";
+
+export const UserEntityName = "User";
 
 export enum Gender {
     Male = 'male',
@@ -16,25 +17,20 @@ export enum SystemRole {
     FinanceStaff = 'finance_staff',
 }
 
-export interface User extends BaseModel{
-    phoneNumber?: number;
-    email?: string;
-    address?: string;
+export interface User {
+    id: number;
+    phoneNumber: string | null;
+    email: string | null;
+    address: string | null;
     firstName: string;
     lastName: string;
-    dateOfBirth?: Date;
-    gender?: Gender;
-    systemRole: SystemRole;
-    status: number;
+    dateOfBirth: Date | null;
+    gender: 'male' | 'female' | 'other';
+    systemRole: SystemRole | null;
+    status: number | null;
+    createdAt: Date | null;
+    updatedAt: Date | null;
 }
 
-const user: User = {
-    id : 1,
-    createdAt: new Date,
-    updatedAt: new Date,
-    firstName : "cao",
-    lastName : "asd",
-    status : 1,
-    systemRole : SystemRole.Admin
-}
+
 

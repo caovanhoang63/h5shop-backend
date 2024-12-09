@@ -1,5 +1,5 @@
 import {Paging} from "./paging";
-import {AppError} from "./errors";
+import {Err} from "./errors";
 
 export interface IResponse {
     data: any,
@@ -10,16 +10,18 @@ export interface IResponse {
 export interface IErrorResponse {
     message: string,
     code: number,
+    key: string,
+    metadata?: Record<string, unknown>;
 }
 
 export class AppResponse {
-    public static  SimpleResponse(data : any ) : IResponse {
+    public static SimpleResponse(data: any): IResponse {
         return {
             data: data
         }
     }
 
-    public static SuccessResponse(data: any, paging: Paging, extra: any ) : IResponse {
+    public static SuccessResponse(data: any, paging: Paging, extra: any): IResponse {
         return {
             data: data,
             extra: extra,
@@ -27,10 +29,12 @@ export class AppResponse {
         }
     }
 
-    public static ErrorResponse(err : AppError) :IErrorResponse {
+    public static ErrorResponse(err: Err): IErrorResponse {
         return {
             code: err.code,
             message: err.message,
+            key: err.key,
+            metadata: err.metadata
         }
     }
 }
