@@ -14,6 +14,7 @@ const brandRouter = (appContext: IAppContext) => {
     router.use(authentication())
 
     router.post('/', brandApi.create())
+    router.get('/', brandApi.list())
     return router
 }
 

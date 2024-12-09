@@ -9,6 +9,8 @@ import {err, ok, ResultAsync} from "neverthrow";
 import {createInternalError, Err} from "../../../../libs/errors";
 import {Validator} from "../../../../libs/validator";
 import {topicCreateBrand} from "../../../../libs/topics";
+import {BrandUpdate} from "../entity/brandUpdate";
+import {Brand} from "../entity/brand";
 
 @injectable()
 export class BrandService implements IBrandService{
@@ -34,7 +36,7 @@ export class BrandService implements IBrandService{
         ).andThen(r=> r)
     }
 
-    update(requester: IRequester, id: number, c: BrandCreate): ResultAsync<void, Err> {
+    update(requester: IRequester, id: number, c: BrandUpdate): ResultAsync<void, Err> {
         throw new Error("Method not implemented.");
     }
 
@@ -42,8 +44,17 @@ export class BrandService implements IBrandService{
         throw new Error("Method not implemented.");
     }
 
-    list(cond: any, paging: any): ResultAsync<BrandCreate[] | null, Err> {
-        throw new Error("Method not implemented.");
+    list(cond: any, paging: any): ResultAsync<Brand[] | null, Err> {
+        return ResultAsync.fromPromise(
+            (async () => {
+
+                const result = await this.repo.list(cond, paging)
+                if (result.isErr())
+                    return err(result.error)
+
+                return ok(result.value)
+            })(), e => createInternalError(e)
+        ).andThen(r=> r)
     }
 
     findById(id: number): ResultAsync<BrandCreate | null, Err> {

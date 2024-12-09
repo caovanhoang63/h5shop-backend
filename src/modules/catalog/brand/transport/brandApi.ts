@@ -23,4 +23,21 @@ export class BrandApi {
             )
         }
     }
+
+    list() : express.Handler {
+        return async (req, res, next) => {
+            const cond = req.query
+            const paging = ReqHelper.getPaging(req.query)
+
+            const r = await this.service.list(cond,paging)
+            r.match(
+                value => {
+                    res.status(200).send(AppResponse.SimpleResponse(value))
+                },
+                e => {
+                    writeErrorResponse(res,e)
+                }
+            )
+        }
+    }
 }
