@@ -20,7 +20,7 @@ const categoryRouter = (appContext: IAppContext) => {
     router.post('/', categoryApi.create())
     router.delete('/:id',requiredRole(appContext,SystemRole.Admin,SystemRole.Owner), categoryApi.delete())
     router.patch('/:id', categoryApi.update())
-    return router
+    return router;
 }
 
 export default categoryRouter;
