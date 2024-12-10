@@ -1,11 +1,19 @@
-import { Nullable } from "../../../libs/nullable";
-import {BaseModel} from "../../../libs/baseModel";
+import { BaseModel } from "../../../libs/baseModel";
+import Joi from "joi";
 
 export interface InventoryReport extends BaseModel {
-    amount: number;
-    warehouseMan: Nullable<number>;
+    warehouseMan1: number;
+    warehouseMan2?: number;
+    warehouseMan3?: number;
     status: number;
-    dif: number;
-    totalPrice: number;
-    note: Nullable<string>;
 }
+
+export interface InventoryReportCreate extends Omit<InventoryReport, 'id' | 'createdAt' | 'updatedAt'> {}
+
+export const inventoryReportCreateSchema = Joi.object({
+    warehouseMan1: Joi.number().required(),
+    warehouseMan2: Joi.number().optional(),
+    warehouseMan3: Joi.number().optional(),
+    status: Joi.number().valid(0, 1).required()
+});
+

@@ -3,14 +3,14 @@ import {inject, injectable} from "inversify";
 import {TYPES} from "../../types";
 
 export interface IAppContext {
-    // GetDbConnectionPool: () => mysql.Pool;
+    // GetDbConnectionPool: () => implemention.Pool;
     GetPubsub: () => IPubSub
 }
 
 
 @injectable()
 export class AppContext implements IAppContext {
-    // private readonly connectionPool: mysql.Pool;
+    // private readonly connectionPool: implemention.Pool;
     private readonly ps: IPubSub;
 
     constructor(@inject(TYPES.IPubSub) ps: IPubSub) {
@@ -22,7 +22,7 @@ export class AppContext implements IAppContext {
         return this.ps;
     };
 
-    // public GetDbConnectionPool = (): mysql.Pool => {
+    // public GetDbConnectionPool = (): implemention.Pool => {
     //     // return this.connectionPool
     // };
 
