@@ -182,6 +182,7 @@ CREATE TABLE `sku`
     `spu_id`        INT            NOT NULL,
     `sku_tier_idx`  JSON,
     `images`        JSON,
+    `cost_price`         DECIMAL(15, 2) NOT NULL DEFAULT 0,
     `price`         DECIMAL(15, 2) NOT NULL DEFAULT 0,
     `stock`         INT            NOT NULL DEFAULT 0,
     `status`        INT NOT NULL                     DEFAULT 1,

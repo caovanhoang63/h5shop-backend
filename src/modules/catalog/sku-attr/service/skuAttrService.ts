@@ -152,4 +152,32 @@ export class SkuAttrService implements ISkuAttrService {
         ).andThen(r=> r)
     }
 
+    upsertMany(requester: IRequester, spuId: number, records: SkuAttrCreate[]): ResultAsync<void, Err> {
+        return ResultAsync.fromPromise(
+            (async () => {
+                for (const create of records) {
+                    create.spuId = spuId;
+                    const vr = await Validator(skuAttrCreateSchema,create);
+                    if (vr.isErr())
+                        return err(vr.error)
+                }
+
+                const spu = await this.spuRepo.findById(spuId)
+
+                if (spu.isErr()) return err(spu.error)
+                if (!spu.value) return err(createEntityNotFoundError("spu"))
+
+                const result = await this.skuAttrRepository.upsertMany(records)
+
+                if (result.isErr())
+                    return err(result.error);
+
+                for (const create of records) {
+                    this.pubSub.Publish(topicCreateSkuAttr,createMessage(create,requester))
+                }
+
+                return ok(undefined)
+            })(), e => createInternalError(e)
+        ).andThen(r=> r)
+    }
 }

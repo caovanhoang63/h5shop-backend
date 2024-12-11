@@ -15,4 +15,5 @@ export interface ISkuAttrRepository extends IBaseRepo {
     delete(id : number): ResultAsync<void, Err>
     list(cond : ICondition, paging : Paging): ResultAsync<SkuAttr[] | null , Err>
     findById(id : number): ResultAsync<SkuAttr | null, Err>
+    upsertMany(records : SkuAttrCreate[]): ResultAsync<void, Err>
 }
