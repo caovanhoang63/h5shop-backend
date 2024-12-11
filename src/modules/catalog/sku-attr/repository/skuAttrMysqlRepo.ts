@@ -115,11 +115,21 @@ export class SkuAttrMysqlRepo extends BaseMysqlRepo implements ISkuAttrRepositor
     }
 
     upsertMany(records: SkuAttrCreate[]): ResultAsync<void, Err> {
-        const placeholders = records.map(() => '(?, ?, ?, ?, ?)').join(' ON DUPLICATE KEY UPDATE spu_id = VALUES(spu_id), name = VALUES(name), data_type = VALUES(data_type), value = VALUES(value), images = VALUES(images)');
+        const placeholders = records.map(() => '(?, ?, ?, ?, ?, ?)').join(',');
 
-        const query = `INSERT INTO sku_attr (spu_id, name, data_type, value, images) VALUES ${placeholders}`;
+        const query = `
+            INSERT INTO sku_attr (id, spu_id, name, data_type, value, images) 
+            VALUES ${placeholders}
+            ON DUPLICATE KEY UPDATE 
+                spu_id = VALUES(spu_id),
+                name = VALUES(name),
+                data_type = VALUES(data_type),
+                value = VALUES(value),
+                images = VALUES(images)
+            `;
 
         const params = records.flatMap(c => [
+            c.id || null,
             c.spuId,
             c.name,
             c.dataType,
@@ -128,13 +138,9 @@ export class SkuAttrMysqlRepo extends BaseMysqlRepo implements ISkuAttrRepositor
         ]);
 
         return this.executeQuery(query, params).andThen(
-            ([r,f]) => {
-                const header = r as ResultSetHeader;
-                records.forEach((record, index) => {
-                    record.id = header.insertId + index;
-                });
+            ([r, f]) => {
                 return okAsync(undefined);
             }
-        )
+        );
     }
 }
