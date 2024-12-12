@@ -104,20 +104,20 @@ export class SpuMysqlRepo extends BaseMysqlRepo implements ISpuRepository {
 
     upsert(c: SpuCreate): ResultAsync<number, Err> {
         const query = `
-            INSERT INTO spu (id, name, description, metadata,images) 
-            VALUES (?, ?, ?, ?, ?) 
-            ON DUPLICATE KEY UPDATE 
-                name = VALUES(name), 
-                description = VALUES(description), 
-                metadata = VALUES(metadata), 
-                images = VALUES(images)
-                id = LAST_INSERT_ID(id)`;
+            INSERT INTO spu (id, name, description, metadata, images)
+            VALUES (?, ?, ?, ?, ?)
+                ON DUPLICATE KEY UPDATE
+                                     name = VALUES(name),
+                                     description = VALUES(description),
+                                     metadata = VALUES(metadata),
+                                     images = VALUES(images)
+        `;
 
         const queryCate = `INSERT INTO category_to_spu (category_id, spu_id) VALUE (?,?)`;
 
         return this.executeInTransaction(conn => {
             return ResultAsync.fromPromise(
-                conn.query(query,[c.name,c.description,JSON.stringify(c.metadata),JSON.stringify(c.images)]),
+                conn.query(query,[c.id ,c.name,c.description,JSON.stringify(c.metadata),JSON.stringify(c.images)]),
                 e => createDatabaseError(e)
             ).andThen(([r,f]) => {
                 const header = r as ResultSetHeader;

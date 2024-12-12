@@ -15,11 +15,18 @@ import {SpuUpdate, spuUpdateSchema} from "../entity/spuUpdate";
 import {SpuCreate, spuCreateSchema} from "../entity/spuCreate";
 import {Spu} from "../entity/spu";
 import {ICategoryRepository} from "../../category/repository/ICategoryRepository";
+import {SpuDetailUpsert, spuDetailUpsertSchema} from "../entity/spuDetailUpsert";
+import {ISkuAttrRepository} from "../../sku-attr/repository/ISkuAttrRepository";
+import {ISkuRepository} from "../../sku/repository/ISkuRepository";
+import {IBrandRepository} from "../../brand/repository/IBrandRepository";
 
 @injectable()
 export class SpuService implements ISpuService {
     constructor(@inject(TYPES.ISpuRepository) private readonly repo : ISpuRepository,
                 @inject(TYPES.ICategoryRepository) private readonly categoryRepository: ICategoryRepository,
+                @inject(TYPES.ISkuAttrRepository) private readonly skuAttrRepository: ISkuAttrRepository,
+                @inject(TYPES.ISkuRepository) private readonly skuRepository: ISkuRepository,
+                @inject(TYPES.IBrandRepository) private readonly brandRepository: IBrandRepository,
                 @inject(TYPES.IPubSub) private readonly pubSub : IPubSub,) {
     }
 
@@ -126,6 +133,74 @@ export class SpuService implements ISpuService {
                     return err(createEntityNotFoundError("Spu"))
                 }
                 return ok(result.value)
+            })(), e => createInternalError(e)
+        ).andThen(r=> r)
+    }
+
+    upsertSpuDetail(requester: IRequester, c: SpuDetailUpsert): ResultAsync<void, Err> {
+        return ResultAsync.fromPromise(
+            (async () => {
+                const vr = await Validator(spuDetailUpsertSchema,c)
+                if (vr.isErr())
+                    return err(vr.error)
+                // Fetch category and brand
+                const [category, brand] = await Promise.all([
+                    this.categoryRepository.findById(c.categoryId),
+                    this.brandRepository.findById(c.brandId)
+                ]);
+                if (category.isErr()) return err(category.error);
+                if (brand.isErr()) return err(brand.error);
+
+                // Upsert SPU
+                const spuUpsert: SpuCreate = {
+                    id: c.id,
+                    name: c.name,
+                    description: c.description,
+                    categoryId: c.categoryId,
+                    brandId: c.brandId,
+                    metadata: c.metadata,
+                    images: c.images
+                };
+
+                await this.repo.Begin();
+                const spuResult = await this.repo.upsert(spuUpsert);
+                if (spuResult.isErr()) {
+                    await this.repo.Rollback();
+                    return err(spuResult.error);
+                }
+                const spuId = spuResult.value;
+
+                // Set spuId for attrs and skus
+                c.attrs.forEach(attr => { attr.spuId = spuId; });
+                c.skus.forEach(sku => { sku.spuId = spuId; });
+
+                // upsert attrs
+                await this.skuAttrRepository.Begin()
+                const resultAttr = await this.skuAttrRepository.upsertMany(c.attrs)
+                if (resultAttr.isErr()) {
+                    await this.skuAttrRepository.Rollback()
+                    await this.repo.Rollback()
+                    return err(resultAttr.error)
+                }
+
+                // upsert skus
+                await this.skuRepository.Begin()
+                const resultSku = await this.skuRepository.upsertMany(c.skus)
+                if (resultSku.isErr()) {
+                    await this.skuRepository.Rollback()
+                    await this.skuAttrRepository.Rollback()
+                    await this.repo.Rollback()
+                    return err(resultSku.error)
+                }
+
+                // await commit all
+                await Promise.all([
+                    this.skuAttrRepository.Commit(),
+                    this.skuRepository.Commit(),
+                    this.repo.Commit()
+                ]);
+
+                return ok(undefined)
             })(), e => createInternalError(e)
         ).andThen(r=> r)
     }
