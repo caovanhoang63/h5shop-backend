@@ -1,12 +1,13 @@
 import {ISkuRepository} from "./ISkuRepository";
 import {SkuCreate} from "../entity/skuCreate";
-import {okAsync, ResultAsync} from "neverthrow";
+import {ok, okAsync, ResultAsync} from "neverthrow";
 import {ICondition} from "../../../../libs/condition";
 import {Paging} from "../../../../libs/paging";
 import {Sku} from "../entity/sku";
 import {Err} from "../../../../libs/errors";
 import {BaseMysqlRepo} from "../../../../components/mysql/BaseMysqlRepo";
-import {ResultSetHeader} from "mysql2";
+import {ResultSetHeader, RowDataPacket} from "mysql2";
+import {SqlHelper} from "../../../../libs/sqlHelper";
 
 export class SkuMysqlRepo extends BaseMysqlRepo implements ISkuRepository{
     upsertMany(records: SkuCreate[]): ResultAsync<void, Err> {
@@ -40,7 +41,57 @@ export class SkuMysqlRepo extends BaseMysqlRepo implements ISkuRepository{
         );
     }
 
+    delete(id: number): ResultAsync<void, Err> {
+        const query = `UPDATE sku SET STATUS = 0 WHERE id = ? `;
+        return this.executeQuery(query,[id]).andThen(
+            ([r,f]) => {
+                const header = r as ResultSetHeader;
+                return okAsync(undefined)
+            }
+        );
+    }
+
     list(cond: ICondition, paging: Paging): ResultAsync<Sku[] | null, Err> {
-        throw("");
+        const time = Date.now();
+        const [clause, values] = SqlHelper.buildWhereClause(cond);
+        console.log(Date.now() - time);
+        const pagingClause = SqlHelper.buildPaginationClause(paging);
+        const countQuery = `SELECT COUNT(*) as total FROM sku ${clause}`;
+        const query = `SELECT * FROM sku ${clause} ${pagingClause}`;
+        return this.executeQuery(countQuery, values).andThen(
+            ([r, f]) => {
+                const firstRow = (r as RowDataPacket[])[0];
+                if(!firstRow) {
+                    return okAsync({total: 0});
+                }
+                paging.total = firstRow.total;
+                return ok({total: firstRow.total});
+            }
+        ).andThen(
+            (r) => {
+                if(r.total == 0)
+                    return ok([]);
+                else
+                    return this.executeQuery(query, values).andThen(
+                        ([r, f]) => {
+                            const data = (r as RowDataPacket[]).map(row => SqlHelper.toCamelCase(row) as Sku);
+                            return ok(data)
+                        }
+                    )
+            }
+        )
+    }
+
+    findById(id: number): ResultAsync<Sku | null, Err> {
+        const query = `SELECT * FROM sku WHERE id = ?`;
+        return this.executeQuery(query, [id]).andThen(
+            ([r, f]) => {
+                const firstRow = (r as RowDataPacket[])[0];
+                if(!firstRow) {
+                    return ok(null);
+                }
+                return ok(SqlHelper.toCamelCase(firstRow) as Sku)
+            }
+        );
     }
 }
