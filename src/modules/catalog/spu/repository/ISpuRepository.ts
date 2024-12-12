@@ -6,6 +6,7 @@ import {Paging} from "../../../../libs/paging";
 import {SpuCreate} from "../entity/spuCreate";
 import {SpuUpdate} from "../entity/spuUpdate";
 import {Spu} from "../entity/spu";
+import {SpuDetailUpsert} from "../entity/spuDetailUpsert";
 
 export interface ISpuRepository extends IBaseRepo {
     create(c : SpuCreate): ResultAsync<void, Err>
@@ -13,4 +14,5 @@ export interface ISpuRepository extends IBaseRepo {
     delete(id : number): ResultAsync<void, Err>
     list(cond : ICondition, paging : Paging): ResultAsync<Spu[] | null , Err>
     findById(id : number): ResultAsync<Spu | null, Err>
+    upsert(c: SpuCreate): ResultAsync<number, Err>
 }

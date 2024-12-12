@@ -5,7 +5,7 @@ export interface SkuAttr {
     spuId: number;
     name: string;
     dataType: string;
-    images?: Image[]
+    images?: Image;
     value: any[];
     status : number;
     createdAt : Date | null;

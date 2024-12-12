@@ -36,6 +36,13 @@ export class SkuMysqlRepo extends BaseMysqlRepo implements ISkuRepository{
 
         return this.executeQuery(query, params).andThen(
             ([r, f]) => {
+                const header = r as ResultSetHeader;
+                records.forEach((record, idx) => {
+                    // get id from insertId if id is not provided
+                    if(!record.id) {
+                        record.id = header.insertId + idx;
+                    }
+                });
                 return okAsync(undefined);
             }
         );

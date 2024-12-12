@@ -4,7 +4,7 @@ export interface Sku {
     id: number;
     spuId: number;
     skuTierIdx?: number[];
-    images?: Image[],
+    images?: Image,
     costPrice: number;
     price: number;
     stock: number;
