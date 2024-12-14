@@ -8,6 +8,7 @@ const TYPES = {
     ICategoryRepository: Symbol.for("ICategoryRepository"),
     ISpuRepository: Symbol.for("ISpuRepository"),
     ISkuAttrRepository: Symbol.for("ISkuAttrRepository"),
+    IInventoryReportRepository: Symbol.for("IInventoryReportRepository"),
     // SERVICE
     IAuthService: Symbol.for("IAuthService"),
     IUserService: Symbol.for("IUserService"),
@@ -15,7 +16,7 @@ const TYPES = {
     ICategoryService: Symbol.for("ICategoryService"),
     ISpuService: Symbol.for("ISpuService"),
     ISkuAttrService: Symbol.for("ISkuAttrService"),
-
+    IInventoryReportService: Symbol.for("IInventoryReportService"),
     // UTILS
     IHasher: Symbol.for("IHasher"),
     IJwtProvider: Symbol.for("IJwtProvider"),
