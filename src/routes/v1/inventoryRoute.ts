@@ -1,5 +1,5 @@
-import {IAppContext} from "../../components/appContext/appContext";
 import express from "express";
+import {IAppContext} from "../../components/appContext/appContext";
 import {container} from "../../container";
 import {IInventoryReportService} from "../../modules/inventory/service/IInventoryReportService";
 import {TYPES} from "../../types";
@@ -15,13 +15,15 @@ const inventoryReportRouter = (appContext: IAppContext) => {
     const inventoryReportApi = new InventoryReportApi(inventoryReportService);
 
     //router.use(authentication());
-    //router.use(requiredRole(appContext, SystemRole.Admin, SystemRole.Owner, SystemRole.WarehouseStaff));
+   // router.use(requiredRole(appContext, SystemRole.Admin, SystemRole.Owner, SystemRole.WarehouseStaff));
 
-    router.post('/', inventoryReportApi.createReport);
-    router.get('/', inventoryReportApi.listReports);
-    router.get('/:id', inventoryReportApi.getReportById);
-    router.put('/:id', inventoryReportApi.updateReport);
-    router.delete('/:id', inventoryReportApi.deleteReport);
+    router.post('/', inventoryReportApi.create());
+    router.get('/', inventoryReportApi.list());
+    router.get('/table', inventoryReportApi.getInventoryReportsTable());
+    router.get('/:id', inventoryReportApi.getById());
+    router.put('/:id', inventoryReportApi.update());
+    router.delete('/:id', inventoryReportApi.delete());
+    router.get('/:id/details', inventoryReportApi.getInventoryReportDetails());
 
     return router;
 }

@@ -8,6 +8,8 @@ import { IInventoryReportService } from "./IInventoryReportService";
 import { ICondition } from "../../../libs/condition";
 import { inject, injectable } from "inversify";
 import { TYPES } from "../../../types";
+import { InventoryReportDetailTable } from "../entity/inventoryReportDetailTable";
+import {InventoryReportTable} from "../entity/inventoryReportTable";
 
 @injectable()
 export class InventoryReportService implements IInventoryReportService {
@@ -44,6 +46,14 @@ export class InventoryReportService implements IInventoryReportService {
 
     public deleteReport = (id: number): ResultAsync<void, Err> => {
         return this.inventoryReportRepository.hardDeleteById(id)
+    }
+
+    public getInventoryReportDetails = (reportId: number): ResultAsync<InventoryReportDetailTable, Err> => {
+        return this.inventoryReportRepository.getInventoryReportDetails(reportId);
+    }
+
+    public getInventoryReportsTable = (condition: ICondition, paging: Paging): ResultAsync<InventoryReportTable[], Err> => {
+        return this.inventoryReportRepository.getInventoryReportsTable(condition, paging);
     }
 }
 

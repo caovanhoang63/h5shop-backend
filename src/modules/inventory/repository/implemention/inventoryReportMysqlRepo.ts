@@ -7,6 +7,9 @@ import { err, ok, ResultAsync } from "neverthrow";
 import { Err } from "../../../../libs/errors";
 import { IInventoryReportRepository } from "../IInventoryReportRepository";
 import { BaseMysqlRepo } from "../../../../components/mysql/BaseMysqlRepo";
+import { InventoryReportDetailTable } from "../../entity/inventoryReportDetailTable";
+import {Category} from "../../../catalog/category/entity/category";
+import {InventoryReportTable} from "../../entity/inventoryReportTable";
 
 export class InventoryReportMysqlRepo extends BaseMysqlRepo implements IInventoryReportRepository {
 
@@ -62,6 +65,124 @@ export class InventoryReportMysqlRepo extends BaseMysqlRepo implements IInventor
                 paging.total = rows.length;
                 return ok(data)
             })
+    }
+
+    public getInventoryReportDetails = (reportId: number): ResultAsync<InventoryReportDetailTable, Err> => {
+        const query = `
+            SELECT
+                ird.id as inventoryReportId,
+                s.id as skuId,
+                spu.name as spuName, 
+                ird.amount,
+                ir.warehouse_man_1 as warehouseMan,
+                u.last_name as warehouseName,
+                ird.status,
+                ird.inventory_dif as inventoryDif,
+                ird.note,
+                ird.created_at as createdAt,
+                ir.updated_at as updatedAt
+            FROM
+                inventory_report_detail ird
+                    JOIN inventory_report ir ON ird.inventory_report_id = ir.id
+                    JOIN sku s ON ird.sku_id = s.id
+                    JOIN spu spu ON s.spu_id = spu.id  
+                    JOIN user u ON ir.warehouse_man_1 = u.id
+            WHERE
+                ird.inventory_report_id = ?
+        `;
+
+        return this.executeQuery(query, [reportId]).andThen(
+            ([r, f]) => {
+                const rows = r as RowDataPacket[];
+
+                const groupedResults: InventoryReportDetailTable = {
+                    inventoryReportId: reportId,
+                    amount: 0,  // Initialize with a default value
+                    warehouseMan: 0, // Initialize with a default value
+                    warehouseName:"",
+                    status: 1,  // Default status if no specific status is found
+                    items: [],
+                    note: "",
+                    createdAt: null,
+                    updatedAt: null,
+                };
+
+                rows.forEach(row => {
+                    groupedResults.amount += row.amount;
+                    groupedResults.warehouseMan = row.warehouseMan;
+                    groupedResults.warehouseName = row.warehouseName;
+                    groupedResults.status = row.status;
+                    groupedResults.note = row.note || groupedResults.note;
+                    groupedResults.createdAt = row.createdAt || groupedResults.createdAt;
+                    groupedResults.updatedAt = row.updatedAt || groupedResults.updatedAt;
+
+                    groupedResults.items.push({
+                        skuId: row.skuId,
+                        name: row.spuName,
+                        amount: row.amount,
+                        inventoryDif: row.inventoryDif,
+                    });
+                });
+
+                // Return the structured data.
+                return ok(groupedResults);
+            }
+        );
+    };
+
+    public getInventoryReportsTable = (condition: ICondition, paging: Paging): ResultAsync<InventoryReportTable[], Err> => {
+        const [whereClause, whereValues] = SqlHelper.buildWhereClause(condition);
+        const pagingClause = SqlHelper.buildPaginationClause(paging)
+        const query = `
+            SELECT
+                ir.id,
+                ird.amount,
+                ir.warehouse_man_1 as warehouseMan,
+                ir.status,
+                ird.inventory_dif as inventoryDif,
+                ird.note,
+                ir.created_at as createdAt,
+                ir.updated_at as updatedAt
+            FROM
+                inventory_report ir
+                    JOIN
+                inventory_report_detail ird ON ir.id = ird.inventory_report_id
+                    JOIN
+                sku s ON ird.sku_id = s.id
+                ${whereClause}
+            ${pagingClause}
+        `;
+
+        const countQuery = `
+            SELECT COUNT(*) as total
+            FROM inventory_report ir
+                     JOIN inventory_report_detail ird ON ir.id = ird.inventory_report_id
+                ${whereClause}
+        `;
+
+        return this.executeQuery(countQuery, whereValues)
+            .andThen(([countResult, _]) => {
+                const firstRow = (countResult as RowDataPacket[])[0];
+                if (!firstRow) {
+                    return ok({total: 0});
+                }
+                paging.total = firstRow.total
+                return ok({total: firstRow.total});
+            })
+            .andThen(
+                (r) => {
+                    if (r.total == 0)
+                        return ok([])
+                    else
+                        return this.executeQuery(
+                            query,whereValues
+                        ).andThen(
+                            ([r, f]) => {
+                                const data = (r as RowDataPacket[]).map(row => SqlHelper.toCamelCase(row) as InventoryReportTable);
+                                return ok(data)
+                            }
+                        )
+                });
     }
 }
 

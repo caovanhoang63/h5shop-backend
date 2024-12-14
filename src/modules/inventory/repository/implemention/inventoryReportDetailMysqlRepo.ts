@@ -11,11 +11,11 @@ import { BaseMysqlRepo } from "../../../../components/mysql/BaseMysqlRepo";
 export class InventoryReportDetailMysqlRepo extends BaseMysqlRepo implements IInventoryReportDetailRepository {
 
     public create = (detail: InventoryReportDetailCreate): ResultAsync<void, Err> => {
-        const query = `INSERT INTO inventory_report_detail (inventory_report_id, sku_id, amount, inventory_dif, is_true, status)
-                       VALUES (?, ?, ?, ?, ?, ?)`;
+        const query = `INSERT INTO inventory_report_detail (inventory_report_id, sku_id, amount, inventory_dif, is_true, status, note)
+                       VALUES (?, ?, ?, ?, ?, ?, ?)`;
 
         return this.executeQuery(query,
-            [detail.inventoryReportId, detail.skuId, detail.amount, detail.inventoryDif, detail.isTrue, detail.status],
+            [detail.inventoryReportId, detail.skuId, detail.amount, detail.inventoryDif, detail.isTrue, detail.status, detail.note],
         ).andThen(
             ([r, f]) => {
                 return ok(undefined)

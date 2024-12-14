@@ -4,65 +4,163 @@ import { AppResponse } from "../../../libs/response";
 import { writeErrorResponse } from "../../../libs/writeErrorResponse";
 import { IInventoryReportService } from "../service/IInventoryReportService";
 import { ReqHelper } from "../../../libs/reqHelper";
+import { createInvalidDataError } from "../../../libs/errors";
+import {inventoryReportFilterSchema} from "../entity/inventoryReportFilterSchema";
 
 export class InventoryReportApi {
-    private readonly inventoryReportService: IInventoryReportService;
+    constructor(private readonly service: IInventoryReportService) {}
 
-    constructor(service: IInventoryReportService) {
-        this.inventoryReportService = service;
+    create(): express.Handler {
+        return async (req, res, next) => {
+            const body = req.body as InventoryReportCreate;
+            const r = await this.service.createReport(body);
+
+            r.match(
+                value => {
+                    res.status(200).send(AppResponse.SimpleResponse(value));
+                },
+                e => {
+                    writeErrorResponse(res, e);
+                }
+            );
+        };
     }
 
-    public createReport: express.Handler = async (req, res, next) => {
-        const data: InventoryReportCreate = req.body;
-        const result = await this.inventoryReportService.createReport(data);
-        if (result.isErr()) {
-            writeErrorResponse(res, result.error)
-            return
-        }
-        res.send(AppResponse.SimpleResponse(result.value))
+    list(): express.Handler {
+        return async (req, res, next) => {
+            const paging = ReqHelper.getPaging(req.query);
+            const value = inventoryReportFilterSchema.validate(req.query, { stripUnknown: true });
+
+            if (value.error) {
+                writeErrorResponse(res, createInvalidDataError(value.error));
+                return;
+            }
+
+            const filter = value.value;
+            const r = await this.service.listReports(filter, paging);
+
+            r.match(
+                value => {
+                    res.status(200).send(AppResponse.SuccessResponse(value, paging, { filter: filter }));
+                },
+                e => {
+                    writeErrorResponse(res, e);
+                }
+            );
+        };
     }
 
-    public listReports: express.Handler = async (req, res, next) => {
-        const paging = ReqHelper.getPaging(req.query);
-        //const cond = ReqHelper.getCondition(req.query);
-        const cond = {}
-        const result = await this.inventoryReportService.listReports(cond, paging)
-        if (result.isErr()) {
-            writeErrorResponse(res, result.error)
-            return
-        }
-        res.send(AppResponse.SuccessResponse(result.value, paging, cond))
+    getById(): express.Handler {
+        return async (req, res, next) => {
+            const id = parseInt(req.params.id);
+
+            if (!id) {
+                res.status(400).send(AppResponse.ErrorResponse(createInvalidDataError(new Error("id must be a number"))));
+                return;
+            }
+
+            const r = await this.service.getReportById(id);
+
+            r.match(
+                value => {
+                    res.status(200).send(AppResponse.SimpleResponse(value));
+                },
+                e => {
+                    writeErrorResponse(res, e);
+                }
+            );
+        };
     }
 
-    public getReportById: express.Handler = async (req, res, next) => {
-        const id = parseInt(req.params.id);
-        const result = await this.inventoryReportService.getReportById(id);
-        if (result.isErr()) {
-            writeErrorResponse(res, result.error)
-            return
-        }
-        res.send(AppResponse.SimpleResponse(result.value))
+    update(): express.Handler {
+        return async (req, res, next) => {
+            const id = parseInt(req.params.id);
+            const body = req.body;
+
+            if (!id) {
+                res.status(400).send(AppResponse.ErrorResponse(createInvalidDataError(new Error("id must be a number"))));
+                return;
+            }
+
+            const r = await this.service.updateReport(id, body);
+
+            r.match(
+                value => {
+                    res.status(200).send(AppResponse.SimpleResponse(true));
+                },
+                e => {
+                    writeErrorResponse(res, e);
+                }
+            );
+        };
     }
 
-    public updateReport: express.Handler = async (req, res, next) => {
-        const id = parseInt(req.params.id);
-        const data = req.body;
-        const result = await this.inventoryReportService.updateReport(id, data);
-        if (result.isErr()) {
-            writeErrorResponse(res, result.error)
-            return
-        }
-        res.send(AppResponse.SimpleResponse(true))
+    delete(): express.Handler {
+        return async (req, res, next) => {
+            const id = parseInt(req.params.id);
+
+            if (!id) {
+                res.status(400).send(AppResponse.ErrorResponse(createInvalidDataError(new Error("id must be a number"))));
+                return;
+            }
+
+            const r = await this.service.deleteReport(id);
+
+            r.match(
+                value => {
+                    res.status(200).send(AppResponse.SimpleResponse(true));
+                },
+                e => {
+                    writeErrorResponse(res, e);
+                }
+            );
+        };
     }
 
-    public deleteReport: express.Handler = async (req, res, next) => {
-        const id = parseInt(req.params.id);
-        const result = await this.inventoryReportService.deleteReport(id);
-        if (result.isErr()) {
-            writeErrorResponse(res, result.error)
-            return
-        }
-        res.send(AppResponse.SimpleResponse(true))
+    getInventoryReportDetails(): express.Handler {
+        return async (req, res, next) => {
+            const reportId = parseInt(req.params.id);
+
+            if (!reportId) {
+                res.status(400).send(AppResponse.ErrorResponse(createInvalidDataError(new Error("id must be a number"))));
+                return;
+            }
+
+            const r = await this.service.getInventoryReportDetails(reportId);
+
+            r.match(
+                value => {
+                    res.status(200).send(AppResponse.SimpleResponse(value));
+                },
+                e => {
+                    writeErrorResponse(res, e);
+                }
+            );
+        };
+    }
+
+    getInventoryReportsTable(): express.Handler {
+        return async (req, res, next) => {
+            const paging = ReqHelper.getPaging(req.query);
+            const value = inventoryReportFilterSchema.validate(req.query, { stripUnknown: true });
+
+            if (value.error) {
+                writeErrorResponse(res, createInvalidDataError(value.error));
+                return;
+            }
+
+            const filter = value.value;
+            const r = await this.service.getInventoryReportsTable(filter, paging);
+
+            r.match(
+                value => {
+                    res.status(200).send(AppResponse.SuccessResponse(value, paging, filter));
+                },
+                e => {
+                    writeErrorResponse(res, e);
+                }
+            );
+        };
     }
 }
 
