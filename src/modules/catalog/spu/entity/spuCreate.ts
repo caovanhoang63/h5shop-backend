@@ -4,10 +4,11 @@ import Joi from "joi";
 export interface SpuCreate {
     id?: number;
     name: string;
+    brandId: number;
     description: string;
     categoryId: number,
     metadata: any,
-    image? : Image[],
+    images? : Image,
 }
 
 export const spuCreateSchema = Joi.object().keys({

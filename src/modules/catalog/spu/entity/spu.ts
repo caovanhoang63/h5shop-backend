@@ -5,8 +5,9 @@ export interface Spu {
     name: string;
     description: string;
     metadata: any,
+    brandId: number,
     categoryId: number,
-    image? : Image[],
+    images? : Image,
     outOfStock : boolean,
     status : number,
     createdAt : Date | null;

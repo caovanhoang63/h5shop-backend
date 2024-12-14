@@ -15,4 +15,5 @@ export interface ISkuAttrService  {
     list(cond : ICondition, paging : Paging): ResultAsync<SkuAttr[] | null , Err>
     findById(id : number): ResultAsync<SkuAttr | null, Err>
     findByCategoryId(id :number): ResultAsync<SkuAttr[] | null, Err>
+    upsertMany(requester : IRequester, spuId: number, records : SkuAttrCreate[]): ResultAsync<void, Err>
 }

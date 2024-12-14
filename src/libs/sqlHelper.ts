@@ -80,7 +80,6 @@ export class SqlHelper {
                         case 'gt_updated_at' :
                             clauses.push(`updated_at >= ?`);
                             values.push(value);
-
                             break;
                         case 'lt_updated_at' :
                             clauses.push(`updated_at <= ?`);
