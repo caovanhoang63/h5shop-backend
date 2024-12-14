@@ -277,6 +277,7 @@ CREATE TABLE `inventory_report_detail`
     `inventory_dif` INT     NOT NULL DEFAULT 0,
     `is_true`       BOOLEAN NOT NULL DEFAULT true, #is inventory in report the same with database????
     `status`        INT   NOT NULL            DEFAULT 1,
+    `note`          VARCHAR(255),
     `created_at`    TIMESTAMP        DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (`id`),
     KEY `status` (`status`) USING BTREE,

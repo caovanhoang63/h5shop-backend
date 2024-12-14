@@ -11,6 +11,8 @@ import categoryRouter from "./categoryRoute";
 import spuRouter from "./spuRoute";
 import brandRouter from "./brandRoute";
 import skuRouter from "./skuRoute";
+import orderRoute from "./orderRoute";
+import inventoryRouter from "./inventoryRoute";
 
 const v1Router = () => {
     const appCtx = container.get<IAppContext>(TYPES.IAppContext)
@@ -31,6 +33,8 @@ const v1Router = () => {
     router.use("/brand", brandRouter(appCtx))
     router.use("/spu", spuRouter(appCtx))
     router.use("/sku", skuRouter(appCtx))
+    router.use("/order", orderRoute(appCtx))
+    router.use("/inventory", inventoryRouter(appCtx))
     router.post("/pubsub/test", async (req, res, next) => {
         await appCtx.GetPubsub().Publish(topicTest, {data: null, id: randomUUID(), topic: ""})
         res.status(200).send("oK")
