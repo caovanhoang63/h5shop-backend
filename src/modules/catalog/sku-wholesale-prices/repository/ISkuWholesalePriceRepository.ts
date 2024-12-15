@@ -8,8 +8,6 @@ import {Paging} from "../../../../libs/paging";
 import {SkuWholesalePrice} from "../entity/SkuWholesalePrice";
 
 export interface ISkuWholesalePriceRepository extends IBaseRepo {
-    create(c: SkuWholesalePriceCreate): ResultAsync<void, Err>
-    update(id: number, c: SkuWholesalePriceUpdate): ResultAsync<void, Err>
     delete(id: number): ResultAsync<void, Err>
     list(cond: ICondition, paging: Paging): ResultAsync<SkuWholesalePrice[] | null, Err>
     findById(id: number): ResultAsync<SkuWholesalePrice | null, Err>
