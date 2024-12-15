@@ -113,7 +113,14 @@ export class SpuMysqlRepo extends BaseMysqlRepo implements ISpuRepository {
                                      images = VALUES(images)
         `;
 
-        const queryCate = `INSERT INTO category_to_spu (category_id, spu_id) VALUE (?,?)`;
+        const queryCate = `
+            INSERT INTO category_to_spu (category_id, spu_id)
+            VALUES (?, ?)
+                ON DUPLICATE KEY UPDATE
+                                     category_id = category_id,
+                                     spu_id = spu_id;
+        `;
+
 
         return this.executeInTransaction(conn => {
             return ResultAsync.fromPromise(

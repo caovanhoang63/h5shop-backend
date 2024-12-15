@@ -7,7 +7,7 @@ import {Paging} from "../../../../libs/paging";
 import {Sku} from "../entity/sku";
 
 export interface ISkuRepository extends IBaseRepo {
-    upsertMany(records : SkuCreate[]): ResultAsync<void, Err>
+    upsertMany(records : SkuCreate[]): ResultAsync<SkuCreate[], Err>
     list(cond : ICondition, paging : Paging): ResultAsync<Sku[] | null , Err>
     findById(id : number): ResultAsync<Sku | null, Err>
     delete(id : number): ResultAsync<void, Err>
