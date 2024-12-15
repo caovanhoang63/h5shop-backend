@@ -51,6 +51,12 @@ import {IInventoryReportRepository} from "./modules/inventory/repository/IInvent
 import {InventoryReportMysqlRepo} from "./modules/inventory/repository/implemention/inventoryReportMysqlRepo";
 import {IInventoryReportService} from "./modules/inventory/service/IInventoryReportService";
 import {InventoryReportService} from "./modules/inventory/service/inventoryReportService";
+import {
+    ISkuWholesalePriceRepository
+} from "./modules/catalog/sku-wholesale-prices/repository/ISkuWholesalePriceRepository";
+import {SkuWholesalePriceMysqlRepo} from "./modules/catalog/sku-wholesale-prices/repository/SkuWholesalePriceMysqlRepo";
+import {ISkuWholesalePriceService} from "./modules/catalog/sku-wholesale-prices/service/ISkuWholesalePriceService";
+import {SkuWholesalePriceService} from "./modules/catalog/sku-wholesale-prices/service/SkuWholesalePriceService";
 dotenv.config();
 
 const container = new Container();
@@ -66,6 +72,7 @@ container.bind<IBrandRepository>(TYPES.IBrandRepository).to(BrandMysqlRepo).inRe
 container.bind<ISkuRepository>(TYPES.ISkuRepository).to(SkuMysqlRepo).inRequestScope();
 container.bind<IOrderRepository>(TYPES.IOrderRepository).to(OrderMysqlRepo).inRequestScope();
 container.bind<IInventoryReportRepository>(TYPES.IInventoryReportRepository).to(InventoryReportMysqlRepo).inRequestScope();
+container.bind<ISkuWholesalePriceRepository>(TYPES.ISkuWholesalePriceRepository).to(SkuWholesalePriceMysqlRepo).inRequestScope();
 
 //Service
 container.bind<IAuthService>(TYPES.IAuthService).to(AuthService).inRequestScope();
@@ -77,6 +84,8 @@ container.bind<ISkuAttrService>(TYPES.ISkuAttrService).to(SkuAttrService).inRequ
 container.bind<IBrandService>(TYPES.IBrandService).to(BrandService).inRequestScope();
 container.bind<ISkuService>(TYPES.ISkuService).to(SkuService).inRequestScope();
 container.bind<IOrderService>(TYPES.IOrderService).to(OrderService).inRequestScope();
+container.bind<ISkuWholesalePriceService>(TYPES.ISkuWholesalePriceService).to(SkuWholesalePriceService).inRequestScope();
+
 
 container.bind<IInventoryReportService>(TYPES.IInventoryReportService).to(InventoryReportService).inRequestScope();
 
