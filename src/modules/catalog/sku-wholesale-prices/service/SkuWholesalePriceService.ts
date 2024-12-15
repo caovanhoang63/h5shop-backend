@@ -22,9 +22,9 @@ export class SkuWholesalePriceService implements  ISkuWholesalePriceService {
     delete(requester: IRequester, id: number): ResultAsync<void, Err> {
         return ResultAsync.fromPromise(
             (async () =>{
-                if(requester.systemRole != SystemRole.Admin && requester.systemRole != SystemRole.Owner) {
-                    return err(createForbiddenError())
-                }
+                // if(requester.systemRole != SystemRole.Admin && requester.systemRole != SystemRole.Owner) {
+                //     return err(createForbiddenError())
+                // }
 
                 const old = await this.repo.findById(id)
                 if(old.isErr())
