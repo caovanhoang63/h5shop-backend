@@ -10,6 +10,7 @@ import {SpuCreate} from "../entity/spuCreate";
 import {SpuUpdate} from "../entity/spuUpdate";
 import {Spu} from "../entity/spu";
 import {SpuDetailUpsert} from "../entity/spuDetailUpsert";
+import {SpuDetail} from "../entity/spuDetail";
 
 
 export class SpuMysqlRepo extends BaseMysqlRepo implements ISpuRepository {
@@ -104,10 +105,11 @@ export class SpuMysqlRepo extends BaseMysqlRepo implements ISpuRepository {
 
     upsert(c: SpuCreate): ResultAsync<number, Err> {
         const query = `
-            INSERT INTO spu (id, name, description, metadata, images)
-            VALUES (?, ?, ?, ?, ?)
+            INSERT INTO spu (id, name, brand_id, description, metadata, images)
+            VALUES (?, ?, ?, ?, ?, ?)
                 ON DUPLICATE KEY UPDATE
                                      name = VALUES(name),
+                                     brand_id = VALUES(brand_id),
                                      description = VALUES(description),
                                      metadata = VALUES(metadata),
                                      images = VALUES(images)
@@ -124,7 +126,7 @@ export class SpuMysqlRepo extends BaseMysqlRepo implements ISpuRepository {
 
         return this.executeInTransaction(conn => {
             return ResultAsync.fromPromise(
-                conn.query(query,[c.id ,c.name,c.description,JSON.stringify(c.metadata),JSON.stringify(c.images)]),
+                conn.query(query,[c.id ,c.name,c.brandId,c.description,JSON.stringify(c.metadata),JSON.stringify(c.images)]),
                 e => createDatabaseError(e)
             ).andThen(([r,f]) => {
                 const header = r as ResultSetHeader;
@@ -134,7 +136,7 @@ export class SpuMysqlRepo extends BaseMysqlRepo implements ISpuRepository {
                 return okAsync({id : c.id})
             }).andThen(r =>
                 ResultAsync.fromPromise(
-                    conn.query(queryCate,[r.id,c.categoryId]),
+                    conn.query(queryCate,[c.categoryId,r.id]),
                     e => createDatabaseError(e),
                 )
             ).andThen(([r,f]) => {
@@ -146,5 +148,111 @@ export class SpuMysqlRepo extends BaseMysqlRepo implements ISpuRepository {
                 }
             });
         })
+    }
+
+    getDetail(id: number): ResultAsync<SpuDetail | null, Err> {
+        const query = `
+            SELECT
+                JSON_OBJECT(
+                    'id', spu.id,
+                    'name', spu.name,
+                    'brandId', spu.brand_id,
+                    'brandName', brand.name,
+                    'categoryId', category_to_spu.category_id,
+                    'categoryName', category.name,
+                    'description', spu.description,
+                    'metadata', spu.metadata,
+                    'images', (
+                        SELECT JSON_ARRAYAGG(
+                               JSON_OBJECT(
+                                       'id', JSON_EXTRACT(img.value, '$.id'),
+                                       'width', JSON_EXTRACT(img.value, '$.width'),
+                                       'height', JSON_EXTRACT(img.value, '$.height'),
+                                       'url', JSON_EXTRACT(img.value, '$.url'),
+                                       'extension', JSON_EXTRACT(img.value, '$.extension'),
+                                       'cloud', JSON_EXTRACT(img.value, '$.cloud')
+                               ))
+                        FROM JSON_TABLE(spu.images, '$[*]' COLUMNS(value JSON PATH '$')) img
+                    ),
+                    'outOfStock', spu.out_of_stock,
+                    'status', spu.status,
+                    'attrs', (
+                        SELECT JSON_ARRAYAGG(
+                               JSON_OBJECT(
+                                       'id', sku_attr.id,
+                                       'spuId', sku_attr.spu_id,
+                                       'name', sku_attr.name,
+                                       'dataType', sku_attr.data_type,
+                                       'images', (
+                                           SELECT JSON_OBJECT(
+                                                          'id', JSON_EXTRACT(img.value, '$.id'),
+                                                          'width', JSON_EXTRACT(img.value, '$.width'),
+                                                          'height', JSON_EXTRACT(img.value, '$.height'),
+                                                          'url', JSON_EXTRACT(img.value, '$.url'),
+                                                          'extension', JSON_EXTRACT(img.value, '$.extension'),
+                                                          'cloud', JSON_EXTRACT(img.value, '$.cloud')
+                                                  )
+                                           FROM JSON_TABLE(sku_attr.images, '$[*]' COLUMNS(value JSON PATH '$')) img
+                                       ),
+                                       'value', sku_attr.value
+                               ))
+                        FROM sku_attr
+                        WHERE sku_attr.spu_id = spu.id
+                    ),
+                    'skus', (
+                        SELECT JSON_ARRAYAGG(
+                               JSON_OBJECT(
+                                       'id', sku.id,
+                                       'spuId', sku.spu_id,
+                                       'name', spu.name,
+                                       'skuTierIdx', sku.sku_tier_idx,
+                                       'images', (
+                                           SELECT JSON_ARRAYAGG(
+                                                  JSON_OBJECT(
+                                                          'id', JSON_EXTRACT(img.value, '$.id'),
+                                                          'width', JSON_EXTRACT(img.value, '$.width'),
+                                                          'height', JSON_EXTRACT(img.value, '$.height'),
+                                                          'url', JSON_EXTRACT(img.value, '$.url'),
+                                                          'extension', JSON_EXTRACT(img.value, '$.extension'),
+                                                          'cloud', JSON_EXTRACT(img.value, '$.cloud')
+                                                  ))
+                                           FROM JSON_TABLE(sku.images, '$[*]' COLUMNS(value JSON PATH '$')) img
+                                       ),
+                                       'costPrice', sku.cost_price,
+                                       'price', sku.price,
+                                       'stock', sku.stock,
+                                       'wholesalePrices', (
+                                           SELECT JSON_ARRAYAGG(
+                                                  JSON_OBJECT(
+                                                          'id', swp.id,
+                                                          'skuId', swp.sku_id,
+                                                          'minQuantity', swp.min_quantity,
+                                                          'price', swp.price
+                                                  ))
+                                           FROM sku_wholesale_prices swp
+                                           WHERE swp.sku_id = sku.id
+                                       )
+                               ))
+                        FROM sku
+                        WHERE sku.spu_id = spu.id
+                    )
+                ) AS spu_detail
+            FROM spu
+                LEFT JOIN brand ON brand.id = spu.brand_id
+                LEFT JOIN category_to_spu ON category_to_spu.spu_id = spu.id
+                LEFT JOIN category ON category.id = category_to_spu.category_id
+            WHERE spu.id = ?
+        `;
+
+        return this.executeQuery(query,[id]).andThen(
+            ([r,f]) => {
+                const firstRow = (r as RowDataPacket[])[0];
+                if (!firstRow) {
+                    return ok(null);
+                } else {
+                    return ok(SqlHelper.toCamelCase(firstRow) as SpuDetail);
+                }
+            }
+        )
     }
 }

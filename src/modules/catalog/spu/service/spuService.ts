@@ -228,4 +228,18 @@ export class SpuService implements ISpuService {
             })(), e => createInternalError(e)
         ).andThen(r=> r)
     }
+
+    getDetail(id: number): ResultAsync<SpuDetailUpsert | null, Err> {
+        return ResultAsync.fromPromise(
+            (async () => {
+                const result = await this.repo.getDetail(id)
+                if (result.isErr())
+                    return err(result.error)
+                if (!result.value) {
+                    return err(createEntityNotFoundError("Spu detail"))
+                }
+                return ok(result.value)
+            })(), e => createInternalError(e)
+        ).andThen(r=> r)
+    }
 }

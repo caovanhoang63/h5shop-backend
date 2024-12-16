@@ -15,4 +15,5 @@ export interface ISpuService  {
     list(cond : ICondition, paging : Paging): ResultAsync<Spu[] | null , Err>
     findById(id : number): ResultAsync<Spu | null, Err>
     upsertSpuDetail(requester : IRequester, c: SpuDetailUpsert): ResultAsync<void, Err>
+    getDetail(id: number): ResultAsync<SpuDetailUpsert | null, Err>
 }

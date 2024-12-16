@@ -130,4 +130,26 @@ export class SpuApi {
             )
         }
     }
+
+    getDetail() : express.Handler {
+        return async (req, res, next) => {
+            const id = parseInt(req.params.id);
+
+            if (!id) {
+                res.status(400).send(AppResponse.ErrorResponse(createInvalidDataError(new Error("id must a number"))))
+                return
+            }
+
+            const r = await this.service.getDetail(id)
+
+            r.match(
+                value => {
+                    res.status(200).send(AppResponse.SimpleResponse(value))
+                },
+                e => {
+                    writeErrorResponse(res,e)
+                }
+            )
+        }
+    }
 }

@@ -14,6 +14,7 @@ const spuRouter = (appContext: IAppContext) => {
     const spuApi = new SpuApi(SpuService);
     router.use(authentication())
 
+    router.get('/detail/:id', spuApi.getDetail())
     router.get('/', spuApi.list())
     router.get('/:id', spuApi.getById())
     router.use(requiredRole(appContext,SystemRole.Admin,SystemRole.Owner))
