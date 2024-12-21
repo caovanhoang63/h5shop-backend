@@ -72,9 +72,9 @@ export class BrandService implements IBrandService{
     delete(requester: IRequester, id: number): ResultAsync<void, Err> {
         return ResultAsync.fromPromise(
             (async  () => {
-                if(requester.systemRole != SystemRole.Admin && requester.systemRole != SystemRole.Owner) {
-                    return err(createForbiddenError())
-                }
+                // if(requester.systemRole != SystemRole.Admin && requester.systemRole != SystemRole.Owner) {
+                //     return err(createForbiddenError())
+                // }
 
                 const old = await this.repo.findById(id)
 
@@ -97,6 +97,11 @@ export class BrandService implements IBrandService{
     list(cond: ICondition, paging: Paging): ResultAsync<Brand[] | null, Err> {
         return ResultAsync.fromPromise(
             (async () => {
+                // add status = 1 to condition
+                cond = {
+                    ...cond,
+                    status: 1
+                }
 
                 const result = await this.repo.list(cond, paging)
                 if (result.isErr())
