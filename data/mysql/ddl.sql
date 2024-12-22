@@ -265,6 +265,8 @@ CREATE TABLE `inventory_report`
     KEY `status` (`status`) USING BTREE
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4;
+alter table inventory_report
+    add column note varchar(255);
 
 DROP TABLE IF EXISTS `inventory_report_detail`;
 CREATE TABLE `inventory_report_detail`
@@ -285,6 +287,8 @@ CREATE TABLE `inventory_report_detail`
     KEY `inventory_report_id` (`inventory_report_id`) USING BTREE
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4;
+alter table inventory_report_detail
+    drop column note;
 
 # STOCK OUT
 DROP TABLE IF EXISTS `stock_out`;
