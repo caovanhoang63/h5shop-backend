@@ -14,8 +14,8 @@ import _ from "lodash";
 
 export class CategoryMysqlRepo extends BaseMysqlRepo implements ICategoryRepository {
     create(c: CategoryCreate): ResultAsync<void, Err> {
-        const query = `INSERT INTO category (name,level, parent_id, image) VALUES (?, ?, ?, ?) `;
-        return this.executeQuery(query,[c.name,c.level,c.parentId,JSON.stringify(c.image)]).andThen(
+        const query = `INSERT INTO category (name, parent_id, image) VALUES (?, ?, ?) `;
+        return this.executeQuery(query,[c.name,c.parentId,JSON.stringify(c.image)]).andThen(
             ([r,f]) => {
                 const header = r as ResultSetHeader;
                 c.id = header.insertId;

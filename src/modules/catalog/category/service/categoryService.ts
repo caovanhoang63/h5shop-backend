@@ -40,9 +40,6 @@ export class CategoryService implements ICategoryService {
                     const parent = await this.repo.findById(c.parentId)
                     if (parent.isErr()) return err(parent.error)
                     console.log(parent.value)
-
-                    if (!parent.value || parent.value.level >= c.level )
-                        return err(createInvalidDataError(new Error("Invalid ParentId")))
                 }
 
                 const result = await this.repo.create(c)
