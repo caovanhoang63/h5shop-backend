@@ -67,6 +67,9 @@ export class SqlHelper {
                     const placeholders = value.map(() => '?').join(',');
                     clauses.push(`${field} IN (${placeholders})`);
                     values.push(...value);
+                } else if ( field.startsWith('lk_',0)) {
+                    clauses.push(`${field.split('_').slice(1).join("_")} LIKE concat(?, '%')`);
+                    values.push(value);
                 } else {
                     switch (field) {
                         case 'gt_created_at' :
@@ -80,7 +83,6 @@ export class SqlHelper {
                         case 'gt_updated_at' :
                             clauses.push(`updated_at >= ?`);
                             values.push(value);
-
                             break;
                         case 'lt_updated_at' :
                             clauses.push(`updated_at <= ?`);
@@ -90,9 +92,6 @@ export class SqlHelper {
                             clauses.push(`${field} = ?`);
                             values.push(value);
                     }
-
-
-
                 }
             }
         });

@@ -16,11 +16,12 @@ const categoryRouter = (appContext: IAppContext) => {
     router.use(authentication())
 
     router.get('/', categoryApi.list())
+    router.get('/tree', categoryApi.getListTree())
     router.get('/:id', categoryApi.getById())
     router.post('/', categoryApi.create())
     router.delete('/:id',requiredRole(appContext,SystemRole.Admin,SystemRole.Owner), categoryApi.delete())
     router.patch('/:id', categoryApi.update())
-    return router
+    return router;
 }
 
 export default categoryRouter;

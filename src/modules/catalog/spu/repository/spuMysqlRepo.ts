@@ -1,4 +1,4 @@
-import {ok, okAsync, ResultAsync} from "neverthrow";
+import {err, ok, okAsync, ResultAsync} from "neverthrow";
 import {BaseMysqlRepo} from "../../../../components/mysql/BaseMysqlRepo";
 import {ICondition} from "../../../../libs/condition";
 import {createDatabaseError, Err} from "../../../../libs/errors";
@@ -9,6 +9,7 @@ import {ISpuRepository} from "./ISpuRepository";
 import {SpuCreate} from "../entity/spuCreate";
 import {SpuUpdate} from "../entity/spuUpdate";
 import {Spu} from "../entity/spu";
+import {SpuDetailUpsert} from "../entity/spuDetailUpsert";
 
 
 export class SpuMysqlRepo extends BaseMysqlRepo implements ISpuRepository {
@@ -17,7 +18,7 @@ export class SpuMysqlRepo extends BaseMysqlRepo implements ISpuRepository {
         const queryCate = `INSERT INTO category_to_spu (category_id, spu_id) VALUE (?,?)`;
         return this.executeInTransaction(conn => {
             return ResultAsync.fromPromise(
-                conn.query(query,[c.name,c.description,JSON.stringify(c.metadata),JSON.stringify(c.image)]),
+                conn.query(query,[c.name,c.description,JSON.stringify(c.metadata),JSON.stringify(c.images)]),
                 e => createDatabaseError(e)
             ).andThen(([r,f]) => {
                 const header = r as ResultSetHeader;
@@ -99,5 +100,44 @@ export class SpuMysqlRepo extends BaseMysqlRepo implements ISpuRepository {
                 }
             }
         )
+    }
+
+    upsert(c: SpuCreate): ResultAsync<number, Err> {
+        const query = `
+            INSERT INTO spu (id, name, description, metadata, images)
+            VALUES (?, ?, ?, ?, ?)
+                ON DUPLICATE KEY UPDATE
+                                     name = VALUES(name),
+                                     description = VALUES(description),
+                                     metadata = VALUES(metadata),
+                                     images = VALUES(images)
+        `;
+
+        const queryCate = `INSERT INTO category_to_spu (category_id, spu_id) VALUE (?,?)`;
+
+        return this.executeInTransaction(conn => {
+            return ResultAsync.fromPromise(
+                conn.query(query,[c.id ,c.name,c.description,JSON.stringify(c.metadata),JSON.stringify(c.images)]),
+                e => createDatabaseError(e)
+            ).andThen(([r,f]) => {
+                const header = r as ResultSetHeader;
+                if(!c.id){
+                    c.id = header.insertId;
+                }
+                return okAsync({id : c.id})
+            }).andThen(r =>
+                ResultAsync.fromPromise(
+                    conn.query(queryCate,[r.id,c.categoryId]),
+                    e => createDatabaseError(e),
+                )
+            ).andThen(([r,f]) => {
+                if(c.id){
+                    return ok(c.id)
+                }
+                else{
+                    return err(createDatabaseError(f))
+                }
+            });
+        })
     }
 }

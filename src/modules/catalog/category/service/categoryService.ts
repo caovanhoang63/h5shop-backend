@@ -20,6 +20,8 @@ import {createMessage, IPubSub} from "../../../../components/pubsub";
 import {topicCreateCategory, topicDeleteCategory, topicUpdateCategory} from "../../../../libs/topics";
 import {Category} from "../entity/category";
 import {ICondition} from "../../../../libs/condition";
+import {CategoryNode} from "../entity/categoryNode";
+import {number} from "joi";
 
 @injectable()
 export class CategoryService implements ICategoryService {
@@ -52,8 +54,6 @@ export class CategoryService implements ICategoryService {
             })(), e => createInternalError(e)
         ).andThen(r=> r)
     }
-
-
 
     update(requester: IRequester, id: number, c: CategoryUpdate): ResultAsync<void, Err> {
         return ResultAsync.fromPromise(
@@ -122,6 +122,41 @@ export class CategoryService implements ICategoryService {
                 if (result.isErr())
                     return err(result.error)
                 return ok(result.value)
+            })(), e => createInternalError(e)
+        ).andThen(r=> r)
+    }
+
+    listTree(cond: ICondition, paging: Paging): ResultAsync<CategoryNode[] | null, Err> {
+        return ResultAsync.fromPromise(
+            (async () => {
+                // lấy danh sách category
+                const result = await this.repo.list(cond,paging)
+                if (result.isErr())
+                    return err(result.error)
+                if(!result.value) {
+                    return ok([])
+                }
+                // tạo map từ danh sách category
+                const categoryMap : { [key: number]: CategoryNode } = {};
+                result.value.forEach(c => {
+                    categoryMap[c.id] = {
+                        id: c.id,
+                        name: c.name,
+                        level: c.level,
+                        parentId: c.parentId? c.parentId : null,
+                        children: []
+                    }
+                })
+                // tạo danh sách cây
+                const tree : CategoryNode[] = [];
+                Object.values(categoryMap).forEach((category) => {
+                    if(category.parentId === null) {
+                        tree.push(category)
+                    } else if(categoryMap[category.parentId]) {
+                        categoryMap[category.parentId].children.push(category);
+                    }
+                })
+                return ok(tree)
             })(), e => createInternalError(e)
         ).andThen(r=> r)
     }

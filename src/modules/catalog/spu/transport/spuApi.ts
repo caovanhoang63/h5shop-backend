@@ -6,6 +6,7 @@ import {createInvalidDataError} from "../../../../libs/errors";
 import {ISpuService} from "../service/ISpuService";
 import {SpuCreate} from "../entity/spuCreate";
 import {SpuUpdate} from "../entity/spuUpdate";
+import {SpuDetailUpsert} from "../entity/spuDetailUpsert";
 
 export class SpuApi {
     constructor(private readonly service : ISpuService) {}
@@ -76,8 +77,9 @@ export class SpuApi {
         return async (req, res, next) => {
             const paging = ReqHelper.getPaging(req.query)
 
+            const r = await this.service.list({
 
-            const r = await this.service.list({},paging)
+            },paging)
 
             r.match(
                 value => {
@@ -104,6 +106,23 @@ export class SpuApi {
             r.match(
                 value => {
                     res.status(200).send(AppResponse.SimpleResponse(value))
+                },
+                e => {
+                    writeErrorResponse(res,e)
+                }
+            )
+        }
+    }
+
+    upsertSpuDetail() : express.Handler {
+        return async (req, res, next) => {
+            const body = req.body as SpuDetailUpsert;
+            const requester =  ReqHelper.getRequester(res)
+            const r = await this.service.upsertSpuDetail(requester,body)
+
+            r.match(
+                value => {
+                    res.status(200).send(AppResponse.SimpleResponse(true))
                 },
                 e => {
                     writeErrorResponse(res,e)

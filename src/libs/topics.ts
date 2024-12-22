@@ -8,6 +8,10 @@ export const topicCreateCategory = "TopicCreateCategory";
 export const topicDeleteCategory = "TopicDeleteCategory";
 export const topicUpdateCategory = "TopicUpdateCategory";
 
+export const topicCreateBrand = "TopicCreateBrand";
+export const topicDeleteBrand = "TopicDeleteBrand";
+export const topicUpdateBrand = "TopicUpdateBrand";
+
 
 export const topicCreateSpu = "TopicCreateSpu";
 export const topicDeleteSpu = "TopicDeleteSpu";
