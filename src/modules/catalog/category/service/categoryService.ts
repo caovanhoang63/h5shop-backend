@@ -22,6 +22,7 @@ import {Category} from "../entity/category";
 import {ICondition} from "../../../../libs/condition";
 import {CategoryNode} from "../entity/categoryNode";
 import {number} from "joi";
+import {CategoryMysqlRepo} from "../repository/CategoryMysqlRepo";
 
 @injectable()
 export class CategoryService implements ICategoryService {
@@ -60,8 +61,15 @@ export class CategoryService implements ICategoryService {
                     return err(vr.error)
 
                 if (c.parentId) {
-                    const parent = await this.repo.findById(c.parentId)
-                    if (parent.isErr()) return err(parent.error)
+                    //check loop parent
+                    if(c.parentId == id) {
+                        return err(createEntityNotFoundError("Parent category Loop"))
+                    }
+
+                    const isLoop = await this.CheckLoopParent(id, c.parentId, this.repo as CategoryMysqlRepo);
+                    if(isLoop) {
+                        return err(createEntityNotFoundError("Parent category Loop"))
+                    }
                 }
                 else{
                     c.parentId = null
@@ -176,5 +184,22 @@ export class CategoryService implements ICategoryService {
                 return ok(result.value)
             })(), e => createInternalError(e)
         ).andThen(r=> r)
+    }
+
+    async CheckLoopParent(id: number, parentId: number | null, repo: CategoryMysqlRepo): Promise<boolean> {
+        if(parentId == null) {
+            return false;
+        }
+        const parent = await repo.findById(parentId);
+        if(parent.isErr()) {
+            return true;
+        }
+        if(parent.value == null) {
+            return true;
+        }
+        if(parent.value.id == id) {
+            return true;
+        }
+        return await this.CheckLoopParent(id, parent.value.parentId, repo);
     }
 }
