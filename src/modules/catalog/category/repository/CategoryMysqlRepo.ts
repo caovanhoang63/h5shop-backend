@@ -24,7 +24,13 @@ export class CategoryMysqlRepo extends BaseMysqlRepo implements ICategoryReposit
         );
     }
     update(id: number, c: CategoryUpdate): ResultAsync<void, Err> {
-        const [clause,values] = SqlHelper.buildUpdateClause(c)
+        let [clause,values] = SqlHelper.buildUpdateClause(c)
+
+        //Check parent id == null
+        if (c.parentId == null) {
+            clause += `, parent_id = NULL`
+        }
+
         const query = `UPDATE category SET ${clause} WHERE id = ? `;
         return this.executeQuery(query,[...values,id]).andThen(
             ([r,f]) => {

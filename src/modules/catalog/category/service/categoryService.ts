@@ -59,7 +59,13 @@ export class CategoryService implements ICategoryService {
                 if (vr.isErr())
                     return err(vr.error)
 
-
+                if (c.parentId) {
+                    const parent = await this.repo.findById(c.parentId)
+                    if (parent.isErr()) return err(parent.error)
+                }
+                else{
+                    c.parentId = null
+                }
 
                 const old = await this.repo.findById(id)
 
