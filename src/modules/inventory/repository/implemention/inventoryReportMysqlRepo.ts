@@ -14,16 +14,36 @@ import {InventoryReportTable} from "../../entity/inventoryReportTable";
 export class InventoryReportMysqlRepo extends BaseMysqlRepo implements IInventoryReportRepository {
 
     public create = (report: InventoryReportCreate): ResultAsync<number, Err> => {
-        const query = `INSERT INTO inventory_report (warehouse_man_1, warehouse_man_2, warehouse_man_3, status)
+        const query = `INSERT INTO inventory_report (warehouse_man_1, warehouse_man_2, warehouse_man_3, note)
                        VALUES (?, ?, ?, ?)`;
 
-        return this.executeQuery(query,
-            [report.warehouseMan1, report.warehouseMan2, report.warehouseMan3, report.status],
-        ).andThen(
-            ([r, f]) => {
-                const header = r as ResultSetHeader
-                return ok(header.insertId)
-            })
+
+        const detailQuery = `INSERT INTO inventory_report_detail (inventory_report_id, sku_id, amount, inventory_dif)
+                        VALUES ?`
+
+        const headerValues = [
+            report.warehouseMan1,
+            report.warehouseMan2,
+            report.warehouseMan3,
+            report.note
+        ];
+        return this.executeInTransaction<number>(conn =>
+            this.executeQuery(query, headerValues)
+                .andThen(([headerResult, _]) => {
+                    const header = headerResult as ResultSetHeader;
+                    const insertId = header.insertId;
+
+                    const detailValuesWithInsertId = report.items.map(item => [
+                        insertId,
+                        item.skuId,
+                        item.amount,
+                        item.inventoryDif
+                    ]);
+
+                    return this.executeQuery(detailQuery, [detailValuesWithInsertId])
+                        .map(() => insertId);
+                })
+        );
     }
 
     public findById = (id: number): ResultAsync<InventoryReport | null, Err> => {
