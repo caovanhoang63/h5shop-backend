@@ -10,4 +10,5 @@ export interface IProviderRepository extends IBaseRepo {
     update: (id:number,provider: ProviderUpdate)=> ResultAsync<void, Error>
     delete: (id:number)=> ResultAsync<void, Error>
     list(cond : ICondition, paging : Paging): ResultAsync<Provider[] | null , Err>
+    findById: (id:number)=> ResultAsync<Provider | null, Err>
 }

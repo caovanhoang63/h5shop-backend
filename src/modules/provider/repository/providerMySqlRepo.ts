@@ -7,6 +7,9 @@ import {Paging} from "../../../libs/paging";
 import {ResultSetHeader, RowDataPacket} from "mysql2";
 import {Err} from "../../../libs/errors";
 import {SqlHelper} from "../../../libs/sqlHelper";
+import {query} from "express";
+import {cond, values} from "lodash";
+import {Spu} from "../../catalog/spu/entity/spu";
 
 export class ProviderMySqlRepo extends BaseMysqlRepo implements IProviderRepository {
     create(provider: ProviderCreate): ResultAsync<void, Error> {
@@ -73,6 +76,22 @@ export class ProviderMySqlRepo extends BaseMysqlRepo implements IProviderReposit
                         }
                     )
             })
+    }
+
+    findById(id: number): ResultAsync<Provider | null, Err> {
+        const query = `SELECT *
+                       FROM provider
+                       WHERE id = ? LIMIT 1`;
+        return this.executeQuery(query,[id]).andThen(
+            ([r,f]) => {
+                const firstRow = (r as RowDataPacket[])[0];
+                if (!firstRow) {
+                    return ok(null);
+                } else {
+                    return ok(SqlHelper.toCamelCase(firstRow) as Provider);
+                }
+            }
+        )
     }
 
 
