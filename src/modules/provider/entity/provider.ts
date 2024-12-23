@@ -20,7 +20,7 @@ export const providerCreateSchema = Joi.object({
     address: Joi.string().max(255).required(),
     email: Joi.string().email().required(),
     phone_number: Joi.string().max(255).required(),
-    debt: Joi.number().required()
+    debt: Joi.number()
 })
 
 export interface ProviderUpdate extends Omit<Provider, 'id' | 'createdAt' | 'updatedAt'> {

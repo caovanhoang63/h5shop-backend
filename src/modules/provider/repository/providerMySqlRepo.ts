@@ -13,7 +13,7 @@ import {Spu} from "../../catalog/spu/entity/spu";
 
 export class ProviderMySqlRepo extends BaseMysqlRepo implements IProviderRepository {
     create(provider: ProviderCreate): ResultAsync<void, Error> {
-        const query = `INSERT INTO provider (name, address, phone, email, debt)
+        const query = `INSERT INTO provider (name, address, phone_number, email, debt)
                        VALUES (?, ?, ?, ?, ?)`;
         return this.executeQuery(query, [provider.name, provider.address, provider.phone_number, provider.email, provider.debt]).andThen(([r, f]) => {
             const header = r as ResultSetHeader;
