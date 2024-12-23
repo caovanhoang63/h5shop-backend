@@ -1,6 +1,6 @@
 import {BaseMysqlRepo} from "../../../components/mysql/BaseMysqlRepo";
 import {IProviderRepository} from "./IProviderRepository";
-import {Provider, ProviderCreate} from "../entity/provider";
+import {Provider, ProviderCreate, ProviderUpdate} from "../entity/provider";
 import {ok, okAsync, ResultAsync} from "neverthrow";
 import {ICondition} from "../../../libs/condition";
 import {Paging} from "../../../libs/paging";
@@ -30,7 +30,7 @@ export class ProviderMySqlRepo extends BaseMysqlRepo implements IProviderReposit
         );
     }
 
-    update(id: number, provider: Provider): ResultAsync<void, Error> {
+    update(id: number, provider: ProviderUpdate): ResultAsync<void, Error> {
         const [clause, values] = SqlHelper.buildUpdateClause(provider)
         const query = `UPDATE provider
                        SET ${clause}
