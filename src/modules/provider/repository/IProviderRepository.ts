@@ -6,8 +6,8 @@ import {Paging} from "../../../libs/paging";
 import {Err} from "../../../libs/errors";
 
 export interface IProviderRepository extends IBaseRepo {
-    create: (provider: ProviderCreate) => ResultAsync<number, Error>
-    update: (id:number,provider: Partial<Provider>)=> ResultAsync<void, Error>
+    create: (provider: ProviderCreate) => ResultAsync<void, Error>
+    update: (id:number,provider: Provider)=> ResultAsync<void, Error>
     delete: (id:number)=> ResultAsync<void, Error>
     list(cond : ICondition, paging : Paging): ResultAsync<Provider[] | null , Err>
 }
