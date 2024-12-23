@@ -76,6 +76,10 @@ CREATE TABLE `provider`
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4;
 
+alter table provider
+add column `debt` DECIMAL(15, 2)  DEFAULT 0 AFTER `phone_number`;
+
+
 DROP TABLE IF EXISTS `brand`;
 CREATE TABLE `brand` (
     `id` INT NOT NULL AUTO_INCREMENT,
