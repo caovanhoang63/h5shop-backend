@@ -13,6 +13,7 @@ import subscriberEngine from "./subcribers";
 import requestContext from "./middlewares/requestContext";
 import {client} from "./s3Client";
 import {ListBucketsCommand} from "@aws-sdk/client-s3";
+import {S3Provider} from "./components/uploadProvider/s3Provider";
 
 dotenv.config();
 
