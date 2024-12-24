@@ -12,13 +12,13 @@ const spuRouter = (appContext: IAppContext) => {
     const router = express.Router();
     const SpuService = container.get<ISpuService>(TYPES.ISpuService)
     const spuApi = new SpuApi(SpuService);
-    router.use(authentication())
+    //router.use(authentication())
 
     router.get('/detail/:id', spuApi.getDetail())
     router.get('/', spuApi.list())
     router.get('/:id', spuApi.getById())
-    router.use(requiredRole(appContext,SystemRole.Admin,SystemRole.Owner))
     router.post('/upsert-detail', spuApi.upsertSpuDetail())
+    router.use(requiredRole(appContext,SystemRole.Admin,SystemRole.Owner))
     router.post('/', spuApi.create())
     router.delete('/:id', spuApi.delete())
     router.patch('/:id', spuApi.update())
