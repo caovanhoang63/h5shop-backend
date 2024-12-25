@@ -161,90 +161,88 @@ export class SpuMysqlRepo extends BaseMysqlRepo implements ISpuRepository {
     getDetail(id: number): ResultAsync<SpuDetail | null, Err> {
         const query = `
             SELECT
-                JSON_OBJECT(
-                    'id', spu.id,
-                    'name', spu.name,
-                    'brandId', spu.brand_id,
-                    'brandName', brand.name,
-                    'categoryId', category_to_spu.category_id,
-                    'categoryName', category.name,
-                    'description', spu.description,
-                    'metadata', spu.metadata,
-                    'images', (
-                        SELECT JSON_ARRAYAGG(
-                               JSON_OBJECT(
-                                       'id', JSON_EXTRACT(img.value, '$.id'),
-                                       'width', JSON_EXTRACT(img.value, '$.width'),
-                                       'height', JSON_EXTRACT(img.value, '$.height'),
-                                       'url', JSON_EXTRACT(img.value, '$.url'),
-                                       'extension', JSON_EXTRACT(img.value, '$.extension'),
-                                       'cloud', JSON_EXTRACT(img.value, '$.cloud')
-                               ))
-                        FROM JSON_TABLE(spu.images, '$[*]' COLUMNS(value JSON PATH '$')) img
-                    ),
-                    'outOfStock', spu.out_of_stock,
-                    'status', spu.status,
-                    'attrs', (
-                        SELECT JSON_ARRAYAGG(
-                               JSON_OBJECT(
-                                       'id', sku_attr.id,
-                                       'spuId', sku_attr.spu_id,
-                                       'name', sku_attr.name,
-                                       'dataType', sku_attr.data_type,
-                                       'images', (
-                                           SELECT JSON_OBJECT(
-                                                          'id', JSON_EXTRACT(img.value, '$.id'),
-                                                          'width', JSON_EXTRACT(img.value, '$.width'),
-                                                          'height', JSON_EXTRACT(img.value, '$.height'),
-                                                          'url', JSON_EXTRACT(img.value, '$.url'),
-                                                          'extension', JSON_EXTRACT(img.value, '$.extension'),
-                                                          'cloud', JSON_EXTRACT(img.value, '$.cloud')
-                                                  )
-                                           FROM JSON_TABLE(sku_attr.images, '$[*]' COLUMNS(value JSON PATH '$')) img
-                                       ),
-                                       'value', sku_attr.value
-                               ))
-                        FROM sku_attr
-                        WHERE sku_attr.spu_id = spu.id
-                    ),
-                    'skus', (
-                        SELECT JSON_ARRAYAGG(
-                               JSON_OBJECT(
-                                       'id', sku.id,
-                                       'spuId', sku.spu_id,
-                                       'name', spu.name,
-                                       'skuTierIdx', sku.sku_tier_idx,
-                                       'images', (
-                                           SELECT JSON_ARRAYAGG(
-                                                  JSON_OBJECT(
-                                                          'id', JSON_EXTRACT(img.value, '$.id'),
-                                                          'width', JSON_EXTRACT(img.value, '$.width'),
-                                                          'height', JSON_EXTRACT(img.value, '$.height'),
-                                                          'url', JSON_EXTRACT(img.value, '$.url'),
-                                                          'extension', JSON_EXTRACT(img.value, '$.extension'),
-                                                          'cloud', JSON_EXTRACT(img.value, '$.cloud')
-                                                  ))
-                                           FROM JSON_TABLE(sku.images, '$[*]' COLUMNS(value JSON PATH '$')) img
-                                       ),
-                                       'costPrice', sku.cost_price,
-                                       'price', sku.price,
-                                       'stock', sku.stock,
-                                       'wholesalePrices', (
-                                           SELECT JSON_ARRAYAGG(
-                                                  JSON_OBJECT(
-                                                          'id', swp.id,
-                                                          'skuId', swp.sku_id,
-                                                          'minQuantity', swp.min_quantity,
-                                                          'price', swp.price
-                                                  ))
-                                           FROM sku_wholesale_prices swp
-                                           WHERE swp.sku_id = sku.id
-                                       )
-                               ))
-                        FROM sku
-                        WHERE sku.spu_id = spu.id
-                    )
-                ) AS spu_detail
+                'id', spu.id,
+                'name', spu.name,
+                'brandId', spu.brand_id,
+                'brandName', brand.name,
+                'categoryId', category_to_spu.category_id,
+                'categoryName', category.name,
+                'description', spu.description,
+                'metadata', spu.metadata,
+                'images', (
+                    SELECT JSON_ARRAYAGG(
+                           JSON_OBJECT(
+                                   'id', JSON_EXTRACT(img.value, '$.id'),
+                                   'width', JSON_EXTRACT(img.value, '$.width'),
+                                   'height', JSON_EXTRACT(img.value, '$.height'),
+                                   'url', JSON_EXTRACT(img.value, '$.url'),
+                                   'extension', JSON_EXTRACT(img.value, '$.extension'),
+                                   'cloud', JSON_EXTRACT(img.value, '$.cloud')
+                           ))
+                    FROM JSON_TABLE(spu.images, '$[*]' COLUMNS(value JSON PATH '$')) img
+                ),
+                'outOfStock', spu.out_of_stock,
+                'status', spu.status,
+                'attrs', (
+                    SELECT JSON_ARRAYAGG(
+                           JSON_OBJECT(
+                                   'id', sku_attr.id,
+                                   'spuId', sku_attr.spu_id,
+                                   'name', sku_attr.name,
+                                   'dataType', sku_attr.data_type,
+                                   'images', (
+                                       SELECT JSON_OBJECT(
+                                                      'id', JSON_EXTRACT(img.value, '$.id'),
+                                                      'width', JSON_EXTRACT(img.value, '$.width'),
+                                                      'height', JSON_EXTRACT(img.value, '$.height'),
+                                                      'url', JSON_EXTRACT(img.value, '$.url'),
+                                                      'extension', JSON_EXTRACT(img.value, '$.extension'),
+                                                      'cloud', JSON_EXTRACT(img.value, '$.cloud')
+                                              )
+                                       FROM JSON_TABLE(sku_attr.images, '$[*]' COLUMNS(value JSON PATH '$')) img
+                                   ),
+                                   'value', sku_attr.value
+                           ))
+                    FROM sku_attr
+                    WHERE sku_attr.spu_id = spu.id
+                ),
+                'skus', (
+                    SELECT JSON_ARRAYAGG(
+                           JSON_OBJECT(
+                                   'id', sku.id,
+                                   'spuId', sku.spu_id,
+                                   'name', spu.name,
+                                   'skuTierIdx', sku.sku_tier_idx,
+                                   'images', (
+                                       SELECT JSON_ARRAYAGG(
+                                              JSON_OBJECT(
+                                                      'id', JSON_EXTRACT(img.value, '$.id'),
+                                                      'width', JSON_EXTRACT(img.value, '$.width'),
+                                                      'height', JSON_EXTRACT(img.value, '$.height'),
+                                                      'url', JSON_EXTRACT(img.value, '$.url'),
+                                                      'extension', JSON_EXTRACT(img.value, '$.extension'),
+                                                      'cloud', JSON_EXTRACT(img.value, '$.cloud')
+                                              ))
+                                       FROM JSON_TABLE(sku.images, '$[*]' COLUMNS(value JSON PATH '$')) img
+                                   ),
+                                   'costPrice', sku.cost_price,
+                                   'price', sku.price,
+                                   'stock', sku.stock,
+                                   'wholesalePrices', (
+                                       SELECT JSON_ARRAYAGG(
+                                              JSON_OBJECT(
+                                                      'id', swp.id,
+                                                      'skuId', swp.sku_id,
+                                                      'minQuantity', swp.min_quantity,
+                                                      'price', swp.price
+                                              ))
+                                       FROM sku_wholesale_prices swp
+                                       WHERE swp.sku_id = sku.id
+                                   )
+                           ))
+                    FROM sku
+                    WHERE sku.spu_id = spu.id
+                )
             FROM spu
                 LEFT JOIN brand ON brand.id = spu.brand_id
                 LEFT JOIN category_to_spu ON category_to_spu.spu_id = spu.id

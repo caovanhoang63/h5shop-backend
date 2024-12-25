@@ -12,9 +12,9 @@ export type Image =  {
 
 export const imageSchema = Joi.object({
     id: Joi.string().required(),
-    width: Joi.number().integer().positive().optional(),
-    height: Joi.number().integer().positive().optional(),
+    width: Joi.number().integer(),
+    height: Joi.number().integer(),
     url: Joi.string().uri().required(),
     extension: Joi.string().valid("jpg", "png", "webp").required(),
-    cloud: Joi.string().optional(),
+    cloud: Joi.string().allow(""),
 });

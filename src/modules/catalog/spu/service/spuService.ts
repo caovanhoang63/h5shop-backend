@@ -22,6 +22,7 @@ import {IBrandRepository} from "../../brand/repository/IBrandRepository";
 import {ISkuWholesalePriceRepository} from "../../sku-wholesale-prices/repository/ISkuWholesalePriceRepository";
 import {SkuWholesalePriceCreate} from "../../sku-wholesale-prices/entity/SkuWholesalePriceCreate";
 import {IUploadProvider} from "../../../../components/uploadProvider/IUploadProvider";
+import {SpuDetail} from "../entity/spuDetail";
 
 @injectable()
 export class SpuService implements ISpuService {
@@ -231,7 +232,7 @@ export class SpuService implements ISpuService {
         ).andThen(r=> r)
     }
 
-    getDetail(id: number): ResultAsync<SpuDetailUpsert | null, Err> {
+    getDetail(id: number): ResultAsync<SpuDetail | null, Err> {
         return ResultAsync.fromPromise(
             (async () => {
                 const result = await this.repo.getDetail(id)
