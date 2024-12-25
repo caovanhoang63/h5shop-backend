@@ -151,8 +151,8 @@ export class InventoryReportMysqlRepo extends BaseMysqlRepo implements IInventor
     };
 
     public getInventoryReportsTable = (condition: ICondition, paging: Paging): ResultAsync<InventoryReportTable[], Err> => {
-        const [whereClause, whereValues] = SqlHelper.buildWhereClause(condition);
         const pagingClause = SqlHelper.buildPaginationClause(paging)
+        const [whereClause, whereValues] = SqlHelper.buildWhereClause(condition,"ir");
         const query = `
             SELECT
                 ir.id,

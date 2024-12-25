@@ -18,7 +18,7 @@ export const inventoryReportCreateSchema = Joi.object({
     warehouseMan1: Joi.number().required(),
     warehouseMan2: Joi.number().optional(),
     warehouseMan3: Joi.number().optional(),
-    note: Joi.string().max(255).optional(),
-    items: Joi.array().items(inventoryReportDetailCreateSchema)
+    note: Joi.string().max(255).optional().allow(""),
+    items: Joi.array().items(inventoryReportDetailCreateSchema).required().min(1),
 });
 
