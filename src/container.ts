@@ -57,6 +57,10 @@ import {
 import {SkuWholesalePriceMysqlRepo} from "./modules/catalog/sku-wholesale-prices/repository/SkuWholesalePriceMysqlRepo";
 import {ISkuWholesalePriceService} from "./modules/catalog/sku-wholesale-prices/service/ISkuWholesalePriceService";
 import {SkuWholesalePriceService} from "./modules/catalog/sku-wholesale-prices/service/SkuWholesalePriceService";
+import {IUploadProvider} from "./components/uploadProvider/IUploadProvider";
+import {S3Provider} from "./components/uploadProvider/s3Provider";
+import {IUploadService} from "./modules/upload/service/IUploadService";
+import {UploadService} from "./modules/upload/service/uploadService";
 dotenv.config();
 
 const container = new Container();
@@ -85,6 +89,7 @@ container.bind<IBrandService>(TYPES.IBrandService).to(BrandService).inRequestSco
 container.bind<ISkuService>(TYPES.ISkuService).to(SkuService).inRequestScope();
 container.bind<IOrderService>(TYPES.IOrderService).to(OrderService).inRequestScope();
 container.bind<ISkuWholesalePriceService>(TYPES.ISkuWholesalePriceService).to(SkuWholesalePriceService).inRequestScope();
+container.bind<IUploadService>(TYPES.IUploadService).to(UploadService).inRequestScope();
 
 
 container.bind<IInventoryReportService>(TYPES.IInventoryReportService).to(InventoryReportService).inRequestScope();
@@ -107,5 +112,6 @@ container.bind<IPubSub>(TYPES.IPubSub).to(LocalPubSub).inSingletonScope().onActi
 });
 container.bind<IAppContext>(TYPES.IAppContext).to(AppContext).inSingletonScope();
 container.bind<IConnectionPool>(TYPES.IConnectionPool).to(MysqlConnectionPool).inSingletonScope();
+container.bind<IUploadProvider>(TYPES.IUploadProvider).toConstantValue(new S3Provider(process.env.BUCKET_NAME || "" , process.env.CLOUDFRONT_URL || ""));
 
 export {container};

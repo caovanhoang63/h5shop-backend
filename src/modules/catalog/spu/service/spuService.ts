@@ -21,6 +21,7 @@ import {ISkuRepository} from "../../sku/repository/ISkuRepository";
 import {IBrandRepository} from "../../brand/repository/IBrandRepository";
 import {ISkuWholesalePriceRepository} from "../../sku-wholesale-prices/repository/ISkuWholesalePriceRepository";
 import {SkuWholesalePriceCreate} from "../../sku-wholesale-prices/entity/SkuWholesalePriceCreate";
+import {IUploadProvider} from "../../../../components/uploadProvider/IUploadProvider";
 
 @injectable()
 export class SpuService implements ISpuService {
@@ -30,6 +31,7 @@ export class SpuService implements ISpuService {
                 @inject(TYPES.ISkuRepository) private readonly skuRepository: ISkuRepository,
                 @inject(TYPES.IBrandRepository) private readonly brandRepository: IBrandRepository,
                 @inject(TYPES.ISkuWholesalePriceRepository) private readonly skuWholesalePriceRepository: ISkuWholesalePriceRepository,
+                @inject(TYPES.IUploadProvider) private readonly uploadProvider: IUploadProvider,
                 @inject(TYPES.IPubSub) private readonly pubSub : IPubSub,) {
     }
 

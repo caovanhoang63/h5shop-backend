@@ -1,13 +1,9 @@
 import {IUploadProvider} from "./IUploadProvider";
 import {err, ok, okAsync, ResultAsync} from "neverthrow";
 import {Image} from "../../libs/image";
-import {createEntityNotFoundError, createInternalError, Err} from "../../libs/errors";
+import {createInternalError, Err} from "../../libs/errors";
 import {client} from "../../s3Client";
 import {PutObjectCommand} from "@aws-sdk/client-s3";
-import {Validator} from "../../libs/validator";
-import {brandUpdateScheme} from "../../modules/catalog/brand/entity/brandUpdate";
-import {topicUpdateBrand} from "../../libs/topics";
-import {createMessage} from "../pubsub";
 
 export class S3Provider implements IUploadProvider {
     private bucketName: string;
@@ -42,5 +38,4 @@ export class S3Provider implements IUploadProvider {
             })(), e => createInternalError(e)
         ).andThen(r=> r)
     }
-
 }

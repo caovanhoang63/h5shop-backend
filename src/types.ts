@@ -24,6 +24,7 @@ const TYPES = {
     ISkuService: Symbol.for("ISkuService"),
     IOrderService: Symbol.for("IOrderService"),
     ISkuWholesalePriceService: Symbol.for("ISkuWholesalePriceService"),
+    IUploadService: Symbol.for("IUploadService"),
 
     IInventoryReportService: Symbol.for("IInventoryReportService"),
     // UTILS
@@ -33,5 +34,6 @@ const TYPES = {
     IAppContext: Symbol.for("IAppContext"),
     IConnectionPool: Symbol.for("IConnectionPool"),
     ConnPool: Symbol.for("ConnPool"),
+    IUploadProvider: Symbol.for("IUploadProvider"),
 };
 export {TYPES};

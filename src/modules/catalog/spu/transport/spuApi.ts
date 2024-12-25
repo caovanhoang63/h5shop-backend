@@ -75,11 +75,10 @@ export class SpuApi {
 
     list() : express.Handler {
         return async (req, res, next) => {
+            const cond = req.query
             const paging = ReqHelper.getPaging(req.query)
 
-            const r = await this.service.list({
-
-            },paging)
+            const r = await this.service.list(cond,paging)
 
             r.match(
                 value => {

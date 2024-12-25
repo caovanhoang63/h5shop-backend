@@ -58,10 +58,18 @@ export class SpuMysqlRepo extends BaseMysqlRepo implements ISpuRepository {
     }
 
     list(cond: ICondition, paging: Paging): ResultAsync<Spu[] | null, Err> {
+        const time = Date.now()
         const [clause,values] = SqlHelper.buildWhereClause(cond)
+        console.log( Date.now() - time)
         const pagingClause = SqlHelper.buildPaginationClause(paging)
         const countQuery = `SELECT COUNT(*) as total FROM spu  ${clause}`;
-        const query = `SELECT spu.*, category_to_spu.category_id as category_id FROM spu LEFT JOIN  category_to_spu ON spu.id = category_to_spu.spu_id ${clause} ${pagingClause}`;
+        const query = `
+            SELECT spu.*, category_to_spu.category_id as category_id, category.name as category_name, brand.name as brand_name
+            FROM spu
+            LEFT JOIN category_to_spu ON spu.id = category_to_spu.spu_id 
+            LEFT JOIN category ON category.id = category_to_spu.category_id
+            LEFT JOIN brand ON brand.id = spu.brand_id
+            ${clause} ${pagingClause}`;
         return this.executeQuery(countQuery,values).andThen(
             ([r,f]) => {
                 const firstRow = (r as RowDataPacket[])[0];
