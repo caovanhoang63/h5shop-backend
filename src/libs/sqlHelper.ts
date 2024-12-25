@@ -89,8 +89,18 @@ export class SqlHelper {
                             values.push(value);
                             break;
                         default:
-                            clauses.push(`${field} = ?`);
-                            values.push(value);
+                            if (field.startsWith('gt_')) {
+                                const fieldName = field.split('_').slice(1).join('_');
+                                clauses.push(`${fieldName} > ?`);
+                                values.push(value);
+                            } else if (field.startsWith('lt_')) {
+                                const fieldName = field.split('_').slice(1).join('_');
+                                clauses.push(`${fieldName} < ?`);
+                                values.push(value);
+                            } else {
+                                clauses.push(`${field} = ?`);
+                                values.push(value);
+                            }
                     }
                 }
             }
