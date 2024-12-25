@@ -19,8 +19,9 @@ export class UploadService implements IUploadService {
                 const filePath = file.path
                 const fileName = file.filename
                 const fileBuffer = fs.readFileSync(filePath)
+                const contentType = file.mimetype
 
-                const result = await this.uploadProvider.uploadImage(fileName, fileBuffer)
+                const result = await this.uploadProvider.uploadImage(fileName, fileBuffer, contentType)
                 if (result.isErr())
                     return err(result.error)
                 console.log(result.value)

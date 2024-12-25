@@ -5,11 +5,12 @@ import {IUploadService} from "../../modules/upload/service/IUploadService";
 import {TYPES} from "../../types";
 import {UploadApi} from "../../modules/upload/transport/uploadApi";
 import multer from "multer";
-import e from "cors";
+import {randomUUID} from "node:crypto";
 
 const storage = multer.diskStorage({
     filename: function (req, file, cb) {
-        cb(null, Date.now() + '-' + file.originalname);
+        const uniqueSuffix = randomUUID()
+        cb(null, uniqueSuffix + '-' + file.originalname);
     }
 });
 const upload = multer({

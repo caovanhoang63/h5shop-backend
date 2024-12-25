@@ -14,11 +14,13 @@ export class S3Provider implements IUploadProvider {
         this.baseUrl = baseUrl;
     }
 
-    uploadImage(key: string, file: any): ResultAsync<Image, Err> {
+    uploadImage(key: string, file: any, contentType: string): ResultAsync<Image, Err> {
         const input = {
             Body: file,
             Bucket: this.bucketName,
             Key: key,
+            ContentType: contentType,
+            ContentDisposition: "inline",
         }
         return ResultAsync.fromPromise(
             (async () => {
@@ -30,7 +32,7 @@ export class S3Provider implements IUploadProvider {
                         width : 0,
                         height : 0,
                         url: `${this.baseUrl}/${key}`,
-                        extension : key.split(".").pop() || "",
+                        extension : contentType.split("/")[1],
                         cloud: "",
                     } as Image)
                 }
