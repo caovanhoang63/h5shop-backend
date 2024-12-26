@@ -15,9 +15,9 @@ const inventoryReportRouter = (appContext: IAppContext) => {
     const inventoryReportApi = new InventoryReportApi(inventoryReportService);
 
     //router.use(authentication());
-   // router.use(requiredRole(appContext, SystemRole.Admin, SystemRole.Owner, SystemRole.WarehouseStaff));
+    //router.use(requiredRole(appContext, SystemRole.Admin, SystemRole.Owner, SystemRole.WarehouseStaff));
 
-    router.post('/', inventoryReportApi.create());
+    router.post('/create', inventoryReportApi.create());
     router.get('/', inventoryReportApi.list());
     router.get('/table', inventoryReportApi.getInventoryReportsTable());
     router.get('/:id', inventoryReportApi.getById());
