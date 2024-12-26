@@ -51,6 +51,10 @@ import {IInventoryReportRepository} from "./modules/inventory/repository/IInvent
 import {InventoryReportMysqlRepo} from "./modules/inventory/repository/implemention/inventoryReportMysqlRepo";
 import {IInventoryReportService} from "./modules/inventory/service/IInventoryReportService";
 import {InventoryReportService} from "./modules/inventory/service/inventoryReportService";
+import {IProviderRepository} from "./modules/provider/repository/IProviderRepository";
+import {ProviderMySqlRepo} from "./modules/provider/repository/providerMySqlRepo";
+import {IProviderService} from "./modules/provider/service/IProviderService";
+import {ProviderService} from "./modules/provider/service/providerService";
 dotenv.config();
 
 const container = new Container();
@@ -66,6 +70,7 @@ container.bind<IBrandRepository>(TYPES.IBrandRepository).to(BrandMysqlRepo).inRe
 container.bind<ISkuRepository>(TYPES.ISkuRepository).to(SkuMysqlRepo).inRequestScope();
 container.bind<IOrderRepository>(TYPES.IOrderRepository).to(OrderMysqlRepo).inRequestScope();
 container.bind<IInventoryReportRepository>(TYPES.IInventoryReportRepository).to(InventoryReportMysqlRepo).inRequestScope();
+container.bind<IProviderRepository>(TYPES.IProviderRepository).to(ProviderMySqlRepo).inRequestScope();
 
 //Service
 container.bind<IAuthService>(TYPES.IAuthService).to(AuthService).inRequestScope();
@@ -77,6 +82,7 @@ container.bind<ISkuAttrService>(TYPES.ISkuAttrService).to(SkuAttrService).inRequ
 container.bind<IBrandService>(TYPES.IBrandService).to(BrandService).inRequestScope();
 container.bind<ISkuService>(TYPES.ISkuService).to(SkuService).inRequestScope();
 container.bind<IOrderService>(TYPES.IOrderService).to(OrderService).inRequestScope();
+container.bind<IProviderService>(TYPES.IProviderService).to(ProviderService).inRequestScope();
 
 container.bind<IInventoryReportService>(TYPES.IInventoryReportService).to(InventoryReportService).inRequestScope();
 
