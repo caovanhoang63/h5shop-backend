@@ -51,10 +51,17 @@ import {IInventoryReportRepository} from "./modules/inventory/repository/IInvent
 import {InventoryReportMysqlRepo} from "./modules/inventory/repository/implemention/inventoryReportMysqlRepo";
 import {IInventoryReportService} from "./modules/inventory/service/IInventoryReportService";
 import {InventoryReportService} from "./modules/inventory/service/inventoryReportService";
+
+import {ICustomerRepository} from "./modules/customer/repo/ICustomerRepository";
+import {CustomerService} from "./modules/customer/service/CustomerService";
+import {ICustomerService} from "./modules/customer/service/ICustomerService";
+import {CustomerMysqlRepo} from "./modules/customer/repo/CustomerMysqlRepo";
+
 import {IProviderRepository} from "./modules/provider/repository/IProviderRepository";
 import {ProviderMySqlRepo} from "./modules/provider/repository/providerMySqlRepo";
 import {IProviderService} from "./modules/provider/service/IProviderService";
 import {ProviderService} from "./modules/provider/service/providerService";
+
 dotenv.config();
 
 const container = new Container();
@@ -70,7 +77,9 @@ container.bind<IBrandRepository>(TYPES.IBrandRepository).to(BrandMysqlRepo).inRe
 container.bind<ISkuRepository>(TYPES.ISkuRepository).to(SkuMysqlRepo).inRequestScope();
 container.bind<IOrderRepository>(TYPES.IOrderRepository).to(OrderMysqlRepo).inRequestScope();
 container.bind<IInventoryReportRepository>(TYPES.IInventoryReportRepository).to(InventoryReportMysqlRepo).inRequestScope();
+container.bind<ICustomerRepository>(TYPES.ICustomerRepository).to(CustomerMysqlRepo).inRequestScope();
 container.bind<IProviderRepository>(TYPES.IProviderRepository).to(ProviderMySqlRepo).inRequestScope();
+
 
 //Service
 container.bind<IAuthService>(TYPES.IAuthService).to(AuthService).inRequestScope();
@@ -85,6 +94,7 @@ container.bind<IOrderService>(TYPES.IOrderService).to(OrderService).inRequestSco
 container.bind<IProviderService>(TYPES.IProviderService).to(ProviderService).inRequestScope();
 
 container.bind<IInventoryReportService>(TYPES.IInventoryReportService).to(InventoryReportService).inRequestScope();
+container.bind<ICustomerService>(TYPES.ICustomerService).to(CustomerService).inRequestScope();
 
 // Util
 container.bind<Pool>(TYPES.ConnPool).toConstantValue(mysql.createPool({

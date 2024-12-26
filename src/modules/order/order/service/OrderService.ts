@@ -7,6 +7,7 @@ import {Validator} from "../../../../libs/validator";
 import {createInternalError, Err} from "../../../../libs/errors";
 import {IRequester} from "../../../../libs/IRequester";
 import {TYPES} from "../../../../types";
+import {OrderUpdate, orderUpdateSchema} from "../entity/orderUpdate";
 
 @injectable()
 export class OrderService implements IOrderService {
@@ -34,10 +35,10 @@ export class OrderService implements IOrderService {
         ).andThen(r => r)
     }
 
-    update = (requester: IRequester, id: number, o: OrderCreate): ResultAsync<void, Err> => {
+    update = (requester: IRequester, id: number, o: OrderUpdate): ResultAsync<void, Err> => {
         return ResultAsync.fromPromise(
             (async () => {
-                const vR = (await Validator(orderCreateSchema, o))
+                const vR = (await Validator(orderUpdateSchema, o))
                 if (vR.isErr()) {
                     return err(vR.error);
                 }
