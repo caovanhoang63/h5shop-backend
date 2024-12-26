@@ -194,7 +194,7 @@ export class SpuMysqlRepo extends BaseMysqlRepo implements ISpuRepository {
                                        'value', sku_attr.value
                                ))
                         FROM sku_attr
-                        WHERE sku_attr.spu_id = spu.id
+                        WHERE sku_attr.spu_id = spu.id AND sku_attr.status = 1
                     ),
                     'skus', (
                         SELECT JSON_ARRAYAGG(
@@ -226,11 +226,11 @@ export class SpuMysqlRepo extends BaseMysqlRepo implements ISpuRepository {
                                                           'price', swp.price
                                                   ))
                                            FROM sku_wholesale_prices swp
-                                           WHERE swp.sku_id = sku.id
+                                           WHERE swp.sku_id = sku.id 
                                        )
                                ))
                         FROM sku
-                        WHERE sku.spu_id = spu.id
+                        WHERE sku.spu_id = spu.id AND sku.status = 1
                     )
                 ) AS spu_detail
             FROM spu
