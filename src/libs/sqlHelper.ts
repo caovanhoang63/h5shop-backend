@@ -55,7 +55,7 @@ export class SqlHelper {
         return clause;
     }
 
-    public static buildWhereClause(conditions: ICondition): [string, any[]] {
+    public static buildWhereClause(conditions: ICondition, table?:string): [string, any[]] {
         const clauses: string[] = [];
         const values: any[] = [];
 
@@ -65,26 +65,56 @@ export class SqlHelper {
             if (value !== undefined && value !== null) {
                 if (Array.isArray(value)) {
                     const placeholders = value.map(() => '?').join(',');
-                    clauses.push(`${field} IN (${placeholders})`);
-                    values.push(...value);
+                    if(table !=null){
+                        clauses.push(`${table}.${field} IN (${placeholders})`);
+                        values.push(...value);
+                    }else{
+                        clauses.push(`${field} IN (${placeholders})`);
+                        values.push(...value);
+                    }
                 } else if ( field.startsWith('lk_',0)) {
-                    clauses.push(`${field.split('_').slice(1).join("_")} LIKE concat(?, '%')`);
-                    values.push(value);
+                    if(table !=null){
+                        clauses.push(`${table}.${field.split('_').slice(1).join("_")} LIKE concat(?, '%')`);
+                        values.push(value);
+                    }else{
+                        clauses.push(`${field.split('_').slice(1).join("_")} LIKE concat(?, '%')`);
+                        values.push(value);
+                    }
                 } else {
                     switch (field) {
                         case 'gt_created_at' :
+                            if(table!=null){
+                                clauses.push(`${table}.created_at >= ?`);
+                                values.push(value);
+                                break;
+                            }
                             clauses.push(`created_at >= ?`);
                             values.push(value);
                             break;
                         case 'lt_created_at' :
+                            if(table!=null){
+                                clauses.push(`${table}.created_at <= ?`);
+                                values.push(value);
+                                break;
+                            }
                             clauses.push(`created_at <= ?`);
                             values.push(value);
                             break;
                         case 'gt_updated_at' :
+                            if(table!=null){
+                                clauses.push(`${table}.updated_at >= ?`);
+                                values.push(value);
+                                break;
+                            }
                             clauses.push(`updated_at >= ?`);
                             values.push(value);
                             break;
                         case 'lt_updated_at' :
+                            if(table!=null){
+                                clauses.push(`${table}.updated_at <= ?`);
+                                values.push(value);
+                                break;
+                            }
                             clauses.push(`updated_at <= ?`);
                             values.push(value);
                             break;

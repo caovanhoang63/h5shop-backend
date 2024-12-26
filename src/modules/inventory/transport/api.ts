@@ -148,8 +148,7 @@ export class InventoryReportApi {
                 writeErrorResponse(res, createInvalidDataError(value.error));
                 return;
             }
-
-            const filter = value.value;
+            const filter = req.query;
             const r = await this.service.getInventoryReportsTable(filter, paging);
 
             r.match(

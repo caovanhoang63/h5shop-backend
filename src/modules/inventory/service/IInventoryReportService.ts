@@ -12,7 +12,7 @@ export interface IInventoryReportService {
     getReportById(id: number): ResultAsync<InventoryReport | null, Err>
     updateReport(id: number, report: Partial<InventoryReport>): ResultAsync<void, Err>
     deleteReport(id: number): ResultAsync<void, Err>
-    getInventoryReportDetails(reportId: number): ResultAsync<InventoryReportDetailTable, Err>
-    getInventoryReportsTable(condition: ICondition, paging: Paging): ResultAsync<InventoryReportTable[], Err>
+    getInventoryReportDetails(reportId: number): ResultAsync<InventoryReportDetailTable | null, Err>
+    getInventoryReportsTable(condition: ICondition, paging: Paging): ResultAsync<InventoryReportTable[] | null, Err>
 }
 
