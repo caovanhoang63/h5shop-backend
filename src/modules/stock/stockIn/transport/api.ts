@@ -8,7 +8,27 @@ import {AppResponse} from "../../../../libs/response";
 
 export class StockInApi {
     constructor(private readonly service: IStockInService) {}
+    getStockInDetails(): express.Handler {
+        return async (req, res, next) => {
+            const reportId = parseInt(req.params.id);
 
+            if (!reportId) {
+                res.status(400).send(AppResponse.ErrorResponse(createInvalidDataError(new Error("id must be a number"))));
+                return;
+            }
+
+            const r = await this.service.getStockInDetails(reportId);
+
+            r.match(
+                value => {
+                    res.status(200).send(AppResponse.SimpleResponse(value));
+                },
+                e => {
+                    writeErrorResponse(res, e);
+                }
+            );
+        };
+    }
 
 
     getStockInTable(): express.Handler {

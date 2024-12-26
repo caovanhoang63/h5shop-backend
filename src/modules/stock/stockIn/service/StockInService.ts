@@ -15,7 +15,7 @@ export class StockInService implements IStockInService {
     constructor(@inject(TYPES.IStockInRepository) private readonly stockInRepository: IStockInRepository) {}
 
     getStockInDetails(reportId: number): ResultAsync<StockInDetailTable | null, Err> {
-        throw new Error("Method not implemented.");
+        return this.stockInRepository.getStockInDetails(reportId);
     }
     getStockInTable(condition: ICondition, paging: Paging): ResultAsync<StockInTable[] | null, Err> {
         return ResultAsync.fromPromise(

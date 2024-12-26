@@ -9,11 +9,73 @@ import {Err} from "../../../../libs/errors";
 import {SqlHelper} from "../../../../libs/sqlHelper";
 import {RowDataPacket} from "mysql2";
 import {InventoryReportTable} from "../../../inventory/entity/inventoryReportTable";
+import {StockInDetailTable} from "../entity/stockInDetailTable";
+import {InventoryReportDetailTable} from "../../../inventory/entity/inventoryReportDetailTable";
 
 export class StockInRepository extends BaseMysqlRepo implements IStockInRepository {
-    /*getStockInDetails(reportId: number): ResultAsync<StockInDetailCreate | null, Err> {
-        return null;
-    }*/
+    getStockInDetails(reportId: number): ResultAsync<StockInDetailTable | null, Err> {
+        const query = `
+            SELECT
+                std.id as id,
+                s.id as skuId,
+                s.cost_price as costPrice,
+                spu.name as spuName, 
+                std.amount,
+                st.warehouse_men as warehouseMan,
+                u.last_name as warehouseName,
+                std.status,
+                std.created_at as createdAt,
+                st.updated_at as updatedAt
+            FROM
+                stock_in_detail std
+                    JOIN stock_in st ON std.stock_in_id = st.id
+                    JOIN sku s ON std.sku_id = s.id
+                    JOIN spu spu ON s.spu_id = spu.id  
+                    JOIN user u ON st.warehouse_men = u.id
+            WHERE
+                std.stock_in_id = ?
+        `;
+
+        return this.executeQuery(query, [reportId]).andThen(
+            ([r, f]) => {
+                const rows = r as RowDataPacket[];
+
+                const groupedResults: StockInDetailTable = {
+                    id: reportId,
+                    providerId: 0,
+                    providerName:"",
+                    warehouseMen: 0,
+                    warehouseName:"",
+                    totalAmount:0,
+                    status: 1,
+                    items: [],
+                    createdAt: null,
+                    updatedAt: null,
+                };
+
+                rows.forEach(row => {
+                    groupedResults.totalAmount += row.amount;
+                    groupedResults.providerId = row.providerId;
+                    groupedResults.providerName = row.providerName;
+                    groupedResults.warehouseMen = row.warehouseMan;
+                    groupedResults.warehouseName = row.warehouseName;
+                    groupedResults.status = row.status;
+                    groupedResults.createdAt = row.createdAt || groupedResults.createdAt;
+                    groupedResults.updatedAt = row.updatedAt || groupedResults.updatedAt;
+
+                    groupedResults.items.push({
+                        skuId: row.skuId,
+                        name: row.spuName,
+                        amount: row.amount,
+                        price: row.costPrice
+                    });
+                });
+
+                // Return the structured data.
+                return ok(groupedResults);
+            }
+        );
+    }
 
     getStockInTable(condition: ICondition, paging: Paging): ResultAsync<StockInTable[] | null, Err> {
         const pagingClause = SqlHelper.buildPaginationClause(paging)

@@ -22,7 +22,7 @@ const stockInRouter = (appContext: IAppContext) => {
 
     router.get('/list', stockInApi.getStockInTable());
 
-   // router.get('/:id/details', stockInApi.getInventoryReportDetails());
+    router.get('/details/:id', stockInApi.getStockInDetails());
 
     return router;
 }
