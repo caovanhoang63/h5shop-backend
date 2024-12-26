@@ -76,6 +76,10 @@ CREATE TABLE `provider`
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4;
 
+alter table provider
+add column `debt` DECIMAL(15, 2)  DEFAULT 0 AFTER `phone_number`;
+
+
 DROP TABLE IF EXISTS `brand`;
 CREATE TABLE `brand` (
     `id` INT NOT NULL AUTO_INCREMENT,
@@ -266,6 +270,8 @@ CREATE TABLE `inventory_report`
     KEY `status` (`status`) USING BTREE
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4;
+alter table inventory_report
+    add column note varchar(255);
 
 DROP TABLE IF EXISTS `inventory_report_detail`;
 CREATE TABLE `inventory_report_detail`
@@ -286,6 +292,8 @@ CREATE TABLE `inventory_report_detail`
     KEY `inventory_report_id` (`inventory_report_id`) USING BTREE
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4;
+alter table inventory_report_detail
+    drop column note;
 
 # STOCK OUT
 DROP TABLE IF EXISTS `stock_out`;

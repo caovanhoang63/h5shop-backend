@@ -17,6 +17,10 @@ import skuWholesalePriceRoute from "./skuWholesalePriceRoute";
 import uploadRouter from "./uploadRoute";
 import skuAttrRouter from "./skuAttrRoute";
 
+import customerRoute from "./customerRoute";
+import providerRouter from "./providerRouter";
+
+
 const v1Router = () => {
     const appCtx = container.get<IAppContext>(TYPES.IAppContext)
     const router = express.Router();
@@ -38,9 +42,17 @@ const v1Router = () => {
     router.use("/sku", skuRouter(appCtx))
     router.use("/order", orderRoute(appCtx))
     router.use("/inventory", inventoryRouter(appCtx))
+
     router.use("/sku-wholesale-price", skuWholesalePriceRoute(appCtx))
     router.use("/upload", uploadRouter(appCtx))
     router.use("/sku-attr", skuAttrRouter(appCtx))
+
+
+    router.use("/customer", customerRoute(appCtx))
+
+    router.use("/provider", providerRouter(appCtx))
+
+
     router.post("/pubsub/test", async (req, res, next) => {
         await appCtx.GetPubsub().Publish(topicTest, {data: null, id: randomUUID(), topic: ""})
         res.status(200).send("oK")

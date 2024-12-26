@@ -14,16 +14,36 @@ import {InventoryReportTable} from "../../entity/inventoryReportTable";
 export class InventoryReportMysqlRepo extends BaseMysqlRepo implements IInventoryReportRepository {
 
     public create = (report: InventoryReportCreate): ResultAsync<number, Err> => {
-        const query = `INSERT INTO inventory_report (warehouse_man_1, warehouse_man_2, warehouse_man_3, status)
+        const query = `INSERT INTO inventory_report (warehouse_man_1, warehouse_man_2, warehouse_man_3, note)
                        VALUES (?, ?, ?, ?)`;
 
-        return this.executeQuery(query,
-            [report.warehouseMan1, report.warehouseMan2, report.warehouseMan3, report.status],
-        ).andThen(
-            ([r, f]) => {
-                const header = r as ResultSetHeader
-                return ok(header.insertId)
-            })
+
+        const detailQuery = `INSERT INTO inventory_report_detail (inventory_report_id, sku_id, amount, inventory_dif)
+                        VALUES ?`
+
+        const headerValues = [
+            report.warehouseMan1,
+            report.warehouseMan2,
+            report.warehouseMan3,
+            report.note
+        ];
+        return this.executeInTransaction<number>(conn =>
+            this.executeQuery(query, headerValues)
+                .andThen(([headerResult, _]) => {
+                    const header = headerResult as ResultSetHeader;
+                    const insertId = header.insertId;
+
+                    const detailValuesWithInsertId = report.items.map(item => [
+                        insertId,
+                        item.skuId,
+                        item.amount,
+                        item.inventoryDif
+                    ]);
+
+                    return this.executeQuery(detailQuery, [detailValuesWithInsertId])
+                        .map(() => insertId);
+                })
+        );
     }
 
     public findById = (id: number): ResultAsync<InventoryReport | null, Err> => {
@@ -78,7 +98,7 @@ export class InventoryReportMysqlRepo extends BaseMysqlRepo implements IInventor
                 u.last_name as warehouseName,
                 ird.status,
                 ird.inventory_dif as inventoryDif,
-                ird.note,
+                ir.note,
                 ird.created_at as createdAt,
                 ir.updated_at as updatedAt
             FROM
@@ -131,30 +151,29 @@ export class InventoryReportMysqlRepo extends BaseMysqlRepo implements IInventor
     };
 
     public getInventoryReportsTable = (condition: ICondition, paging: Paging): ResultAsync<InventoryReportTable[], Err> => {
-        const [whereClause, whereValues] = SqlHelper.buildWhereClause(condition);
         const pagingClause = SqlHelper.buildPaginationClause(paging)
+        const [whereClause, whereValues] = SqlHelper.buildWhereClause(condition,"ir");
         const query = `
             SELECT
                 ir.id,
-                ird.amount,
-                ir.warehouse_man_1 as warehouseMan,
+                SUM(ird.amount) AS amount,
+                ir.warehouse_man_1 AS warehouseMan,
                 ir.status,
-                ird.inventory_dif as inventoryDif,
-                ird.note,
-                ir.created_at as createdAt,
-                ir.updated_at as updatedAt
+                SUM(ird.inventory_dif) AS inventoryDif,
+                ir.note,
+                ir.created_at AS createdAt,
+                ir.updated_at AS updatedAt
             FROM
                 inventory_report ir
-                    JOIN
-                inventory_report_detail ird ON ir.id = ird.inventory_report_id
-                    JOIN
-                sku s ON ird.sku_id = s.id
+                    JOIN inventory_report_detail ird ON ir.id = ird.inventory_report_id
+                    JOIN sku s ON ird.sku_id = s.id
                 ${whereClause}
-            ${pagingClause}
+            GROUP BY ir.id
+                ${pagingClause}
         `;
 
         const countQuery = `
-            SELECT COUNT(*) as total
+            SELECT COUNT(DISTINCT ir.id) AS total
             FROM inventory_report ir
                      JOIN inventory_report_detail ird ON ir.id = ird.inventory_report_id
                 ${whereClause}
@@ -164,25 +183,24 @@ export class InventoryReportMysqlRepo extends BaseMysqlRepo implements IInventor
             .andThen(([countResult, _]) => {
                 const firstRow = (countResult as RowDataPacket[])[0];
                 if (!firstRow) {
-                    return ok({total: 0});
+                    return ok({ total: 0 });
                 }
-                paging.total = firstRow.total
-                return ok({total: firstRow.total});
+                paging.total = firstRow.total;
+                return ok({ total: firstRow.total });
             })
             .andThen(
                 (r) => {
-                    if (r.total == 0)
-                        return ok([])
-                    else
-                        return this.executeQuery(
-                            query,whereValues
-                        ).andThen(
-                            ([r, f]) => {
-                                const data = (r as RowDataPacket[]).map(row => SqlHelper.toCamelCase(row) as InventoryReportTable);
-                                return ok(data)
-                            }
-                        )
-                });
+                    if (r.total === 0) {
+                        return ok([]);
+                    } else {
+                        return this.executeQuery(query, whereValues)
+                            .andThen(([queryResult, _]) => {
+                                const data = (queryResult as RowDataPacket[]).map(row => SqlHelper.toCamelCase(row) as InventoryReportTable);
+                                return ok(data);
+                            });
+                    }
+                }
+            );
     }
 }
 

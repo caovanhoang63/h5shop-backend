@@ -1,5 +1,5 @@
 import { InventoryReportCreate, inventoryReportCreateSchema, InventoryReport } from "../entity/inventoryReport";
-import { createEntityNotFoundError, Err } from "../../../libs/errors";
+import {createEntityNotFoundError, createInternalError, Err} from "../../../libs/errors";
 import { Paging } from "../../../libs/paging";
 import { Validator } from "../../../libs/validator";
 import { err, ok, ResultAsync } from "neverthrow";
@@ -22,7 +22,6 @@ export class InventoryReportService implements IInventoryReportService {
                 if (vR.isErr()) {
                     return err(vR.error);
                 }
-
                 const r = await this.inventoryReportRepository.create(report);
                 if (r.isErr()) {
                     return err(r.error);
@@ -48,12 +47,19 @@ export class InventoryReportService implements IInventoryReportService {
         return this.inventoryReportRepository.hardDeleteById(id)
     }
 
-    public getInventoryReportDetails = (reportId: number): ResultAsync<InventoryReportDetailTable, Err> => {
+    public getInventoryReportDetails = (reportId: number): ResultAsync<InventoryReportDetailTable | null, Err> => {
         return this.inventoryReportRepository.getInventoryReportDetails(reportId);
     }
 
-    public getInventoryReportsTable = (condition: ICondition, paging: Paging): ResultAsync<InventoryReportTable[], Err> => {
-        return this.inventoryReportRepository.getInventoryReportsTable(condition, paging);
+    public getInventoryReportsTable = (condition: ICondition, paging: Paging): ResultAsync<InventoryReportTable[] | null, Err> => {
+        return ResultAsync.fromPromise(
+            (async () =>{
+                const result = await this.inventoryReportRepository.getInventoryReportsTable(condition, paging);
+                if (result.isErr())
+                    return err(result.error)
+                return ok(result.value)
+            })(), e => createInternalError(e)
+        ).andThen(r=> r)
     }
 }
 
