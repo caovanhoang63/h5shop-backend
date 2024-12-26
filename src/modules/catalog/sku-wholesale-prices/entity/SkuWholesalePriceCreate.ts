@@ -9,7 +9,7 @@ export interface SkuWholesalePriceCreate {
 
 export const skuWholesalePriceCreateSchema = Joi.object({
     id: Joi.number().allow(null),
-    skuId: Joi.number().allow(null).required(),
+    skuId: Joi.number().allow(null),
     minQuantity: Joi.number().required(),
     price: Joi.number().required(),
 })
