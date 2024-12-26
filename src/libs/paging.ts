@@ -15,7 +15,7 @@ export class Paging {
         if (this.page <= 0)
             this.page = 1;
         if (this.limit <= 0)
-            this.page = 20;
+            this.limit = 20;
     }
 }
 
