@@ -24,9 +24,6 @@ export class SkuAttrService implements ISkuAttrService {
                 @inject(TYPES.ISpuRepository) private spuRepo : ISpuRepository) {
     }
 
-    findByCategoryId(id: number): ResultAsync<SkuAttr[] | null, Err> {
-        throw new Error("Method not implemented.");
-    }
 
     createBulk(requester: IRequester, spuId : number , c: SkuAttrCreate[]): ResultAsync<void, Err> {
         return ResultAsync.fromPromise(
