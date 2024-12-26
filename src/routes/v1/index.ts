@@ -16,6 +16,7 @@ import inventoryRouter from "./inventoryRoute";
 
 import customerRoute from "./customerRoute";
 import providerRouter from "./providerRouter";
+import stockInRouter from "./stockInRoute";
 
 
 const v1Router = () => {
@@ -39,7 +40,7 @@ const v1Router = () => {
     router.use("/sku", skuRouter(appCtx))
     router.use("/order", orderRoute(appCtx))
     router.use("/inventory", inventoryRouter(appCtx))
-
+    router.use("/stock-in", stockInRouter(appCtx))
     router.use("/customer", customerRoute(appCtx))
 
     router.use("/provider", providerRouter(appCtx))
