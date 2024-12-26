@@ -101,7 +101,7 @@ export class SkuAttrMysqlRepo extends BaseMysqlRepo implements ISkuAttrRepositor
     }
 
     findById(id: number): ResultAsync<SkuAttr | null, Err> {
-        const query = `SELECT * FROM category WHERE id = ?`
+        const query = `SELECT * FROM sku_attr WHERE id = ?`
         return this.executeQuery(query,[id]).andThen(
             ([r,f]) => {
                 const firstRow = (r as RowDataPacket[])[0];

@@ -8,7 +8,7 @@ export interface SpuCreate {
     description: string;
     categoryId: number,
     metadata: any,
-    images? : Image,
+    images? : Image[],
 }
 
 export const spuCreateSchema = Joi.object().keys({
@@ -16,5 +16,5 @@ export const spuCreateSchema = Joi.object().keys({
     description : Joi.string(),
     categoryId : Joi.number().required(),
     metadata : Joi.object(),
-    image : Joi.array().items(imageSchema)
+    images : Joi.array().items(imageSchema)
 })

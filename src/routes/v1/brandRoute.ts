@@ -11,7 +11,7 @@ const brandRouter = (appContext: IAppContext) => {
     const brandService = container.get<IBrandService>(TYPES.IBrandService)
     const brandApi = new BrandApi(brandService);
 
-    router.use(authentication())
+    //router.use(authentication())
 
     router.post('/', brandApi.create())
     router.get('/', brandApi.list())

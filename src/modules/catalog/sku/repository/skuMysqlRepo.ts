@@ -10,7 +10,8 @@ import {ResultSetHeader, RowDataPacket} from "mysql2";
 import {SqlHelper} from "../../../../libs/sqlHelper";
 
 export class SkuMysqlRepo extends BaseMysqlRepo implements ISkuRepository{
-    upsertMany(records: SkuCreate[]): ResultAsync<void, Err> {
+
+    upsertMany(records: SkuCreate[]): ResultAsync<SkuCreate[], Err> {
         const placeholders = records.map(() => '(?, ?, ?, ?, ?, ?, ?)').join(',');
 
         const query = `
@@ -43,7 +44,7 @@ export class SkuMysqlRepo extends BaseMysqlRepo implements ISkuRepository{
                         record.id = header.insertId + idx;
                     }
                 });
-                return okAsync(undefined);
+                return okAsync(records);
             }
         );
     }

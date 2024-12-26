@@ -52,6 +52,18 @@ import {InventoryReportMysqlRepo} from "./modules/inventory/repository/implement
 import {IInventoryReportService} from "./modules/inventory/service/IInventoryReportService";
 import {InventoryReportService} from "./modules/inventory/service/inventoryReportService";
 
+import {
+    ISkuWholesalePriceRepository
+} from "./modules/catalog/sku-wholesale-prices/repository/ISkuWholesalePriceRepository";
+import {SkuWholesalePriceMysqlRepo} from "./modules/catalog/sku-wholesale-prices/repository/SkuWholesalePriceMysqlRepo";
+import {ISkuWholesalePriceService} from "./modules/catalog/sku-wholesale-prices/service/ISkuWholesalePriceService";
+import {SkuWholesalePriceService} from "./modules/catalog/sku-wholesale-prices/service/SkuWholesalePriceService";
+import {IUploadProvider} from "./components/uploadProvider/IUploadProvider";
+import {S3Provider} from "./components/uploadProvider/s3Provider";
+import {IUploadService} from "./modules/upload/service/IUploadService";
+import {UploadService} from "./modules/upload/service/uploadService";
+
+
 import {ICustomerRepository} from "./modules/customer/repo/ICustomerRepository";
 import {CustomerService} from "./modules/customer/service/CustomerService";
 import {ICustomerService} from "./modules/customer/service/ICustomerService";
@@ -61,6 +73,7 @@ import {IProviderRepository} from "./modules/provider/repository/IProviderReposi
 import {ProviderMySqlRepo} from "./modules/provider/repository/providerMySqlRepo";
 import {IProviderService} from "./modules/provider/service/IProviderService";
 import {ProviderService} from "./modules/provider/service/providerService";
+
 
 dotenv.config();
 
@@ -77,6 +90,9 @@ container.bind<IBrandRepository>(TYPES.IBrandRepository).to(BrandMysqlRepo).inRe
 container.bind<ISkuRepository>(TYPES.ISkuRepository).to(SkuMysqlRepo).inRequestScope();
 container.bind<IOrderRepository>(TYPES.IOrderRepository).to(OrderMysqlRepo).inRequestScope();
 container.bind<IInventoryReportRepository>(TYPES.IInventoryReportRepository).to(InventoryReportMysqlRepo).inRequestScope();
+
+container.bind<ISkuWholesalePriceRepository>(TYPES.ISkuWholesalePriceRepository).to(SkuWholesalePriceMysqlRepo).inRequestScope();
+
 container.bind<ICustomerRepository>(TYPES.ICustomerRepository).to(CustomerMysqlRepo).inRequestScope();
 container.bind<IProviderRepository>(TYPES.IProviderRepository).to(ProviderMySqlRepo).inRequestScope();
 
@@ -91,6 +107,11 @@ container.bind<ISkuAttrService>(TYPES.ISkuAttrService).to(SkuAttrService).inRequ
 container.bind<IBrandService>(TYPES.IBrandService).to(BrandService).inRequestScope();
 container.bind<ISkuService>(TYPES.ISkuService).to(SkuService).inRequestScope();
 container.bind<IOrderService>(TYPES.IOrderService).to(OrderService).inRequestScope();
+
+container.bind<ISkuWholesalePriceService>(TYPES.ISkuWholesalePriceService).to(SkuWholesalePriceService).inRequestScope();
+container.bind<IUploadService>(TYPES.IUploadService).to(UploadService).inRequestScope();
+
+
 container.bind<IProviderService>(TYPES.IProviderService).to(ProviderService).inRequestScope();
 
 container.bind<IInventoryReportService>(TYPES.IInventoryReportService).to(InventoryReportService).inRequestScope();
@@ -114,5 +135,6 @@ container.bind<IPubSub>(TYPES.IPubSub).to(LocalPubSub).inSingletonScope().onActi
 });
 container.bind<IAppContext>(TYPES.IAppContext).to(AppContext).inSingletonScope();
 container.bind<IConnectionPool>(TYPES.IConnectionPool).to(MysqlConnectionPool).inSingletonScope();
+container.bind<IUploadProvider>(TYPES.IUploadProvider).toConstantValue(new S3Provider(process.env.BUCKET_NAME || "" , process.env.CLOUDFRONT_URL || ""));
 
 export {container};

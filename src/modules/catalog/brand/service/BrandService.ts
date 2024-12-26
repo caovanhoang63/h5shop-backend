@@ -12,6 +12,8 @@ import {topicCreateBrand, topicDeleteBrand, topicUpdateBrand} from "../../../../
 import {BrandUpdate, brandUpdateScheme} from "../entity/brandUpdate";
 import {Brand} from "../entity/brand";
 import {SystemRole} from "../../../user/entity/user";
+import {ICondition} from "../../../../libs/condition";
+import {Paging} from "../../../../libs/paging";
 
 @injectable()
 export class BrandService implements IBrandService{
@@ -70,9 +72,9 @@ export class BrandService implements IBrandService{
     delete(requester: IRequester, id: number): ResultAsync<void, Err> {
         return ResultAsync.fromPromise(
             (async  () => {
-                if(requester.systemRole != SystemRole.Admin && requester.systemRole != SystemRole.Owner) {
-                    return err(createForbiddenError())
-                }
+                // if(requester.systemRole != SystemRole.Admin && requester.systemRole != SystemRole.Owner) {
+                //     return err(createForbiddenError())
+                // }
 
                 const old = await this.repo.findById(id)
 
@@ -92,9 +94,14 @@ export class BrandService implements IBrandService{
         ).andThen(r=> r)
     }
 
-    list(cond: any, paging: any): ResultAsync<Brand[] | null, Err> {
+    list(cond: ICondition, paging: Paging): ResultAsync<Brand[] | null, Err> {
         return ResultAsync.fromPromise(
             (async () => {
+                // add status = 1 to condition
+                cond = {
+                    ...cond,
+                    status: 1
+                }
 
                 const result = await this.repo.list(cond, paging)
                 if (result.isErr())

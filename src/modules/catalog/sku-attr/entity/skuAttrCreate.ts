@@ -12,6 +12,7 @@ export interface SkuAttrCreate {
 }
 
 export const skuAttrCreateSchema = Joi.object({
+    id: Joi.number().allow(null),
     spuId: Joi.number().required(),
     name: Joi.string().max(255).required(),
     dataType: Joi.string().valid('text','number','boolean').required(),
