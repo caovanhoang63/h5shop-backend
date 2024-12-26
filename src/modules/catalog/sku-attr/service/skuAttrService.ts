@@ -14,12 +14,16 @@ import {ISpuRepository} from "../../spu/repository/ISpuRepository";
 import {Validator} from "../../../../libs/validator";
 import {topicCreateSkuAttr, topicDeleteSkuAttr, topicUpdateSkuAttr} from "../../../../libs/topics";
 import {ISkuAttrRepository} from "../repository/ISkuAttrRepository";
+import {ISkuService} from "../../sku/service/ISkuService";
+import {ISkuRepository} from "../../sku/repository/ISkuRepository";
+import {SkuCreate} from "../../sku/entity/skuCreate";
 
 
 @injectable()
 export class SkuAttrService implements ISkuAttrService {
 
     constructor(@inject(TYPES.ISkuAttrRepository) private readonly skuAttrRepository: ISkuAttrRepository,
+                @inject(TYPES.ISkuRepository) private readonly skuRepo: ISkuRepository,
                 @inject(TYPES.IPubSub) private readonly pubSub : IPubSub,
                 @inject(TYPES.ISpuRepository) private spuRepo : ISpuRepository) {
     }
@@ -104,7 +108,7 @@ export class SkuAttrService implements ISkuAttrService {
         ).andThen(r=> r)
     }
 
-    delete(requester: IRequester, id: number): ResultAsync<void, Err> {
+    delete(requester: IRequester, id: number, index: number): ResultAsync<void, Err> {
         return ResultAsync.fromPromise(
             (async () => {
                 const old = await this.skuAttrRepository.findById(id)
@@ -113,11 +117,32 @@ export class SkuAttrService implements ISkuAttrService {
                 if (!old.value) return err(createEntityNotFoundError("skuAttr"))
                 if (!old.value || old.value.status != 1) return err(createEntityNotFoundError("skuAttr"))
 
+                // update sku status
+                const skus = await this.skuRepo.list({
+                    status: 1,
+                    spuId: old.value.spuId
+                },new Paging(1,50))
+                // update TierIdx
+                if (skus.isErr()) return err(skus.error)
+                if(!skus.value) return err(createEntityNotFoundError("sku"))
+                const newSkus = skus.value.map(sku => {
+                    return {...sku, skuTierIdx: sku.skuTierIdx?.filter((_,i) => i != index)}
+                })
+                await this.skuRepo.Begin()
+                const skuResult = await this.skuRepo.upsertMany(newSkus as SkuCreate[])
+                if (skuResult.isErr()) {
+                    await this.skuRepo.Rollback()
+                    return err(skuResult.error)
+                }
+
                 const result = await this.skuAttrRepository.delete(id)
 
-                if (result.isErr())
+                if (result.isErr()){
+                    await this.skuRepo.Rollback()
                     return err(result.error)
+                }
 
+                await this.skuRepo.Commit()
                 this.pubSub.Publish(topicDeleteSkuAttr,createMessage({id: id},requester))
                 return ok(undefined)
             })(), e => createInternalError(e)

@@ -11,13 +11,19 @@ export class SkuAttrApi {
     delete() : express.Handler {
         return async (req, res, next) => {
             const id = parseInt(req.params.id);
+            const index: number = req.body.index
             if(!id){
                 res.status(400).send(AppResponse.ErrorResponse(createInvalidDataError(new Error("id must a number"))))
                 return
             }
 
+            if(!index){
+                res.status(400).send(AppResponse.ErrorResponse(createInvalidDataError(new Error("index must a number"))))
+                return
+            }
+
             const requester = ReqHelper.getRequester(res)
-            const r = await this.service.delete(requester,id)
+            const r = await this.service.delete(requester, id ,index)
 
             r.match(
                 value => {

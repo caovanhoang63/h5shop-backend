@@ -12,7 +12,7 @@ const skuAttrRouter  = (appContext: IAppContext) => {
     //router.use(authentication())
 
     router.get('/', skuAttrApi.list())
-    router.delete('/:id', skuAttrApi.delete())
+    router.post('/:id', skuAttrApi.delete())
     return router
 }
 
