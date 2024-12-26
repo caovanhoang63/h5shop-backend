@@ -241,6 +241,7 @@ export class SpuService implements ISpuService {
                 if (!result.value) {
                     return err(createEntityNotFoundError("Spu detail"))
                 }
+                // Check if wholesalePrices is empty set it to []
                 return ok(result.value)
             })(), e => createInternalError(e)
         ).andThen(r=> r)

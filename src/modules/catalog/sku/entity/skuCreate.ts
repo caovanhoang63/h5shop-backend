@@ -24,5 +24,5 @@ export const skuCreateSchema = Joi.object({
     costPrice: Joi.number().required(),
     price: Joi.number().required(),
     stock: Joi.number().required(),
-    wholesalePrices: Joi.array().items(skuWholesalePriceCreateSchema),
+    wholesalePrices: Joi.array().items(skuWholesalePriceCreateSchema).allow(null),
 })

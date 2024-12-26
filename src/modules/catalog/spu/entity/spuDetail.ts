@@ -28,7 +28,6 @@ interface Attr {
 interface Sku {
     id: number;
     spuId: number;
-    name: string;
     skuTierIdx?: number[];
     images?: Image[],
     costPrice: number;
