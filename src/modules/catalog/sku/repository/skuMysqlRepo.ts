@@ -8,6 +8,7 @@ import {Err} from "../../../../libs/errors";
 import {BaseMysqlRepo} from "../../../../components/mysql/BaseMysqlRepo";
 import {ResultSetHeader, RowDataPacket} from "mysql2";
 import {SqlHelper} from "../../../../libs/sqlHelper";
+import {SkuDetail} from "../entity/skuDetail";
 
 export class SkuMysqlRepo extends BaseMysqlRepo implements ISkuRepository{
 
@@ -101,5 +102,58 @@ export class SkuMysqlRepo extends BaseMysqlRepo implements ISkuRepository{
                 return ok(SqlHelper.toCamelCase(firstRow) as Sku)
             }
         );
+    }
+
+    listDetail(cond: ICondition, paging: Paging): ResultAsync<SkuDetail[] | null, Err> {
+        const time = Date.now();
+        const [clause, values] = SqlHelper.buildWhereClause(cond);
+        console.log(Date.now() - time);
+        const pagingClause = SqlHelper.buildPaginationClause(paging);
+        const countQuery = `SELECT COUNT(*) as total FROM sku ${clause}`;
+        const query = `
+            SELECT
+                sku.id AS id,
+                sku.spu_id AS spu_id,
+                sku.sku_tier_idx AS sku_tier_idx,
+                sku.cost_price AS cost_price,
+                sku.price AS price,
+                sku.stock AS stock,
+                sku.images AS images,
+                spu.name AS spu_name,
+                (
+                    SELECT JSON_ARRAYAGG(
+                                   JSON_OBJECT(
+                                           'name', attributes.name,
+                                           'value', attributes.value
+                                   )
+                           )
+                    FROM sku_attr AS attributes
+                    WHERE attributes.spu_id = sku.spu_id AND attributes.status = 1
+                ) AS attributes
+            FROM sku
+            LEFT JOIN spu ON sku.spu_id = spu.id
+            ${clause} AND sku.status = 1 ${pagingClause}`;
+        return this.executeQuery(countQuery, values).andThen(
+            ([r, f]) => {
+                const firstRow = (r as RowDataPacket[])[0];
+                if(!firstRow) {
+                    return okAsync({total: 0});
+                }
+                paging.total = firstRow.total;
+                return ok({total: firstRow.total});
+            }
+        ).andThen(
+            (r) => {
+                if(r.total == 0)
+                    return ok([]);
+                else
+                    return this.executeQuery(query, values).andThen(
+                        ([r, f]) => {
+                            const data = (r as RowDataPacket[]).map(row => SqlHelper.toCamelCase(row) as SkuDetail);
+                            return ok(data)
+                        }
+                    )
+            }
+        )
     }
 }

@@ -48,4 +48,23 @@ export class SkuApi {
             )
         }
     }
+
+    listDetail() : express.Handler {
+        return async (req, res, next) => {
+            const paging = ReqHelper.getPaging(req.query)
+
+            const r = await this.service.listDetail({
+
+            },paging)
+
+            r.match(
+                value => {
+                    res.status(200).send(AppResponse.SimpleResponse(value))
+                },
+                e => {
+                    writeErrorResponse(res,e)
+                }
+            )
+        }
+    }
 }

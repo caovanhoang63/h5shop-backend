@@ -10,6 +10,7 @@ import {Sku} from "../entity/sku";
 import {createEntityNotFoundError, createInternalError, Err} from "../../../../libs/errors";
 import {IRequester} from "../../../../libs/IRequester";
 import {topicDeleteBrand, topicDeleteSku} from "../../../../libs/topics";
+import {SkuDetail} from "../entity/skuDetail";
 
 @injectable()
 export class SkuService implements ISkuService {
@@ -25,6 +26,33 @@ export class SkuService implements ISkuService {
                 if (result.isErr())
                     return err(result.error)
                 return ok(result.value)
+            })(), e => createInternalError(e)
+        ).andThen(r=> r)
+    }
+
+    listDetail(cond: ICondition, paging: Paging): ResultAsync<SkuDetail[] | null, Err> {
+        return ResultAsync.fromPromise(
+            (async () => {
+                const result = await this.repo.listDetail(cond,paging)
+                if (result.isErr())
+                    return err(result.error)
+                if(!result.value)
+                    return ok(null)
+                // Ghep name spu voi value attribute
+                const newNameSkuDetail: string[] = result.value.map(skuDetail => {
+                    const nameSpu = skuDetail.spuName
+                    const skuTierIdxByAttribute = skuDetail.skuTierIdx?.map((skuTierIdx,index) => {
+                        return skuDetail.attributes[index]?.value[skuTierIdx]
+                    })
+                    return `${nameSpu} - ${skuTierIdxByAttribute?.join(' - ')}`
+                })
+                const newSkuDetail = result.value.map((skuDetail,index) => {
+                    return {
+                        ...skuDetail,
+                        name: newNameSkuDetail[index],
+                    }
+                })
+                return ok(newSkuDetail)
             })(), e => createInternalError(e)
         ).andThen(r=> r)
     }
