@@ -379,6 +379,9 @@ CREATE TABLE `order`
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4;
 
+ALTER TABLE `order`
+ADD COLUMN `description` VARCHAR(255) AFTER `order_type`;
+
 DROP TABLE IF EXISTS `order_item`;
 CREATE TABLE `order_item`
 (
@@ -394,6 +397,9 @@ CREATE TABLE `order_item`
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4;
 
+ALTER TABLE `order_item`
+ADD COLUMN `discount` DECIMAL(15, 2) DEFAULT 0 AFTER `unit_price`,
+ADD COLUMN `description` VARCHAR(255) AFTER `amount`;
 
 # PAYMENT
 DROP TABLE IF EXISTS `bill`;
