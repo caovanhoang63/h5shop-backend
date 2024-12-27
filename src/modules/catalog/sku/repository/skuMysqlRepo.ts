@@ -125,7 +125,6 @@ export class SkuMysqlRepo extends BaseMysqlRepo implements ISkuRepository{
                 sku.stock AS stock,
                 sku.images AS images,
                 spu.name AS spu_name,
-                spu.status AS spu_status,
                 (
                     SELECT JSON_ARRAYAGG(
                                    JSON_OBJECT(

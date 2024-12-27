@@ -51,6 +51,7 @@ export class SkuService implements ISkuService {
                     return {
                         ...skuDetail,
                         name: newNameSkuDetail[index],
+                        attributes: [],
                     }
                 })
                 return ok(newSkuDetail)
