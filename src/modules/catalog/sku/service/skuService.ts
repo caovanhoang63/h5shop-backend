@@ -30,11 +30,11 @@ export class SkuService implements ISkuService {
         ).andThen(r=> r)
     }
 
-    listDetail(cond: ICondition, paging: Paging): ResultAsync<SkuDetail[] | null, Err> {
+    searchDetail(cond: ICondition, paging: Paging): ResultAsync<SkuDetail[] | null, Err> {
         return ResultAsync.fromPromise(
             (async () => {
 
-                const result = await this.repo.listDetail(cond,paging)
+                const result = await this.repo.searchDetail(cond,paging)
                 if (result.isErr())
                     return err(result.error)
                 if(!result.value)

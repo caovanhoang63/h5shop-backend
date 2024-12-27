@@ -49,16 +49,16 @@ export class SkuApi {
         }
     }
 
-    listDetail() : express.Handler {
+    searchDetail() : express.Handler {
         return async (req, res, next) => {
             const paging = ReqHelper.getPaging(req.query)
             const cond = req.query
 
-            const r = await this.service.listDetail(cond,paging)
+            const r = await this.service.searchDetail(cond,paging)
 
             r.match(
                 value => {
-                    res.status(200).send(AppResponse.SuccessResponse(value, paging, {}))
+                    res.status(200).send(AppResponse.SimpleResponse(value))
                 },
                 e => {
                     writeErrorResponse(res,e)

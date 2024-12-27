@@ -104,7 +104,7 @@ export class SkuMysqlRepo extends BaseMysqlRepo implements ISkuRepository{
         );
     }
 
-    listDetail(cond: ICondition, paging: Paging): ResultAsync<SkuDetail[] | null, Err> {
+    searchDetail(cond: ICondition, paging: Paging): ResultAsync<SkuDetail[] | null, Err> {
         const time = Date.now();
         let [clause, values] = SqlHelper.buildWhereClause(cond);
         console.log(Date.now() - time);
