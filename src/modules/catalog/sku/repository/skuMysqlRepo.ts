@@ -106,10 +106,15 @@ export class SkuMysqlRepo extends BaseMysqlRepo implements ISkuRepository{
 
     listDetail(cond: ICondition, paging: Paging): ResultAsync<SkuDetail[] | null, Err> {
         const time = Date.now();
-        const [clause, values] = SqlHelper.buildWhereClause(cond);
+        let [clause, values] = SqlHelper.buildWhereClause(cond);
         console.log(Date.now() - time);
+        if(clause.length > 0){
+            clause = clause + ' AND sku.status = 1';
+        } else {
+            clause = ' WHERE sku.status = 1';
+        }
         const pagingClause = SqlHelper.buildPaginationClause(paging);
-        const countQuery = `SELECT COUNT(*) as total FROM sku ${clause}`;
+        const countQuery = `SELECT COUNT(*) as total FROM sku LEFT JOIN spu ON spu.id = sku.spu_id ${clause}`;
         const query = `
             SELECT
                 sku.id AS id,
@@ -120,19 +125,21 @@ export class SkuMysqlRepo extends BaseMysqlRepo implements ISkuRepository{
                 sku.stock AS stock,
                 sku.images AS images,
                 spu.name AS spu_name,
+                spu.status AS spu_status,
                 (
                     SELECT JSON_ARRAYAGG(
                                    JSON_OBJECT(
-                                           'name', attributes.name,
-                                           'value', attributes.value
+                                           'name', sku_attr.name,
+                                           'value', sku_attr.value
                                    )
                            )
-                    FROM sku_attr AS attributes
-                    WHERE attributes.spu_id = sku.spu_id AND attributes.status = 1
+                    FROM sku_attr 
+                    WHERE sku_attr.spu_id = sku.spu_id AND sku_attr.status = 1
                 ) AS attributes
             FROM sku
             LEFT JOIN spu ON sku.spu_id = spu.id
-            ${clause} AND sku.status = 1 ${pagingClause}`;
+            ${clause} ${pagingClause}`;
+        console.log(query);
         return this.executeQuery(countQuery, values).andThen(
             ([r, f]) => {
                 const firstRow = (r as RowDataPacket[])[0];

@@ -33,6 +33,7 @@ export class SkuService implements ISkuService {
     listDetail(cond: ICondition, paging: Paging): ResultAsync<SkuDetail[] | null, Err> {
         return ResultAsync.fromPromise(
             (async () => {
+
                 const result = await this.repo.listDetail(cond,paging)
                 if (result.isErr())
                     return err(result.error)
@@ -44,7 +45,7 @@ export class SkuService implements ISkuService {
                     const skuTierIdxByAttribute = skuDetail.skuTierIdx?.map((skuTierIdx,index) => {
                         return skuDetail.attributes[index]?.value[skuTierIdx]
                     })
-                    return `${nameSpu} - ${skuTierIdxByAttribute?.join(' - ')}`
+                    return `${nameSpu} ${skuTierIdxByAttribute?.join(' ')}`
                 })
                 const newSkuDetail = result.value.map((skuDetail,index) => {
                     return {
