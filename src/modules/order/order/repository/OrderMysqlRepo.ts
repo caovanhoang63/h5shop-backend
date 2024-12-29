@@ -9,9 +9,9 @@ import {SqlHelper} from "../../../../libs/sqlHelper";
 
 export class OrderMysqlRepo extends BaseMysqlRepo implements IOrderRepository {
     create(o: OrderCreate): ResultAsync<void, Err> {
-        const query = `INSERT INTO \`order\` (customer_id, seller_id, order_type) VALUES (?, ?, ?)`;
+        const query = `INSERT INTO \`order\` (customer_id, seller_id, order_type, description) VALUES (?, ?, ?, ?)`;
         return this.executeQuery(query,
-            [o.customerId, o.sellerId, o.orderType]
+            [o.customerId, o.sellerId, o.orderType, o.description]
         ).andThen(
             ([r, f]) => {
                 const header = r as ResultSetHeader;

@@ -23,7 +23,7 @@ export class OrderService implements IOrderService {
                 }
 
                 // Check if customer exists
-                // Check if seller exists
+
 
                 const r = await this.orderRepository.create(o);
                 if (r.isErr()) {
