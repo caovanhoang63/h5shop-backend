@@ -11,6 +11,7 @@ const TYPES = {
     IBrandRepository: Symbol.for("IBrandRepository"),
     ISkuRepository: Symbol.for("ISkuRepository"),
     IOrderRepository: Symbol.for("IOrderRepository"),
+    IOrderItemRepository: Symbol.for("IOrderItemRepository"),
     IInventoryReportRepository: Symbol.for("IInventoryReportRepository"),
 
     ISkuWholesalePriceRepository: Symbol.for("ISkuWholesalePriceRepository"),
@@ -29,6 +30,7 @@ const TYPES = {
     IBrandService: Symbol.for("IBrandService"),
     ISkuService: Symbol.for("ISkuService"),
     IOrderService: Symbol.for("IOrderService"),
+    IOrderItemService: Symbol.for("IOrderItemService"),
 
     ISkuWholesalePriceService: Symbol.for("ISkuWholesalePriceService"),
     IUploadService: Symbol.for("IUploadService"),

@@ -385,14 +385,12 @@ ADD COLUMN `description` VARCHAR(255) AFTER `order_type`;
 DROP TABLE IF EXISTS `order_item`;
 CREATE TABLE `order_item`
 (
-    `id`         BIGINT NOT NULL,
     `order_id`   INT    NOT NULL,
     `sku_id`     INT    NOT NULL,
     `amount`     INT    NOT NULL DEFAULT 1,
     `unit_price` DECIMAL(15, 2)  DEFAULT 0,
     `created_at` TIMESTAMP       DEFAULT CURRENT_TIMESTAMP,
-    PRIMARY KEY (`id`),
-    UNIQUE KEY (`order_id`, `sku_id`) USING BTREE,
+    PRIMARY KEY (`order_id`, `sku_id`) USING BTREE,
     KEY `sku_id` (`sku_id`) USING BTREE
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4;

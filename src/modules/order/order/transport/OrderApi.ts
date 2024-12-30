@@ -5,6 +5,7 @@ import express from "express";
 import {writeErrorResponse} from "../../../../libs/writeErrorResponse";
 import {AppResponse} from "../../../../libs/response";
 import {createInvalidDataError} from "../../../../libs/errors";
+import {OrderUpdate} from "../entity/orderUpdate";
 
 export class OrderApi {
     constructor(private readonly userService: IOrderService) {}
@@ -28,7 +29,7 @@ export class OrderApi {
 
     update(): express.Handler {
         return async (req, res, next) => {
-            const body = req.body as OrderCreate;
+            const body = req.body as OrderUpdate;
             const id = parseInt(req.params.id);
 
             if (!id) {
