@@ -33,12 +33,27 @@ export class OrderMysqlRepo extends BaseMysqlRepo implements IOrderRepository {
     }
 
     delete(id: number): ResultAsync<void, Err> {
-        const query = `UPDATE \`order\` SET status = 0 WHERE id = ?`;
-        return this.executeQuery(query, [id]).andThen(
-            ([r, f]) => {
-                const header = r as ResultSetHeader;
-                return okAsync(undefined);
-            });
+        return this.executeQuery(`SELECT status FROM \`order\` WHERE id = ?`, [id]).andThen(
+            ([rows, _]) => {
+                const result = rows as RowDataPacket[];
+
+                const currentStatus = result[0].status;
+
+                if (currentStatus === 1) {
+                    // Hard delete: Remove the order and its items
+                    const deleteOrderItemsQuery = `DELETE FROM \`order_item\` WHERE order_id = ?`;
+                    const deleteOrderQuery = `DELETE FROM \`order\` WHERE id = ?`;
+
+                    return this.executeQuery(deleteOrderItemsQuery, [id]).andThen(() =>
+                        this.executeQuery(deleteOrderQuery, [id])
+                    ).andThen(() => okAsync(undefined));
+                } else {
+                    // Soft delete: Update the status to 0
+                    const softDeleteQuery = `UPDATE \`order\` SET status = 0 WHERE id = ?`;
+                    return this.executeQuery(softDeleteQuery, [id]).andThen(() => okAsync(undefined));
+                }
+            }
+        )
     }
 
     list(cond: ICondition): ResultAsync<OrderDetail[], Err> {
