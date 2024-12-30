@@ -8,6 +8,8 @@ import {createInternalError, Err} from "../../../../libs/errors";
 import {IRequester} from "../../../../libs/IRequester";
 import {TYPES} from "../../../../types";
 import {OrderUpdate, orderUpdateSchema} from "../entity/orderUpdate";
+import {OrderDetail} from "../entity/orderDetail";
+import {ICondition} from "../../../../libs/condition";
 
 @injectable()
 export class OrderService implements IOrderService {
@@ -65,6 +67,19 @@ export class OrderService implements IOrderService {
                 }
 
                 return ok(undefined);
+            })(), e => createInternalError(e)
+        ).andThen(r => r)
+    }
+
+    list = (cond: ICondition): ResultAsync<OrderDetail[], Err> => {
+        return ResultAsync.fromPromise(
+            (async () => {
+                const r = await this.orderRepository.list(cond);
+                if (r.isErr()) {
+                    return err(r.error);
+                }
+
+                return ok(r.value);
             })(), e => createInternalError(e)
         ).andThen(r => r)
     }

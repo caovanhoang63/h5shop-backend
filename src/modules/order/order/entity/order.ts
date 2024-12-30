@@ -8,7 +8,7 @@ export interface Order {
     customerId: number;
     sellerId: number;
     orderType: OrderType;
-    description: string;
+    description?: string;
     createAt: Date | null;
     updateAt: Date | null;
 }

@@ -72,4 +72,20 @@ export class OrderApi {
             )
         }
     }
+
+    list(): express.Handler {
+        return async (req, res, next) => {
+            const cond = req.query as any;
+            const r = await this.userService.list(cond)
+
+            r.match(
+                value => {
+                    res.status(200).send(AppResponse.SimpleResponse(value))
+                },
+                e => {
+                    writeErrorResponse(res, e)
+                }
+            )
+        }
+    }
 }
