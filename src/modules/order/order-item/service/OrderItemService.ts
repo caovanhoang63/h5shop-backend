@@ -2,16 +2,22 @@ import {IOrderItemService} from "./IOrderItemService";
 import {inject, injectable} from "inversify";
 import {IOrderItemRepository} from "../repository/IOrderItemRepository";
 import {TYPES} from "../../../../types";
-import {createInternalError, Err} from "../../../../libs/errors";
+import {createEntityNotFoundError, createInternalError, Err} from "../../../../libs/errors";
 import {err, ok, ResultAsync} from "neverthrow";
 import {OrderItemCreate, orderItemCreateSchema} from "../entity/orderItemCreate";
 import {Validator} from "../../../../libs/validator";
 import {IRequester} from "../../../../libs/IRequester";
 import {OrderItemUpdate, orderItemUpdateSchema} from "../entity/orderItemUpdate";
+import {IOrderRepository} from "../../order/repository/IOrderRepository";
+import {ISkuRepository} from "../../../catalog/sku/repository/ISkuRepository";
 
 @injectable()
 export class OrderItemService implements IOrderItemService {
-    constructor(@inject(TYPES.IOrderItemRepository) private readonly orderItemRepository: IOrderItemRepository) {
+    constructor(
+        @inject(TYPES.IOrderItemRepository) private readonly orderItemRepository: IOrderItemRepository,
+        @inject(TYPES.IOrderRepository) private readonly orderRepository: IOrderRepository,
+        @inject(TYPES.ISkuRepository) private readonly skuRepository: ISkuRepository
+    ) {
     }
 
     create = (requester: IRequester, o: OrderItemCreate): ResultAsync<void, Err> => {
@@ -22,8 +28,15 @@ export class OrderItemService implements IOrderItemService {
                     return err(vR.error);
                 }
 
-                // Check if order exists
-                // Check if sku exists
+                // Check if the order exists
+                const orderCheck = await this.orderRepository.findById(o.orderId);
+                if (orderCheck.isErr()) return err(orderCheck.error);
+                if (orderCheck.value === null) return err(createEntityNotFoundError("Order"));
+
+                // Check if the sku exists
+                const skuCheck = await this.skuRepository.findById(o.skuId);
+                if (skuCheck.isErr()) return err(skuCheck.error);
+                if (skuCheck.value === null) return err(createEntityNotFoundError("Sku"));
 
                 const r = await this.orderItemRepository.create(o);
                 if (r.isErr()) {

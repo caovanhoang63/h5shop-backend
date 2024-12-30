@@ -17,6 +17,7 @@ const orderRoute = (appContext: IAppContext) => {
     router.delete('/:id', orderApi.delete())
     router.patch('/:id', orderApi.update())
     router.get('/', orderApi.list())
+    router.get('/:id', orderApi.findById())
 
     return router;
 }

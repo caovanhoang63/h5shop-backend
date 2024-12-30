@@ -1,6 +1,6 @@
 import {IOrderRepository} from "./IOrderRepository";
 import {BaseMysqlRepo} from "../../../../components/mysql/BaseMysqlRepo";
-import {errAsync, okAsync, ResultAsync} from "neverthrow";
+import {errAsync, ok, okAsync, ResultAsync} from "neverthrow";
 import {OrderCreate} from "../entity/orderCreate";
 import {Err} from "../../../../libs/errors";
 import {ResultSetHeader, RowDataPacket} from "mysql2";
@@ -8,6 +8,7 @@ import {OrderUpdate} from "../entity/orderUpdate";
 import {SqlHelper} from "../../../../libs/sqlHelper";
 import {OrderDetail} from "../entity/orderDetail";
 import {ICondition} from "../../../../libs/condition";
+import {Order} from "../entity/order";
 
 export class OrderMysqlRepo extends BaseMysqlRepo implements IOrderRepository {
     create(o: OrderCreate): ResultAsync<void, Err> {
@@ -54,6 +55,20 @@ export class OrderMysqlRepo extends BaseMysqlRepo implements IOrderRepository {
                 }
             }
         )
+    }
+
+    findById(id: number): ResultAsync<Order | null, Err> {
+        const query = `SELECT * FROM \`order\` WHERE id = ?`;
+        return this.executeQuery(query, [id]).andThen(
+            ([r, f]) => {
+                const firstRow = (r as RowDataPacket[])[0];
+                if(!firstRow) {
+                    return ok(null);
+                }
+
+                return ok(SqlHelper.toCamelCase(firstRow) as Order)
+            }
+        );
     }
 
     list(cond: ICondition): ResultAsync<OrderDetail[], Err> {
