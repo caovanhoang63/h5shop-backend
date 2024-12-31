@@ -149,6 +149,7 @@ export class InventoryReportApi {
                 return;
             }
             const filter = req.query;
+            console.log(filter)
             const r = await this.service.getInventoryReportsTable(filter, paging);
 
             r.match(

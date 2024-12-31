@@ -73,10 +73,17 @@ import {IProviderRepository} from "./modules/provider/repository/IProviderReposi
 import {ProviderMySqlRepo} from "./modules/provider/repository/providerMySqlRepo";
 import {IProviderService} from "./modules/provider/service/IProviderService";
 import {ProviderService} from "./modules/provider/service/providerService";
+
+import {IStockInRepository} from "./modules/stock/stockIn/repository/IStockInRepository";
+import {StockInRepository} from "./modules/stock/stockIn/repository/StockInRepository";
+import {IStockInService} from "./modules/stock/stockIn/service/IStockInService";
+import {StockInService} from "./modules/stock/stockIn/service/StockInService";
+
 import {OrderItemMysqlRepo} from "./modules/order/order-item/repository/OrderItemMysqlRepo";
 import {IOrderItemRepository} from "./modules/order/order-item/repository/IOrderItemRepository";
 import {IOrderItemService} from "./modules/order/order-item/service/IOrderItemService";
 import {OrderItemService} from "./modules/order/order-item/service/OrderItemService";
+
 
 
 dotenv.config();
@@ -100,6 +107,7 @@ container.bind<ISkuWholesalePriceRepository>(TYPES.ISkuWholesalePriceRepository)
 
 container.bind<ICustomerRepository>(TYPES.ICustomerRepository).to(CustomerMysqlRepo).inRequestScope();
 container.bind<IProviderRepository>(TYPES.IProviderRepository).to(ProviderMySqlRepo).inRequestScope();
+container.bind<IStockInRepository>(TYPES.IStockInRepository).to(StockInRepository).inRequestScope();
 
 
 //Service
@@ -119,6 +127,7 @@ container.bind<IUploadService>(TYPES.IUploadService).to(UploadService).inRequest
 
 
 container.bind<IProviderService>(TYPES.IProviderService).to(ProviderService).inRequestScope();
+container.bind<IStockInService>(TYPES.IStockInService).to(StockInService).inRequestScope();
 
 container.bind<IInventoryReportService>(TYPES.IInventoryReportService).to(InventoryReportService).inRequestScope();
 container.bind<ICustomerService>(TYPES.ICustomerService).to(CustomerService).inRequestScope();
