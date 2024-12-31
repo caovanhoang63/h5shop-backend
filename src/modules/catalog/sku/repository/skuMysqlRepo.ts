@@ -220,7 +220,7 @@ export class SkuMysqlRepo extends BaseMysqlRepo implements ISkuRepository{
                 ${cond.categoryId ? `AND category_to_spu.category_id = ${cond.categoryId}` : ''}
                 ${cond.brandId ? `AND spu.brand_id = ${cond.brandId}` : ''}
             ${pagingClause}`;
-        console.log(query);
+
         return this.executeQuery(countQuery, []).andThen(
             ([r, f]) => {
                 const firstRow = (r as RowDataPacket[])[0];
@@ -243,5 +243,64 @@ export class SkuMysqlRepo extends BaseMysqlRepo implements ISkuRepository{
                     )
             }
         )
+    }
+
+    getDetailById(id: number): ResultAsync<SkuListDetail | null, Err> {
+        const countQuery = `
+            SELECT COUNT(*) as total 
+            FROM sku 
+            INNER JOIN spu ON spu.id = sku.spu_id
+            INNER JOIN category_to_spu ON category_to_spu.spu_id = spu.id
+            INNER JOIN brand ON brand.id = spu.brand_id
+            WHERE sku.status = 1 AND sku.id = ${id}
+            `;
+
+        const query = `
+            SELECT
+                sku.id AS id,
+                sku.spu_id AS spu_id,
+                sku.sku_tier_idx AS sku_tier_idx,
+                sku.cost_price AS cost_price,
+                sku.price AS price,
+                sku.stock AS stock,
+                sku.images AS images,
+                spu.name AS spu_name,
+                category.name AS category_name,
+                brand.name AS brand_name,
+                (
+                    SELECT JSON_ARRAYAGG(
+                                   JSON_OBJECT(
+                                           'name', sku_attr.name,
+                                           'value', sku_attr.value
+                                   )
+                           )
+                    FROM sku_attr 
+                    WHERE sku_attr.spu_id = sku.spu_id AND sku_attr.status = 1
+                ) AS attributes,
+                (
+                    SELECT JSON_ARRAYAGG(
+                                   JSON_OBJECT(
+                                           'minQuantity', sku_wholesale_prices.min_quantity,
+                                           'price', sku_wholesale_prices.price
+                                   )
+                           )
+                    FROM sku_wholesale_prices
+                    WHERE sku_wholesale_prices.sku_id = sku.id
+                ) AS wholesale_prices
+            FROM sku
+            INNER JOIN spu ON sku.spu_id = spu.id
+            INNER JOIN category_to_spu ON category_to_spu.spu_id = spu.id
+            INNER JOIN category ON category.id = category_to_spu.category_id
+            INNER JOIN brand ON brand.id = spu.brand_id
+            WHERE sku.status = 1 AND sku.id = ${id}`;
+        return this.executeQuery(query, [id]).andThen(
+            ([r, f]) => {
+                const firstRow = (r as RowDataPacket[])[0];
+                if(!firstRow) {
+                    return ok(null);
+                }
+                return ok(SqlHelper.toCamelCase(firstRow) as SkuListDetail)
+            }
+        );
     }
 }
