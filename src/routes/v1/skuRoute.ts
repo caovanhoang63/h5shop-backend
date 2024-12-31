@@ -10,7 +10,7 @@ const skuRouter  = (appContext: IAppContext) => {
     const router = express.Router();
     const SkuService = container.get<ISkuService>(TYPES.ISkuService)
     const skuApi = new SkuApi(SkuService);
-    router.use(authentication())
+    //router.use(authentication())
 
     router.get('/', skuApi.list())
     return router
