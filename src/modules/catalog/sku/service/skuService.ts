@@ -113,4 +113,28 @@ export class SkuService implements ISkuService {
             })(), e => createInternalError(e)
         ).andThen(r=> r)
     }
+
+    getDetailById(id: number): ResultAsync<SkuListDetail | null, Err> {
+        return ResultAsync.fromPromise(
+            (async () => {
+                const result = await this.repo.getDetailById(id)
+                if (result.isErr())
+                    return err(result.error)
+                if(!result.value)
+                    return ok(null)
+                // Ghep name spu voi value attribute
+                const nameSpu = result.value.spuName
+                const skuTierIdxByAttribute = result.value.skuTierIdx?.map((skuTierIdx,index) => {
+                    return result?.value?.attributes[index]?.value[skuTierIdx]
+                })
+                const newNameSkuDetail = `${nameSpu} ${skuTierIdxByAttribute?.join(' ')}`
+                const newSkuDetail = {
+                    ...result.value,
+                    name: newNameSkuDetail,
+                    attributes: [],
+                }
+                return ok(newSkuDetail)
+            })(), e => createInternalError(e)
+        ).andThen(r=> r)
+    }
 }
