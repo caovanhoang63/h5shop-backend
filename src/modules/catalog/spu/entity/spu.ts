@@ -7,6 +7,8 @@ export interface Spu {
     metadata: any,
     brandId: number,
     categoryId: number,
+    brandName: string,
+    categoryName: string,
     images? : Image,
     outOfStock : boolean,
     status : number,

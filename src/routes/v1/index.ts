@@ -13,6 +13,9 @@ import brandRouter from "./brandRoute";
 import skuRouter from "./skuRoute";
 import orderRoute from "./orderRoute";
 import inventoryRouter from "./inventoryRoute";
+import skuWholesalePriceRoute from "./skuWholesalePriceRoute";
+import uploadRouter from "./uploadRoute";
+import skuAttrRouter from "./skuAttrRoute";
 
 import customerRoute from "./customerRoute";
 import providerRouter from "./providerRouter";
@@ -41,9 +44,16 @@ const v1Router = () => {
     router.use("/order", orderRoute(appCtx))
     router.use("/inventory", inventoryRouter(appCtx))
     router.use("/stock-in", stockInRouter(appCtx))
+
+    router.use("/sku-wholesale-price", skuWholesalePriceRoute(appCtx))
+    router.use("/upload", uploadRouter(appCtx))
+    router.use("/sku-attr", skuAttrRouter(appCtx))
+
+
     router.use("/customer", customerRoute(appCtx))
 
     router.use("/provider", providerRouter(appCtx))
+
 
     router.post("/pubsub/test", async (req, res, next) => {
         await appCtx.GetPubsub().Publish(topicTest, {data: null, id: randomUUID(), topic: ""})

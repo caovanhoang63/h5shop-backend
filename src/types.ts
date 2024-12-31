@@ -12,9 +12,13 @@ const TYPES = {
     ISkuRepository: Symbol.for("ISkuRepository"),
     IOrderRepository: Symbol.for("IOrderRepository"),
     IInventoryReportRepository: Symbol.for("IInventoryReportRepository"),
+
+    ISkuWholesalePriceRepository: Symbol.for("ISkuWholesalePriceRepository"),
+
     ICustomerRepository: Symbol.for("ICustomerRepository"),
     IProviderRepository: Symbol.for("IProviderRepository"),
     IStockInRepository: Symbol.for("IStockInRepository"),
+
 
     // SERVICE
     IAuthService: Symbol.for("IAuthService"),
@@ -26,8 +30,13 @@ const TYPES = {
     IBrandService: Symbol.for("IBrandService"),
     ISkuService: Symbol.for("ISkuService"),
     IOrderService: Symbol.for("IOrderService"),
+
+    ISkuWholesalePriceService: Symbol.for("ISkuWholesalePriceService"),
+    IUploadService: Symbol.for("IUploadService"),
+
     IProviderService: Symbol.for("IProviderService"),
     IStockInService: Symbol.for("IStockInService"),
+
 
     IInventoryReportService: Symbol.for("IInventoryReportService"),
     ICustomerService: Symbol.for("ICustomerService"),
@@ -38,5 +47,6 @@ const TYPES = {
     IAppContext: Symbol.for("IAppContext"),
     IConnectionPool: Symbol.for("IConnectionPool"),
     ConnPool: Symbol.for("ConnPool"),
+    IUploadProvider: Symbol.for("IUploadProvider"),
 };
 export {TYPES};

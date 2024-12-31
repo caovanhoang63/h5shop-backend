@@ -75,11 +75,10 @@ export class SpuApi {
 
     list() : express.Handler {
         return async (req, res, next) => {
+            const cond = req.query
             const paging = ReqHelper.getPaging(req.query)
 
-            const r = await this.service.list({
-
-            },paging)
+            const r = await this.service.list(cond,paging)
 
             r.match(
                 value => {
@@ -123,6 +122,28 @@ export class SpuApi {
             r.match(
                 value => {
                     res.status(200).send(AppResponse.SimpleResponse(true))
+                },
+                e => {
+                    writeErrorResponse(res,e)
+                }
+            )
+        }
+    }
+
+    getDetail() : express.Handler {
+        return async (req, res, next) => {
+            const id = parseInt(req.params.id);
+
+            if (!id) {
+                res.status(400).send(AppResponse.ErrorResponse(createInvalidDataError(new Error("id must a number"))))
+                return
+            }
+
+            const r = await this.service.getDetail(id)
+
+            r.match(
+                value => {
+                    res.status(200).send(AppResponse.SimpleResponse(value))
                 },
                 e => {
                     writeErrorResponse(res,e)

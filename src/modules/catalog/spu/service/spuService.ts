@@ -19,6 +19,10 @@ import {SpuDetailUpsert, spuDetailUpsertSchema} from "../entity/spuDetailUpsert"
 import {ISkuAttrRepository} from "../../sku-attr/repository/ISkuAttrRepository";
 import {ISkuRepository} from "../../sku/repository/ISkuRepository";
 import {IBrandRepository} from "../../brand/repository/IBrandRepository";
+import {ISkuWholesalePriceRepository} from "../../sku-wholesale-prices/repository/ISkuWholesalePriceRepository";
+import {SkuWholesalePriceCreate} from "../../sku-wholesale-prices/entity/SkuWholesalePriceCreate";
+import {IUploadProvider} from "../../../../components/uploadProvider/IUploadProvider";
+import {SpuDetail} from "../entity/spuDetail";
 
 @injectable()
 export class SpuService implements ISpuService {
@@ -27,6 +31,8 @@ export class SpuService implements ISpuService {
                 @inject(TYPES.ISkuAttrRepository) private readonly skuAttrRepository: ISkuAttrRepository,
                 @inject(TYPES.ISkuRepository) private readonly skuRepository: ISkuRepository,
                 @inject(TYPES.IBrandRepository) private readonly brandRepository: IBrandRepository,
+                @inject(TYPES.ISkuWholesalePriceRepository) private readonly skuWholesalePriceRepository: ISkuWholesalePriceRepository,
+                @inject(TYPES.IUploadProvider) private readonly uploadProvider: IUploadProvider,
                 @inject(TYPES.IPubSub) private readonly pubSub : IPubSub,) {
     }
 
@@ -193,14 +199,50 @@ export class SpuService implements ISpuService {
                     return err(resultSku.error)
                 }
 
+                // Set skuId for skuWholeSalePrices
+                const skuWholesalePricesData: SkuWholesalePriceCreate[] = []
+                resultSku.value.forEach((sku) => {
+                    sku.wholesalePrices?.forEach((wholesalePrice) => {
+                       wholesalePrice.skuId = sku.id??0;
+                       skuWholesalePricesData.push(wholesalePrice);
+                    });
+                });
+
+                // upsert skuWholeSalePrices
+                await this.skuWholesalePriceRepository.Begin()
+                const resultSkuWholesalePrices = await this.skuWholesalePriceRepository.upsertMany(skuWholesalePricesData)
+                if (resultSkuWholesalePrices.isErr()) {
+                    await this.skuWholesalePriceRepository.Rollback()
+                    await this.skuRepository.Rollback()
+                    await this.skuAttrRepository.Rollback()
+                    await this.repo.Rollback()
+                    return err(resultSkuWholesalePrices.error)
+                }
+
                 // await commit all
                 await Promise.all([
+                    this.repo.Commit(),
                     this.skuAttrRepository.Commit(),
                     this.skuRepository.Commit(),
-                    this.repo.Commit()
+                    this.skuWholesalePriceRepository.Commit()
                 ]);
 
                 return ok(undefined)
+            })(), e => createInternalError(e)
+        ).andThen(r=> r)
+    }
+
+    getDetail(id: number): ResultAsync<SpuDetail | null, Err> {
+        return ResultAsync.fromPromise(
+            (async () => {
+                const result = await this.repo.getDetail(id)
+                if (result.isErr())
+                    return err(result.error)
+                if (!result.value) {
+                    return err(createEntityNotFoundError("Spu detail"))
+                }
+                // Check if wholesalePrices is empty set it to []
+                return ok(result.value)
             })(), e => createInternalError(e)
         ).andThen(r=> r)
     }
