@@ -10,6 +10,8 @@ import {Sku} from "../entity/sku";
 import {createEntityNotFoundError, createInternalError, Err} from "../../../../libs/errors";
 import {IRequester} from "../../../../libs/IRequester";
 import {topicDeleteBrand, topicDeleteSku} from "../../../../libs/topics";
+import {SkuDetail} from "../entity/skuDetail";
+import {FilterSkuListDetail, SkuListDetail} from "../entity/skuListDetail";
 
 @injectable()
 export class SkuService implements ISkuService {
@@ -25,6 +27,35 @@ export class SkuService implements ISkuService {
                 if (result.isErr())
                     return err(result.error)
                 return ok(result.value)
+            })(), e => createInternalError(e)
+        ).andThen(r=> r)
+    }
+
+    searchDetail(cond: ICondition, paging: Paging): ResultAsync<SkuDetail[] | null, Err> {
+        return ResultAsync.fromPromise(
+            (async () => {
+
+                const result = await this.repo.searchDetail(cond,paging)
+                if (result.isErr())
+                    return err(result.error)
+                if(!result.value)
+                    return ok(null)
+                // Ghep name spu voi value attribute
+                const newNameSkuDetail: string[] = result.value.map(skuDetail => {
+                    const nameSpu = skuDetail.spuName
+                    const skuTierIdxByAttribute = skuDetail.skuTierIdx?.map((skuTierIdx,index) => {
+                        return skuDetail.attributes[index]?.value[skuTierIdx]
+                    })
+                    return `${nameSpu} ${skuTierIdxByAttribute?.join(' ')}`
+                })
+                const newSkuDetail = result.value.map((skuDetail,index) => {
+                    return {
+                        ...skuDetail,
+                        name: newNameSkuDetail[index],
+                        attributes: [],
+                    }
+                })
+                return ok(newSkuDetail)
             })(), e => createInternalError(e)
         ).andThen(r=> r)
     }
@@ -50,6 +81,59 @@ export class SkuService implements ISkuService {
 
                 this.pubSub.Publish(topicDeleteSku,createMessage(old.value,requester))
                 return ok(undefined)
+            })(), e => createInternalError(e)
+        ).andThen(r=> r)
+    }
+
+    listDetail(cond: FilterSkuListDetail, paging: Paging): ResultAsync<SkuListDetail[] | null, Err> {
+        return ResultAsync.fromPromise(
+            (async () => {
+
+                const result = await this.repo.listDetail(cond,paging)
+                if (result.isErr())
+                    return err(result.error)
+                if(!result.value)
+                    return ok(null)
+                // Ghep name spu voi value attribute
+                const newNameSkuDetail: string[] = result.value.map(skuDetail => {
+                    const nameSpu = skuDetail.spuName
+                    const skuTierIdxByAttribute = skuDetail.skuTierIdx?.map((skuTierIdx,index) => {
+                        return skuDetail.attributes[index]?.value[skuTierIdx]
+                    })
+                    return `${nameSpu} ${skuTierIdxByAttribute?.join(' ')}`
+                })
+                const newSkuDetail = result.value.map((skuDetail,index) => {
+                    return {
+                        ...skuDetail,
+                        name: newNameSkuDetail[index],
+                        attributes: [],
+                    }
+                })
+                return ok(newSkuDetail)
+            })(), e => createInternalError(e)
+        ).andThen(r=> r)
+    }
+
+    getDetailById(id: number): ResultAsync<SkuListDetail | null, Err> {
+        return ResultAsync.fromPromise(
+            (async () => {
+                const result = await this.repo.getDetailById(id)
+                if (result.isErr())
+                    return err(result.error)
+                if(!result.value)
+                    return ok(null)
+                // Ghep name spu voi value attribute
+                const nameSpu = result.value.spuName
+                const skuTierIdxByAttribute = result.value.skuTierIdx?.map((skuTierIdx,index) => {
+                    return result?.value?.attributes[index]?.value[skuTierIdx]
+                })
+                const newNameSkuDetail = `${nameSpu} ${skuTierIdxByAttribute?.join(' ')}`
+                const newSkuDetail = {
+                    ...result.value,
+                    name: newNameSkuDetail,
+                    attributes: [],
+                }
+                return ok(newSkuDetail)
             })(), e => createInternalError(e)
         ).andThen(r=> r)
     }

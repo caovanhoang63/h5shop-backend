@@ -2,11 +2,13 @@ import express from "express";
 import {ReqHelper} from "../../../../libs/reqHelper";
 import {AppResponse} from "../../../../libs/response";
 import {writeErrorResponse} from "../../../../libs/writeErrorResponse";
-import {createInvalidDataError} from "../../../../libs/errors";
+import {createInvalidDataError, createInvalidRequestError} from "../../../../libs/errors";
 import {ISpuService} from "../service/ISpuService";
 import {SpuCreate} from "../entity/spuCreate";
 import {SpuUpdate} from "../entity/spuUpdate";
 import {SpuDetailUpsert} from "../entity/spuDetailUpsert";
+import {categoryFilterSchema} from "../../category/entity/CategoryFilterSchema";
+import {spuFilterSchema} from "../entity/spuFilterSchema";
 
 export class SpuApi {
     constructor(private readonly service : ISpuService) {}
@@ -75,10 +77,17 @@ export class SpuApi {
 
     list() : express.Handler {
         return async (req, res, next) => {
-            const cond = req.query
             const paging = ReqHelper.getPaging(req.query)
+            const value=  spuFilterSchema.validate(req.query, {stripUnknown: true});
 
-            const r = await this.service.list(cond,paging)
+            if (value.error) {
+                writeErrorResponse(res,createInvalidRequestError(value.error))
+                return
+            }
+
+            const filter = value.value
+
+            const r = await this.service.list(filter,paging)
 
             r.match(
                 value => {

@@ -368,7 +368,7 @@ CREATE TABLE `order`
     `id`          INT                          NOT NULL AUTO_INCREMENT,
     `customer_id` INT                          NOT NULL,
     `seller_id`   INT                          NOT NULL, # Reference to user_id
-    `status`      INT NOT NULL                                  DEFAULT 1,
+    `status`      INT NOT NULL                                  DEFAULT 1, # 0: soft delete, 1: ordering, 2: ordered
     `order_type`  ENUM ('retail', 'wholesale') NOT NULL DEFAULT 'retail',
     `created_at`  TIMESTAMP                             DEFAULT CURRENT_TIMESTAMP,
     `updated_at`  TIMESTAMP                             DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -379,21 +379,25 @@ CREATE TABLE `order`
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4;
 
+ALTER TABLE `order`
+ADD COLUMN `description` VARCHAR(255) AFTER `order_type`;
+
 DROP TABLE IF EXISTS `order_item`;
 CREATE TABLE `order_item`
 (
-    `id`         BIGINT NOT NULL,
     `order_id`   INT    NOT NULL,
     `sku_id`     INT    NOT NULL,
     `amount`     INT    NOT NULL DEFAULT 1,
     `unit_price` DECIMAL(15, 2)  DEFAULT 0,
     `created_at` TIMESTAMP       DEFAULT CURRENT_TIMESTAMP,
-    PRIMARY KEY (`id`),
-    UNIQUE KEY (`order_id`, `sku_id`) USING BTREE,
+    PRIMARY KEY (`order_id`, `sku_id`) USING BTREE,
     KEY `sku_id` (`sku_id`) USING BTREE
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4;
 
+ALTER TABLE `order_item`
+ADD COLUMN `discount` DECIMAL(15, 2) DEFAULT 0 AFTER `unit_price`,
+ADD COLUMN `description` VARCHAR(255) AFTER `amount`;
 
 # PAYMENT
 DROP TABLE IF EXISTS `bill`;

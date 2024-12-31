@@ -128,6 +128,11 @@ export class SqlHelper {
                                 clauses.push(`${fieldName} < ?`);
                                 values.push(value);
                             } else {
+                                if(table!=null){
+                                    clauses.push(`${table}.${field} = ?`);
+                                    values.push(value);
+                                    break;
+                                }
                                 clauses.push(`${field} = ?`);
                                 values.push(value);
                             }
