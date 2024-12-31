@@ -19,6 +19,7 @@ import skuAttrRouter from "./skuAttrRoute";
 
 import customerRoute from "./customerRoute";
 import providerRouter from "./providerRouter";
+import orderItemRoute from "./orderItemRoute";
 
 
 const v1Router = () => {
@@ -41,6 +42,7 @@ const v1Router = () => {
     router.use("/spu", spuRouter(appCtx))
     router.use("/sku", skuRouter(appCtx))
     router.use("/order", orderRoute(appCtx))
+    router.use("/order-item", orderItemRoute(appCtx))
     router.use("/inventory", inventoryRouter(appCtx))
 
     router.use("/sku-wholesale-price", skuWholesalePriceRoute(appCtx))

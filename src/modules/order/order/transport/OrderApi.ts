@@ -5,6 +5,7 @@ import express from "express";
 import {writeErrorResponse} from "../../../../libs/writeErrorResponse";
 import {AppResponse} from "../../../../libs/response";
 import {createInvalidDataError} from "../../../../libs/errors";
+import {OrderUpdate} from "../entity/orderUpdate";
 
 export class OrderApi {
     constructor(private readonly userService: IOrderService) {}
@@ -28,7 +29,7 @@ export class OrderApi {
 
     update(): express.Handler {
         return async (req, res, next) => {
-            const body = req.body as OrderCreate;
+            const body = req.body as OrderUpdate;
             const id = parseInt(req.params.id);
 
             if (!id) {
@@ -64,6 +65,44 @@ export class OrderApi {
             r.match(
                 value => {
                     res.status(200).send(AppResponse.SimpleResponse(true))
+                },
+                e => {
+                    writeErrorResponse(res, e)
+                }
+            )
+        }
+    }
+
+    findById(): express.Handler {
+        return async (req, res, next) => {
+            const id = parseInt(req.params.id);
+
+            if (!id) {
+                res.status(400).send(AppResponse.ErrorResponse(createInvalidDataError(new Error("id must a number"))))
+                return
+            }
+
+            const r = await this.userService.findById(id)
+
+            r.match(
+                value => {
+                    res.status(200).send(AppResponse.SimpleResponse(value))
+                },
+                e => {
+                    writeErrorResponse(res, e)
+                }
+            )
+        }
+    }
+
+    list(): express.Handler {
+        return async (req, res, next) => {
+            const cond = req.query as any;
+            const r = await this.userService.list(cond)
+
+            r.match(
+                value => {
+                    res.status(200).send(AppResponse.SimpleResponse(value))
                 },
                 e => {
                     writeErrorResponse(res, e)

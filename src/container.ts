@@ -73,6 +73,10 @@ import {IProviderRepository} from "./modules/provider/repository/IProviderReposi
 import {ProviderMySqlRepo} from "./modules/provider/repository/providerMySqlRepo";
 import {IProviderService} from "./modules/provider/service/IProviderService";
 import {ProviderService} from "./modules/provider/service/providerService";
+import {OrderItemMysqlRepo} from "./modules/order/order-item/repository/OrderItemMysqlRepo";
+import {IOrderItemRepository} from "./modules/order/order-item/repository/IOrderItemRepository";
+import {IOrderItemService} from "./modules/order/order-item/service/IOrderItemService";
+import {OrderItemService} from "./modules/order/order-item/service/OrderItemService";
 
 
 dotenv.config();
@@ -89,6 +93,7 @@ container.bind<ISkuAttrRepository>(TYPES.ISkuAttrRepository).to(SkuAttrMysqlRepo
 container.bind<IBrandRepository>(TYPES.IBrandRepository).to(BrandMysqlRepo).inRequestScope();
 container.bind<ISkuRepository>(TYPES.ISkuRepository).to(SkuMysqlRepo).inRequestScope();
 container.bind<IOrderRepository>(TYPES.IOrderRepository).to(OrderMysqlRepo).inRequestScope();
+container.bind<IOrderItemRepository>(TYPES.IOrderItemRepository).to(OrderItemMysqlRepo).inRequestScope();
 container.bind<IInventoryReportRepository>(TYPES.IInventoryReportRepository).to(InventoryReportMysqlRepo).inRequestScope();
 
 container.bind<ISkuWholesalePriceRepository>(TYPES.ISkuWholesalePriceRepository).to(SkuWholesalePriceMysqlRepo).inRequestScope();
@@ -107,6 +112,7 @@ container.bind<ISkuAttrService>(TYPES.ISkuAttrService).to(SkuAttrService).inRequ
 container.bind<IBrandService>(TYPES.IBrandService).to(BrandService).inRequestScope();
 container.bind<ISkuService>(TYPES.ISkuService).to(SkuService).inRequestScope();
 container.bind<IOrderService>(TYPES.IOrderService).to(OrderService).inRequestScope();
+container.bind<IOrderItemService>(TYPES.IOrderItemService).to(OrderItemService).inRequestScope();
 
 container.bind<ISkuWholesalePriceService>(TYPES.ISkuWholesalePriceService).to(SkuWholesalePriceService).inRequestScope();
 container.bind<IUploadService>(TYPES.IUploadService).to(UploadService).inRequestScope();
