@@ -28,6 +28,7 @@ const port = process.env.PORT || 3000;
 (BigInt.prototype as any).toJSON = function () {
     return this.toString();
 };
+app.use(recovery)
 app.use(logger('dev'));
 app.use(cors());
 app.use(helmet());
@@ -37,7 +38,8 @@ app.use(express.urlencoded({extended: false}));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 app.use("/v1", v1Router());
-app.use(recovery);
+
+
 
 app.listen(port, () => {
     console.log(`[server]: Server is running at http://localhost:${port}`);
