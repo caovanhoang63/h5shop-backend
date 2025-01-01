@@ -21,6 +21,8 @@ export interface EmployeeUpdate {
     lastName?: string;
     email?: string;
     dateOfBirth?: Date | null;
+    gender: 'male' | 'female' | 'other';
+
 }
 export const employeeUpdateSchema = Joi.object({
     phoneNumber: Joi.string().pattern(/^[0-9]{10,15}$/),
@@ -29,7 +31,8 @@ export const employeeUpdateSchema = Joi.object({
     lastName: Joi.string().optional(),
     email: Joi.string().optional(),
     dateOfBirth: Joi.date().optional(),
-})
+    gender: Joi.string().valid('male', 'female', 'other').required()
+});
 
 export interface EmployeeCreate{
     phoneNumber: string;
@@ -38,6 +41,8 @@ export interface EmployeeCreate{
     lastName: string;
     email: string;
     dateOfBirth: Date
+    gender: 'male' | 'female' | 'other';
+
 }
 export const employeeCreateSchema = Joi.object({
     phoneNumber: Joi.string().pattern(/^[0-9]{10,15}$/),
@@ -46,4 +51,5 @@ export const employeeCreateSchema = Joi.object({
     lastName: Joi.string().required(),
     email: Joi.string().email().required(),
     dateOfBirth: Joi.date().required(),
+    gender: Joi.string().valid('male', 'female', 'other').required()
 })

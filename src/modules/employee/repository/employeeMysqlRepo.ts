@@ -10,11 +10,13 @@ import {Err} from "../../../libs/errors";
 
 export class EmployeeMysqlRepo extends BaseMysqlRepo implements IEmployeeRepository {
     create(employeeCreate: EmployeeCreate): ResultAsync<void, Error> {
-        const query = `INSERT INTO employee (first_name, last_name, email, phone_number, address, date_of_birth)
-                       VALUES (?, ?, ?, ?, ?, ?)`;
-        return this.executeQuery(query, [employeeCreate.firstName, employeeCreate.lastName, employeeCreate.email, employeeCreate.phoneNumber, employeeCreate.address, employeeCreate.dateOfBirth])
+        const query = `INSERT INTO employee (first_name, last_name, email, phone_number, address, date_of_birth,gender)
+                       VALUES (?, ?, ?, ?, ?, ?,?)`;
+        console.log(query)
+        return this.executeQuery(query, [employeeCreate.firstName, employeeCreate.lastName, employeeCreate.email, employeeCreate.phoneNumber, employeeCreate.address, employeeCreate.dateOfBirth,employeeCreate.gender])
             .andThen(([r, f]) => {
                 const header = r as ResultSetHeader;
+                console.log(query)
                 return okAsync(undefined);
             });
     }
