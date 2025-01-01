@@ -9,6 +9,9 @@ import {IStockInService} from "./IStockInService";
 import {TYPES} from "../../../../types";
 import {IInventoryReportRepository} from "../../../inventory/repository/IInventoryReportRepository";
 import {IStockInRepository} from "../repository/IStockInRepository";
+import {InventoryReportCreate, inventoryReportCreateSchema} from "../../../inventory/entity/inventoryReport";
+import {Validator} from "../../../../libs/validator";
+import {StockInCreate, stockInCreateSchema} from "../entity/stockIn";
 
 @injectable()
 export class StockInService implements IStockInService {
@@ -26,6 +29,21 @@ export class StockInService implements IStockInService {
                 return ok(result.value)
             })(), e => createInternalError(e)
         ).andThen(r=> r)
+    }
+    public createReport = (report: StockInCreate): ResultAsync<number | null, Err> => {
+        return ResultAsync.fromPromise(
+            (async () => {
+                const vR = (await Validator(stockInCreateSchema, report))
+                if (vR.isErr()) {
+                    return err(vR.error);
+                }
+                const r = await this.stockInRepository.create(report);
+                if (r.isErr()) {
+                    return err(r.error);
+                }
+                return ok(r.value);
+            })(), e => e as Err
+        ).andThen(r => r)
     }
 
 }

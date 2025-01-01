@@ -5,6 +5,8 @@ import {inventoryReportFilterSchema} from "../../../inventory/entity/inventoryRe
 import {writeErrorResponse} from "../../../../libs/writeErrorResponse";
 import {createInvalidDataError} from "../../../../libs/errors";
 import {AppResponse} from "../../../../libs/response";
+import {InventoryReportCreate} from "../../../inventory/entity/inventoryReport";
+import {StockInCreate} from "../entity/stockIn";
 
 export class StockInApi {
     constructor(private readonly service: IStockInService) {}
@@ -46,6 +48,22 @@ export class StockInApi {
             r.match(
                 value => {
                     res.status(200).send(AppResponse.SuccessResponse(value, paging, filter));
+                },
+                e => {
+                    writeErrorResponse(res, e);
+                }
+            );
+        };
+    }
+
+    create(): express.Handler {
+        return async (req, res, next) => {
+            const body = req.body as StockInCreate;
+            const r = await this.service.createReport(body);
+
+            r.match(
+                value => {
+                    res.status(200).send(AppResponse.SimpleResponse(value));
                 },
                 e => {
                     writeErrorResponse(res, e);

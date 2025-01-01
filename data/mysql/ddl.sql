@@ -254,6 +254,10 @@ CREATE TABLE `stock_in_detail`
     KEY `sku_id` (`sku_id`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4;
+ALTER TABLE stock_in_detail
+    ADD COLUMN total_price INT NOT NULL
+    AFTER amount;
+
 
 # REPORT
 DROP TABLE IF EXISTS `inventory_report`;

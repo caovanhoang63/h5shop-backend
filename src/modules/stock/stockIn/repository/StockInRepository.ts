@@ -7,10 +7,12 @@ import {Paging} from "../../../../libs/paging";
 import {StockInTable} from "../entity/stockInTable";
 import {Err} from "../../../../libs/errors";
 import {SqlHelper} from "../../../../libs/sqlHelper";
-import {RowDataPacket} from "mysql2";
+import {ResultSetHeader, RowDataPacket} from "mysql2";
 import {InventoryReportTable} from "../../../inventory/entity/inventoryReportTable";
 import {StockInDetailTable} from "../entity/stockInDetailTable";
 import {InventoryReportDetailTable} from "../../../inventory/entity/inventoryReportDetailTable";
+import {StockInCreate} from "../entity/stockIn";
+import {query} from "express";
 
 export class StockInRepository extends BaseMysqlRepo implements IStockInRepository {
     getStockInDetails(reportId: number): ResultAsync<StockInDetailTable | null, Err> {
@@ -129,5 +131,36 @@ export class StockInRepository extends BaseMysqlRepo implements IStockInReposito
                     }
                 }
             );
+    }
+
+    create(report: StockInCreate): ResultAsync<number | null, Err> {
+
+        const query = `INSERT INTO stock_in (provider_id, warehouse_men)
+                       VALUES (?, ?)`;
+
+        const detailQuery = `INSERT INTO stock_in_detail (stock_in_id, sku_id, amount, total_price)
+                        VALUES ?`
+
+        const headerValues = [
+            report.providerId,
+            report.warehouseMen,
+        ];
+        return this.executeInTransaction<number>(conn =>
+            this.executeQuery(query, headerValues)
+                .andThen(([headerResult, _]) => {
+                    const header = headerResult as ResultSetHeader;
+                    const insertId = header.insertId;
+
+                    const detailValuesWithInsertId = report.items.map(item => [
+                        insertId,
+                        item.skuId,
+                        item.amount,
+                        item.totalPrice,
+                    ]);
+
+                    return this.executeQuery(detailQuery, [detailValuesWithInsertId])
+                        .map(() => insertId);
+                })
+        );
     }
 }

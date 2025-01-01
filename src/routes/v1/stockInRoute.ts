@@ -23,7 +23,7 @@ const stockInRouter = (appContext: IAppContext) => {
     router.get('/list', stockInApi.getStockInTable());
 
     router.get('/details/:id', stockInApi.getStockInDetails());
-
+    router.post('/create', stockInApi.create());
     return router;
 }
 
