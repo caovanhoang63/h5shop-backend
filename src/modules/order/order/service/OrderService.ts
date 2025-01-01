@@ -100,7 +100,6 @@ export class OrderService implements IOrderService {
 
                 const order = orderR.value!
                 const SkuR = await this.skuRepository.findByIds(order.items.map(r=>r.skuId))
-
                 if (SkuR.isErr()) {
                     return errAsync(SkuR.error)
                 }
@@ -118,12 +117,17 @@ export class OrderService implements IOrderService {
                     if (skus[i].stock < order.items[i].amount) {
                         return errAsync(createInvalidRequestError(new Error(`${skus[i]}`)))
                     }
+                    order.totalAmount = skus[i].price * order.items[i].amount;
                 }
 
-                const r =await this.orderRepository.payOrder(order)
+                order.finalAmount = order.totalAmount -order.discountAmount;
+
+
+                const r = await this.orderRepository.payOrder(order)
                 if (r.isErr()) {
                     return err(r.error)
                 }
+
 
                 return ok(undefined)
 

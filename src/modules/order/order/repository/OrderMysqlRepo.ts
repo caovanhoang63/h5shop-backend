@@ -188,19 +188,31 @@ export class OrderMysqlRepo extends BaseMysqlRepo implements IOrderRepository {
             .orElse((error) => errAsync(error));
     }
     payOrder(order: OrderDetail): ResultAsync<void, Err> {
-        const orderQuery = `UPDATE \`order\` SET status = 2 WHERE id = ?`;
-        const skuQuery = `UPDATE sku SET stock = stock - ? WHERE id = ?`;
+        const orderQuery = `UPDATE \`order\` SET
+                     status = 2,
+                     total_amount = ?,
+                     discount_amount = ?,
+                     final_amount = ? 
+                 WHERE id = ?`;
+        const skuQuery = `UPDATE sku SET stock = CASE
+                            ${order.items.map(r => `WHEN id = ? THEN stock - ?`)}
+                            END
+                          WHERE id IN (?)`;
+
+        const skuValue = order.items.map(r =>[r.skuId,r.amount]).flat();
+        const ids = order.items.map(r => r.skuId)
         return this.executeInTransaction(
             conn => {
                 return ResultAsync.fromPromise(
-                    conn.query(orderQuery,[order.id]),
+                    conn.query(orderQuery,[order.totalAmount,order.discountAmount,order.finalAmount,order.id]),
                     e => createDatabaseError(e)
                 ).andThen(
-                    r=>
-                        ResultAsync.fromPromise(
-                            Promise.all(order.items.map(i => conn.query(skuQuery,[i.amount,i.skuId]))),
+                    r=>{
+                        return ResultAsync.fromPromise(
+                            conn.query(skuQuery,[...skuValue,...ids]),
                             e => createDatabaseError(e)
                         )
+                    }
                 ).andThen(
                     r=> ok(undefined)
                 )
