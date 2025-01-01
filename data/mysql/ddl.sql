@@ -348,17 +348,44 @@ CREATE TABLE `stock_out_detail`
 DROP TABLE IF EXISTS `warranty_form`;
 CREATE TABLE `warranty_form`
 (
-    `id`            INT NOT NULL AUTO_INCREMENT,
-    `order_item_id` INT NOT NULL,
-    `amount`        INT NOT NULL DEFAULT 0,
-    `status`        INT NOT NULL         DEFAULT 1,
-    `created_at`    TIMESTAMP    DEFAULT CURRENT_TIMESTAMP,
-    `updated_at`    TIMESTAMP    DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    `id`                    INT NOT NULL AUTO_INCREMENT,
+    `warranty_type_id`      INT NOT NULL,
+
+    `customer_id`           INT,
+
+    `stock_in_id`           INT,
+    `sku_id`                INT NOT NULL,
+    `order_id`              INT NOT NULL,
+
+    `amount`                INT NOT NULL DEFAULT 0,
+
+    `return_date`           TIMESTAMP,
+    `note`                  TEXT,
+
+    `status`                INT NOT NULL         DEFAULT 1,
+    `created_at`            TIMESTAMP    DEFAULT CURRENT_TIMESTAMP,
+    `updated_at`            TIMESTAMP    DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     PRIMARY KEY (`id`),
-    KEY `order_item_id` (`order_item_id`) USING BTREE,
+    KEY `warranty_type_id` (`warranty_type_id`) USING BTREE,
+    KEY `sku_id` (`sku_id`) USING BTREE,
+    KEY `order_id` (`order_id`) USING BTREE ,
     KEY `status` (`status`) USING BTREE
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4;
+
+
+DROP TABLE IF EXISTS `warranty_type`;
+CREATE TABLE `warranty_type`
+(
+    `id` INT NOT NULL AUTO_INCREMENT,
+    `name` VARCHAR(255),
+    `description` TEXT,
+    `status`        INT NOT NULL         DEFAULT 1,
+    `created_at`    TIMESTAMP    DEFAULT CURRENT_TIMESTAMP,
+    `updated_at`    TIMESTAMP    DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    PRIMARY KEY (`id`)
+)ENGINE = InnoDB
+ DEFAULT CHARSET = utf8mb4;
 
 
 # ORDER
