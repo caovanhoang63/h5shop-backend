@@ -6,7 +6,6 @@ import {ICondition} from "../../../libs/condition";
 import {Paging} from "../../../libs/paging";
 import {ResultSetHeader, RowDataPacket} from "mysql2";
 import {SqlHelper} from "../../../libs/sqlHelper";
-import {Provider} from "../../provider/entity/provider";
 import {Err} from "../../../libs/errors";
 
 export class EmployeeMysqlRepo extends BaseMysqlRepo implements IEmployeeRepository {
@@ -67,7 +66,7 @@ export class EmployeeMysqlRepo extends BaseMysqlRepo implements IEmployeeReposit
         console.log(Date.now() - time)
         const pagingClause = SqlHelper.buildPaginationClause(paging)
         const countQuery = `SELECT COUNT(*) as total
-                            FROM provider ${clause}`;
+                            FROM employee ${clause}`;
         const query = `SELECT *
                        FROM employee ${clause} ${pagingClause}`;
         return this.executeQuery(countQuery, values).andThen(
