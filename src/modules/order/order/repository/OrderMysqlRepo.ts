@@ -1,16 +1,17 @@
 import {IOrderRepository} from "./IOrderRepository";
 import {BaseMysqlRepo} from "../../../../components/mysql/BaseMysqlRepo";
-import {errAsync, ok, okAsync, ResultAsync} from "neverthrow";
+import {err, errAsync, ok, okAsync, ResultAsync} from "neverthrow";
 import {OrderCreate} from "../entity/orderCreate";
-import {createDatabaseError, Err} from "../../../../libs/errors";
+import {createDatabaseError, createEntityNotFoundError, Err} from "../../../../libs/errors";
 import {ResultSetHeader, RowDataPacket} from "mysql2";
 import {OrderUpdate} from "../entity/orderUpdate";
 import {SqlHelper} from "../../../../libs/sqlHelper";
-import {OrderDetail} from "../entity/orderDetail";
+import {OrderDetail, OrderItemDetail} from "../entity/orderDetail";
 import {ICondition} from "../../../../libs/condition";
 import {Order} from "../entity/order";
 
 export class OrderMysqlRepo extends BaseMysqlRepo implements IOrderRepository {
+
     create(o: OrderCreate): ResultAsync<Order, Err> {
         const query = `INSERT INTO \`order\` (customer_id, seller_id, order_type, description) VALUES (?, ?, ?, ?)`;
         return this.executeQuery(query,
@@ -84,18 +85,31 @@ export class OrderMysqlRepo extends BaseMysqlRepo implements IOrderRepository {
         )
     }
 
-    findById(id: number): ResultAsync<Order | null, Err> {
+    findById(id: number): ResultAsync<OrderDetail | null, Err> {
         const query = `SELECT * FROM \`order\` WHERE id = ?`;
+        const itemQuery = `SELECT * FROM order_item WHERE order_id = ?`;
+        let order : OrderDetail | null = null;
         return this.executeQuery(query, [id]).andThen(
             ([r, f]) => {
                 const firstRow = (r as RowDataPacket[])[0];
                 if(!firstRow) {
-                    return ok(null);
+                    return err(createEntityNotFoundError("Order not found"));
                 }
-
-                return ok(SqlHelper.toCamelCase(firstRow) as Order)
+                order = SqlHelper.toCamelCase(firstRow) as OrderDetail
+                return ok(order)
             }
-        );
+        ).andThen(
+            r => this.executeQuery(
+                itemQuery,
+                [r.id]
+            )
+        ).andThen(
+            ([r, f]) => {
+                const rows = r as RowDataPacket[];
+                order!.items = rows.map(row => SqlHelper.toCamelCase(row) as OrderItemDetail)
+                return ok(order)
+            }
+        )
     }
 
     list(cond: ICondition): ResultAsync<OrderDetail[], Err> {
@@ -165,5 +179,25 @@ export class OrderMysqlRepo extends BaseMysqlRepo implements IOrderRepository {
                 return okAsync(uniqueOrders);
             })
             .orElse((error) => errAsync(error));
+    }
+    payOrder(order: OrderDetail): ResultAsync<void, Err> {
+        const orderQuery = `UPDATE \`order\` SET status = 2 WHERE id = ?`;
+        const skuQuery = `UPDATE sku SET stock = stock - ? WHERE id = ?`;
+        return this.executeInTransaction(
+            conn => {
+                return ResultAsync.fromPromise(
+                    conn.query(orderQuery,[order.id]),
+                    e => createDatabaseError(e)
+                ).andThen(
+                    r=>
+                        ResultAsync.fromPromise(
+                            Promise.all(order.items.map(i => conn.query(skuQuery,[i.amount,i.skuId]))),
+                            e => createDatabaseError(e)
+                        )
+                ).andThen(
+                    r=> ok(undefined)
+                )
+            }
+        )
     }
 }

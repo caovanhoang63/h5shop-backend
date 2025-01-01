@@ -110,4 +110,25 @@ export class OrderApi {
             )
         }
     }
+
+    payOrder() : express.Handler {
+        return async (req, res) => {
+            const id = parseInt(req.params.id);
+
+            if (!id) {
+                res.status(400).send(AppResponse.ErrorResponse(createInvalidDataError(new Error("id must a number"))))
+                return
+            }
+            const requester = ReqHelper.getRequester(res);
+            (await this.userService.payOrder(requester, id)).match(
+                value => {
+                    res.status(200).send(AppResponse.SimpleResponse(true))
+                },
+                e =>{
+                    writeErrorResponse(res, e)
+                }
+            )
+
+        }
+    }
 }
