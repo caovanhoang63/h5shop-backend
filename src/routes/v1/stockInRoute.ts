@@ -20,9 +20,9 @@ const stockInRouter = (appContext: IAppContext) => {
     //router.use(requiredRole(appContext, SystemRole.Admin, SystemRole.Owner, SystemRole.WarehouseStaff));
 
 
-    router.get('/list', stockInApi.getStockInTable());
+    router.get('/list', stockInApi.list());
 
-    router.get('/details/:id', stockInApi.getStockInDetails());
+    router.get('/details/:id', stockInApi.findById());
     router.post('/create', stockInApi.create());
     return router;
 }

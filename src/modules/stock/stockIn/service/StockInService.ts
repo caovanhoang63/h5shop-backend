@@ -25,27 +25,27 @@ export class StockInService implements IStockInService {
                 @inject(TYPES.ISkuRepository) private readonly skuRepo : ISkuRepository,
     ) {}
 
-    getStockInDetails(reportId: number): ResultAsync<StockInDetailTable | null, Err> {
+    findById(reportId: number): ResultAsync<StockInDetailTable | null, Err> {
         return ResultAsync.fromPromise(
             (async () =>{
-                const result = await this.stockInRepository.getStockInDetails(reportId);
+                const result = await this.stockInRepository.findById(reportId);
                 if (result.isErr())
                     return err(result.error)
                 return ok(result.value)
             })(), e => createInternalError(e)
         ).andThen(r=> r)
     }
-    getStockInTable(condition: ICondition, paging: Paging): ResultAsync<StockInTable[] | null, Err> {
+    list(condition: ICondition, paging: Paging): ResultAsync<StockInTable[] | null, Err> {
         return ResultAsync.fromPromise(
             (async () =>{
-                const result = await this.stockInRepository.getStockInTable(condition, paging);
+                const result = await this.stockInRepository.list(condition, paging);
                 if (result.isErr())
                     return err(result.error)
                 return ok(result.value)
             })(), e => createInternalError(e)
         ).andThen(r=> r)
     }
-    public createReport = (requester: IRequester,report: StockInCreate): ResultAsync<number | null, Err> => {
+    public create = (requester: IRequester, report: StockInCreate): ResultAsync<number | null, Err> => {
         return ResultAsync.fromPromise(
             (async () => {
                 const vR = (await Validator(stockInCreateSchema, report))

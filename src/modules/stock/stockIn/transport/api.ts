@@ -10,7 +10,7 @@ import {StockInCreate} from "../entity/stockIn";
 
 export class StockInApi {
     constructor(private readonly service: IStockInService) {}
-    getStockInDetails(): express.Handler {
+    findById(): express.Handler {
         return async (req, res, next) => {
             const reportId = parseInt(req.params.id);
 
@@ -19,7 +19,7 @@ export class StockInApi {
                 return;
             }
 
-            const r = await this.service.getStockInDetails(reportId);
+            const r = await this.service.findById(reportId);
 
             r.match(
                 value => {
@@ -33,7 +33,7 @@ export class StockInApi {
     }
 
 
-    getStockInTable(): express.Handler {
+    list(): express.Handler {
         return async (req, res, next) => {
             const paging = ReqHelper.getPaging(req.query);
             const value = inventoryReportFilterSchema.validate(req.query, { stripUnknown: true });
@@ -43,7 +43,7 @@ export class StockInApi {
                 return;
             }
             const filter = req.query;
-            const r = await this.service.getStockInTable(filter, paging);
+            const r = await this.service.list(filter, paging);
 
             r.match(
                 value => {
@@ -60,7 +60,7 @@ export class StockInApi {
         return async (req, res, next) => {
             const body = req.body as StockInCreate;
             const requester =  ReqHelper.getRequester(res)
-            const r = await this.service.createReport( requester,body);
+            const r = await this.service.create( requester,body);
 
             r.match(
                 value => {

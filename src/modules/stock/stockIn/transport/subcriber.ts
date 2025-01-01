@@ -10,15 +10,4 @@ import _ from "lodash";
 export class StockInSubscriberHandler {
     constructor(private readonly stockInService: IStockInService) {
     }
-
-    onCreate(entity:string) :SubHandler{
-        return (m):ResultAsync<void,Err> =>{
-            return ResultAsync.fromPromise(
-                (async () => {
-
-                })(),
-                e => e as Err
-            )
-        }
-    }
 }

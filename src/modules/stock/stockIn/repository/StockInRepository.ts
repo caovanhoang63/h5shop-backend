@@ -15,7 +15,7 @@ import {StockInCreate} from "../entity/stockIn";
 import {query} from "express";
 
 export class StockInRepository extends BaseMysqlRepo implements IStockInRepository {
-    getStockInDetails(reportId: number): ResultAsync<StockInDetailTable | null, Err> {
+    findById(reportId: number): ResultAsync<StockInDetailTable | null, Err> {
         const query = `
             SELECT
                 std.id as id,
@@ -79,7 +79,7 @@ export class StockInRepository extends BaseMysqlRepo implements IStockInReposito
         );
     }
 
-    getStockInTable(condition: ICondition, paging: Paging): ResultAsync<StockInTable[] | null, Err> {
+    list(condition: ICondition, paging: Paging): ResultAsync<StockInTable[] | null, Err> {
         const pagingClause = SqlHelper.buildPaginationClause(paging)
         const [whereClause, whereValues] = SqlHelper.buildWhereClause(condition,"st");
         const query = `
