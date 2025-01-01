@@ -349,10 +349,10 @@ DROP TABLE IF EXISTS `warranty_form`;
 CREATE TABLE `warranty_form`
 (
     `id`                    INT NOT NULL AUTO_INCREMENT,
-    `warranty_type_id`      INT NOT NULL,
+    `warranty_type` ENUM('new', 'fix', 'part', 'mf_fix'),
 
     `customer_id`           INT,
-
+    `customer_phone_number` VARCHAR(255) NOT NULL,
     `stock_in_id`           INT,
     `sku_id`                INT NOT NULL,
     `order_id`              INT NOT NULL,
@@ -366,26 +366,12 @@ CREATE TABLE `warranty_form`
     `created_at`            TIMESTAMP    DEFAULT CURRENT_TIMESTAMP,
     `updated_at`            TIMESTAMP    DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     PRIMARY KEY (`id`),
-    KEY `warranty_type_id` (`warranty_type_id`) USING BTREE,
+    KEY `warranty_type` (`warranty_type`) USING BTREE,
     KEY `sku_id` (`sku_id`) USING BTREE,
     KEY `order_id` (`order_id`) USING BTREE ,
     KEY `status` (`status`) USING BTREE
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4;
-
-
-DROP TABLE IF EXISTS `warranty_type`;
-CREATE TABLE `warranty_type`
-(
-    `id` INT NOT NULL AUTO_INCREMENT,
-    `name` VARCHAR(255),
-    `description` TEXT,
-    `status`        INT NOT NULL         DEFAULT 1,
-    `created_at`    TIMESTAMP    DEFAULT CURRENT_TIMESTAMP,
-    `updated_at`    TIMESTAMP    DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    PRIMARY KEY (`id`)
-)ENGINE = InnoDB
- DEFAULT CHARSET = utf8mb4;
 
 
 # ORDER

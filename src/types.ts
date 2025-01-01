@@ -19,7 +19,7 @@ const TYPES = {
     ICustomerRepository: Symbol.for("ICustomerRepository"),
     IProviderRepository: Symbol.for("IProviderRepository"),
     IStockInRepository: Symbol.for("IStockInRepository"),
-
+    IWarrantyRepository: Symbol.for("IWarrantyRepository"),
 
     // SERVICE
     IAuthService: Symbol.for("IAuthService"),
@@ -33,6 +33,7 @@ const TYPES = {
     IOrderService: Symbol.for("IOrderService"),
     IOrderItemService: Symbol.for("IOrderItemService"),
 
+
     ISkuWholesalePriceService: Symbol.for("ISkuWholesalePriceService"),
     IUploadService: Symbol.for("IUploadService"),
 
@@ -42,6 +43,12 @@ const TYPES = {
 
     IInventoryReportService: Symbol.for("IInventoryReportService"),
     ICustomerService: Symbol.for("ICustomerService"),
+
+    IWarrantyService: Symbol.for("IWarrantyService"),
+    //Controller
+    IWarrantyController: Symbol.for("IWarrantyController"),
+
+
     // UTILS
     IHasher: Symbol.for("IHasher"),
     IJwtProvider: Symbol.for("IJwtProvider"),

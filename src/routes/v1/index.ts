@@ -23,6 +23,7 @@ import providerRouter from "./providerRouter";
 import stockInRouter from "./stockInRoute";
 
 import orderItemRoute from "./orderItemRoute";
+import warrantyRouter from "./warrantyRoute";
 
 
 
@@ -37,7 +38,7 @@ const v1Router = () => {
     router.get('/', function (req, res, next) {
         res.render('index', {title: 'Express'});
     });
-
+    router.use("/warranty",warrantyRouter());
     router.use("/users", usersRouter(appCtx))
     router.use("/auth", authRouter(appCtx))
     router.use("/audit", auditRouter(appCtx))
@@ -53,8 +54,6 @@ const v1Router = () => {
     router.use("/sku-wholesale-price", skuWholesalePriceRoute(appCtx))
     router.use("/upload", uploadRouter(appCtx))
     router.use("/sku-attr", skuAttrRouter(appCtx))
-
-
     router.use("/customer", customerRoute(appCtx))
 
     router.use("/provider", providerRouter(appCtx))

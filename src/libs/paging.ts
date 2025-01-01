@@ -5,6 +5,9 @@ export class Paging {
         this.default()
     }
 
+    getOffSet() : Number{
+        return (this.page - 1) * this.limit;
+    }
     total: number = 0;
     page: number;
     limit: number;

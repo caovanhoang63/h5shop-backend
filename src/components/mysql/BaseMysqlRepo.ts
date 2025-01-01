@@ -115,7 +115,10 @@ export abstract class BaseMysqlRepo implements IBaseRepo {
                 ResultAsync.fromPromise(
                     conn.query(query, params)
                         .then((row) => row),
-                    e => MysqlErrHandler.handler(e, "entity")
+                    e => {
+                        console.log(e)
+                        return  MysqlErrHandler.handler(e, "entity")
+                    }
                 )
             );
     }

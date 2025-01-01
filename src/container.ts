@@ -83,6 +83,11 @@ import {OrderItemMysqlRepo} from "./modules/order/order-item/repository/OrderIte
 import {IOrderItemRepository} from "./modules/order/order-item/repository/IOrderItemRepository";
 import {IOrderItemService} from "./modules/order/order-item/service/IOrderItemService";
 import {OrderItemService} from "./modules/order/order-item/service/OrderItemService";
+import {IWarrantyRepo} from "./modules/warranty/repo/IWarrantyRepo";
+import {WarrantyMysqlRepo} from "./modules/warranty/repo/warrantyMysqlRepo";
+import {IWarrantyService} from "./modules/warranty/service/IWarrantyService";
+import {WarrantyService} from "./modules/warranty/service/warrantyService";
+import {WarrantyApi} from "./modules/warranty/transport/warrantyApi";
 
 
 
@@ -108,7 +113,7 @@ container.bind<ISkuWholesalePriceRepository>(TYPES.ISkuWholesalePriceRepository)
 container.bind<ICustomerRepository>(TYPES.ICustomerRepository).to(CustomerMysqlRepo).inRequestScope();
 container.bind<IProviderRepository>(TYPES.IProviderRepository).to(ProviderMySqlRepo).inRequestScope();
 container.bind<IStockInRepository>(TYPES.IStockInRepository).to(StockInRepository).inRequestScope();
-
+container.bind<IWarrantyRepo>(TYPES.IWarrantyRepository).to(WarrantyMysqlRepo).inRequestScope()
 
 //Service
 container.bind<IAuthService>(TYPES.IAuthService).to(AuthService).inRequestScope();
@@ -131,6 +136,12 @@ container.bind<IStockInService>(TYPES.IStockInService).to(StockInService).inRequ
 
 container.bind<IInventoryReportService>(TYPES.IInventoryReportService).to(InventoryReportService).inRequestScope();
 container.bind<ICustomerService>(TYPES.ICustomerService).to(CustomerService).inRequestScope();
+
+container.bind<IWarrantyService>(TYPES.IWarrantyService).to(WarrantyService).inRequestScope()
+
+// Controller
+container.bind<WarrantyApi>(TYPES.IWarrantyController).to(WarrantyApi).inRequestScope()
+
 
 // Util
 container.bind<Pool>(TYPES.ConnPool).toConstantValue(mysql.createPool({
