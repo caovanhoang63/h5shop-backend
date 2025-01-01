@@ -115,7 +115,7 @@ export class OrderService implements IOrderService {
 
                 for (let i = 0 ; i< skus.length; i++) {
                     if (skus[i].stock < order.items[i].amount) {
-                        return errAsync(createInvalidRequestError(new Error(`${skus[i]}`)))
+                        return errAsync(createInvalidRequestError(new Error(`${skus[i].id}`)))
                     }
                     order.totalAmount = skus[i].price * order.items[i].amount;
                 }

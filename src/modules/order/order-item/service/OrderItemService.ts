@@ -2,7 +2,7 @@ import {IOrderItemService} from "./IOrderItemService";
 import {inject, injectable} from "inversify";
 import {IOrderItemRepository} from "../repository/IOrderItemRepository";
 import {TYPES} from "../../../../types";
-import {createEntityNotFoundError, createInternalError, Err} from "../../../../libs/errors";
+import {createEntityNotFoundError, createInternalError, createInvalidDataError, Err} from "../../../../libs/errors";
 import {err, ok, ResultAsync} from "neverthrow";
 import {OrderItemCreate, orderItemCreateSchema} from "../entity/orderItemCreate";
 import {Validator} from "../../../../libs/validator";
@@ -38,6 +38,9 @@ export class OrderItemService implements IOrderItemService {
                 const skuCheck = await this.skuRepository.findById(o.skuId);
                 if (skuCheck.isErr()) return err(skuCheck.error);
                 if (skuCheck.value === null) return err(createEntityNotFoundError("Sku"));
+
+                if (skuCheck.value.stock < o.amount)
+                    return err(createInvalidDataError(new Error("Stock not enough")));
 
                 const r = await this.orderItemRepository.create(o);
                 if (r.isErr()) {
