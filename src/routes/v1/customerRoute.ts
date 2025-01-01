@@ -14,9 +14,9 @@ const customerRoute = (appContext: IAppContext) => {
     // router.use(authentication())
 
     router.post('/', customerApi.create())
-    router.delete('/:phone', customerApi.delete())
-    router.patch('/:phone', customerApi.update())
-    router.get('/:phone', customerApi.findById())
+    router.delete('/:id', customerApi.delete())
+    router.patch('/:id', customerApi.update())
+    router.get('/:id', customerApi.findById())
     router.get('/', customerApi.list())
 
     return router;

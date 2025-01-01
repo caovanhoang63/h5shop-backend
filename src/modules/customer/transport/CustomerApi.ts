@@ -5,6 +5,7 @@ import {AppResponse} from "../../../libs/response";
 import {writeErrorResponse} from "../../../libs/writeErrorResponse";
 import express from "express";
 import {createInvalidDataError} from "../../../libs/errors";
+import {CustomerFilter} from "../entity/customerFilter";
 
 export class CustomerApi {
     constructor(private readonly customerService: ICustomerService) {}
@@ -29,15 +30,15 @@ export class CustomerApi {
     update(): express.Handler {
         return async (req, res, next) => {
             const body = req.body as CustomerCreate;
-            const phone = req.params.phone;
+            const id = parseInt(req.params.id);
 
-            if (!phone) {
-                res.status(400).send(AppResponse.ErrorResponse(createInvalidDataError(new Error("Phone must be provided"))))
+            if (!id) {
+                res.status(400).send(AppResponse.ErrorResponse(createInvalidDataError(new Error("id must be provided"))))
                 return
             }
 
             const requester = ReqHelper.getRequester(res)
-            const r = await this.customerService.update(requester, phone, body)
+            const r = await this.customerService.update(requester, id, body)
 
             r.match(
                 value => {
@@ -52,14 +53,14 @@ export class CustomerApi {
 
     delete(): express.Handler {
         return async (req, res, next) => {
-            const phone = req.params.phone;
+            const id = parseInt(req.params.id);
 
-            if (!phone) {
+            if (!id) {
                 res.status(400).send(AppResponse.ErrorResponse(createInvalidDataError(new Error("phone must be provided"))))
                 return
             }
             const requester = ReqHelper.getRequester(res)
-            const r = await this.customerService.delete(requester, phone)
+            const r = await this.customerService.delete(requester, id)
 
             r.match(
                 value => {
@@ -74,14 +75,14 @@ export class CustomerApi {
 
     findById(): express.Handler {
         return async (req, res, next) => {
-            const phone = req.params.phone;
+            const id = parseInt(req.params.id);
 
-            if (!phone) {
-                res.status(400).send(AppResponse.ErrorResponse(createInvalidDataError(new Error("phone must be provided"))))
+            if (!id) {
+                res.status(400).send(AppResponse.ErrorResponse(createInvalidDataError(new Error("id must be provided"))))
                 return
             }
-            const requester = ReqHelper.getRequester(res)
-            const r = await this.customerService.findById(requester, phone)
+
+            const r = await this.customerService.findById(id)
 
             r.match(
                 value => {
@@ -96,8 +97,18 @@ export class CustomerApi {
 
     list(): express.Handler {
         return async (req, res, next) => {
-            const requester = ReqHelper.getRequester(res)
-            const r = await this.customerService.list(requester)
+            const filter = {
+                status: req.query.status,
+                lkCustomerPhoneNumber : req.query.lkCustomerPhoneNumber,
+                gtCreatedAt : req.query.gtCreatedAt,
+                ltCreatedAt : req.query.ltCreatedAt,
+                gtUpdatedAt : req.query.gtUpdatedAt,
+                ltUpdatedAt : req.query.ltUpdatedAt
+            } as CustomerFilter;
+
+            const paging = ReqHelper.getPaging(req.query);
+
+            const r = await this.customerService.list(filter, paging);
 
             r.match(
                 value => {

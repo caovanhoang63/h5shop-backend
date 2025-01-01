@@ -40,7 +40,7 @@ export class WarrantyMysqlRepo extends BaseMysqlRepo implements IWarrantyRepo {
         const [whereClause,whereValue] = SqlHelper.buildWhereClause(filter)
         const pagingClause = SqlHelper.buildPaginationClause(paging)
         const query = `SELECT * FROM warranty_form ${whereClause} ${pagingClause}`;
-        const countQuery = `SELECT COUNT(id) FROM warranty_form ${whereClause} `;
+        const countQuery = `SELECT COUNT(id) FROM warranty_form ${whereClause}`;
         return this.executeQuery(countQuery,[whereValue]).andThen(
             ([r,f]) => {
                 const firstRow = (r as RowDataPacket[])[0];

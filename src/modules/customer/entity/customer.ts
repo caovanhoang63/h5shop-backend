@@ -7,6 +7,7 @@ export enum CustomerGender {
 }
 
 export interface Customer extends BaseModel{
+    id: number;
     phoneNumber: string;
     address?: string;
     firstName: string;

@@ -45,7 +45,8 @@ CREATE TABLE `user`
 DROP TABLE IF EXISTS `customer`;
 CREATE TABLE `customer`
 (
-    `phone_number`  VARCHAR(20) NOT NULL,
+    `id`        INT NOT NULL AUTO_INCREMENT,
+    `phone_number`  VARCHAR(20) NOT NULL UNIQUE,
     `address`       VARCHAR(255),
     `first_name`    VARCHAR(255) NOT NULL ,
     `last_name`     VARCHAR(255) NOT NULL,
@@ -55,7 +56,7 @@ CREATE TABLE `customer`
     `status`        INT NOT NULL                                     DEFAULT 1,
     `created_at`    TIMESTAMP                               DEFAULT CURRENT_TIMESTAMP,
     `updated_at`    TIMESTAMP                               DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    PRIMARY KEY (`phone_number`),
+    PRIMARY KEY (`id`),
     KEY `status` (`status`) USING BTREE
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4;

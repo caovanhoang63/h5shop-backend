@@ -1,9 +1,9 @@
 import {
-    topicCreateCategory, topicCreateSpu,
-    topicDeleteCategory, topicDeleteSpu,
+    topicCreateCategory, topicCreateCustomer, topicCreateSpu,
+    topicDeleteCategory, topicDeleteCustomer, topicDeleteSpu,
     topicDeleteUser, topicPayOrder,
     topicRegister,
-    topicUpdateCategory, topicUpdateSpu
+    topicUpdateCategory, topicUpdateCustomer, topicUpdateSpu
 } from "./libs/topics";
 import {SubscriberEngine} from "./components/subcriber";
 import {AuditSubscribeHandler} from "./modules/audit/transport/subcriber";
@@ -37,5 +37,8 @@ subscriberEngine.subscribe(topicDeleteSpu, audit.onDelete("spu"));
 subscriberEngine.subscribe(topicDeleteUser, user.onHardDelete());
 subscriberEngine.subscribe(topicPayOrder,audit.onPayOrder(), customer.onPaymentSuccess());
 
+subscriberEngine.subscribe(topicCreateCustomer, audit.onCreate("customer"));
+subscriberEngine.subscribe(topicUpdateCustomer, audit.onUpdate("customer"));
+subscriberEngine.subscribe(topicDeleteCustomer, audit.onDelete("customer"));
 
 export default subscriberEngine

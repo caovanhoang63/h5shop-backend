@@ -4,12 +4,14 @@ import {ResultAsync} from "neverthrow";
 import {Err} from "../../../libs/errors";
 import {CustomerUpdate} from "../entity/customerUpdate";
 import {Customer} from "../entity/customer";
+import {CustomerFilter} from "../entity/customerFilter";
+import {Paging} from "../../../libs/paging";
 
 export interface ICustomerRepository extends IBaseRepo {
     create: (c: CustomerCreate) => ResultAsync<Customer, Err>;
-    update: (id: string, c: CustomerUpdate) => ResultAsync<Customer, Err>;
-    delete: (id: string) => ResultAsync<void, Err>;
-    findById: (id: string) => ResultAsync<Customer, Err>;
-    list: () => ResultAsync<Customer[], Err>
-    increasePaymentAmount: (id: string) => ResultAsync<void, Err>
+    update: (id: number, c: CustomerUpdate) => ResultAsync<Customer, Err>;
+    delete: (id: number) => ResultAsync<void, Err>;
+    findById: (id: number) => ResultAsync<Customer, Err>;
+    list: (cond: CustomerFilter, page: Paging) => ResultAsync<Customer[], Err>
+    increasePaymentAmount: (id: number) => ResultAsync<void, Err>
 }
