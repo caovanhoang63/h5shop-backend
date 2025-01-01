@@ -10,6 +10,9 @@ export interface OrderDetail {
     createdAt: Date;
     updatedAt: Date;
     items: OrderItemDetail[];
+    totalAmount: number;
+    discountAmount: number;
+    finalAmount: number;
 }
 
 export interface OrderItemDetail {

@@ -29,6 +29,10 @@ export class OrderMysqlRepo extends BaseMysqlRepo implements IOrderRepository {
                     description: o.description,
                     createdAt: new Date(),
                     updatedAt: new Date(),
+                    finalAmount: 0,
+                    totalAmount: 0,
+                    discountAmount: 0,
+
                 };
                 return okAsync(createdOrder);
             });
@@ -154,6 +158,9 @@ export class OrderMysqlRepo extends BaseMysqlRepo implements IOrderRepository {
                             description: camelRow.description,
                             createdAt: camelRow.orderCreatedAt,
                             updatedAt: camelRow.orderUpdatedAt,
+                            totalAmount: camelRow.totalAmount,
+                            discountAmount: camelRow.discountAmount,
+                            finalAmount: camelRow.finalAmount,
                             items: [], // Initialize the items array
                         });
                     }

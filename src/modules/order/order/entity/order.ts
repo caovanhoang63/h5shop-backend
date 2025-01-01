@@ -12,4 +12,7 @@ export interface Order {
     description?: string;
     createdAt: Date | null;
     updatedAt: Date | null;
+    totalAmount: number;
+    discountAmount: number;
+    finalAmount: number;
 }

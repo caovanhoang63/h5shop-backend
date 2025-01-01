@@ -388,8 +388,9 @@ ADD COLUMN `total_amount` DECIMAL(15, 2) DEFAULT 0 AFTER `description`;
 ALTER TABLE `order`
 ADD COLUMN `discount_amount` DECIMAL(15, 2) DEFAULT 0 AFTER `total_amount`;
 
+
 ALTER TABLE `order`
-    ADD COLUMN `finally_amount` DECIMAL(15, 2) DEFAULT 0 AFTER `discount_amount`;
+    ADD COLUMN `final_amount` DECIMAL(15, 2) DEFAULT 0 AFTER `discount_amount`;
 
 
 DROP TABLE IF EXISTS `order_item`;
