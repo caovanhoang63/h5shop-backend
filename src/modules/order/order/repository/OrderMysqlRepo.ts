@@ -2,7 +2,7 @@ import {IOrderRepository} from "./IOrderRepository";
 import {BaseMysqlRepo} from "../../../../components/mysql/BaseMysqlRepo";
 import {errAsync, ok, okAsync, ResultAsync} from "neverthrow";
 import {OrderCreate} from "../entity/orderCreate";
-import {Err} from "../../../../libs/errors";
+import {createDatabaseError, Err} from "../../../../libs/errors";
 import {ResultSetHeader, RowDataPacket} from "mysql2";
 import {OrderUpdate} from "../entity/orderUpdate";
 import {SqlHelper} from "../../../../libs/sqlHelper";
@@ -11,7 +11,7 @@ import {ICondition} from "../../../../libs/condition";
 import {Order} from "../entity/order";
 
 export class OrderMysqlRepo extends BaseMysqlRepo implements IOrderRepository {
-    create(o: OrderCreate): ResultAsync<void, Err> {
+    create(o: OrderCreate): ResultAsync<Order, Err> {
         const query = `INSERT INTO \`order\` (customer_id, seller_id, order_type, description) VALUES (?, ?, ?, ?)`;
         return this.executeQuery(query,
             [o.customerId, o.sellerId, o.orderType, o.description]
@@ -19,17 +19,44 @@ export class OrderMysqlRepo extends BaseMysqlRepo implements IOrderRepository {
             ([r, f]) => {
                 const header = r as ResultSetHeader;
                 o.id = header.insertId;
-                return okAsync(undefined);
+                const createdOrder: Order = {
+                    id: header.insertId,
+                    customerId: o.customerId,
+                    status: 1,
+                    sellerId: o.sellerId,
+                    orderType: o.orderType,
+                    description: o.description,
+                    createdAt: new Date(),
+                    updatedAt: new Date(),
+                };
+                return okAsync(createdOrder);
             });
     }
 
-    update(id: number, o: OrderUpdate): ResultAsync<void, Err> {
+    update(id: number, o: OrderUpdate): ResultAsync<Order, Err> {
         const [clause, values] = SqlHelper.buildUpdateClause(o);
         const query = `UPDATE \`order\` SET ${clause} WHERE id = ?`;
         return this.executeQuery(query, [...values, id]).andThen(
             ([r, f]) => {
                 const header = r as ResultSetHeader;
-                return okAsync(undefined);
+
+
+                // Check if any rows were affected
+                if (header.affectedRows === 0) {
+                    return errAsync(createDatabaseError("Order not found or no changes made"));
+                }
+
+                // Retrieve the updated record
+                const selectQuery = `SELECT * FROM \`order\` WHERE id = ?`;
+                return this.executeQuery(selectQuery, [id]).andThen(([r]) => {
+                    const fetchedRows = r as Order[];
+
+                    if (fetchedRows.length === 0) {
+                        return errAsync(createDatabaseError("Order not found after update"));
+                    }
+
+                    return okAsync(fetchedRows[0]);
+                });
             });
     }
 
@@ -111,8 +138,8 @@ export class OrderMysqlRepo extends BaseMysqlRepo implements IOrderRepository {
                             status: camelRow.status,
                             orderType: camelRow.orderType,
                             description: camelRow.description,
-                            createAt: camelRow.createdAt,
-                            updateAt: camelRow.updatedAt,
+                            createdAt: camelRow.orderCreatedAt,
+                            updatedAt: camelRow.orderUpdatedAt,
                             items: [], // Initialize the items array
                         });
                     }
@@ -127,7 +154,7 @@ export class OrderMysqlRepo extends BaseMysqlRepo implements IOrderRepository {
                             unitPrice: camelRow.unitPrice,
                             discount: camelRow.discount,
                             description: camelRow.itemDescription,
-                            createAt: camelRow.itemCreatedAt,
+                            createdAt: camelRow.itemCreatedAt,
                         });
                     }
                 });

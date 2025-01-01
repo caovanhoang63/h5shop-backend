@@ -18,7 +18,7 @@ export class OrderApi {
 
             r.match(
                 value => {
-                    res.status(200).send(AppResponse.SimpleResponse(true))
+                    res.status(200).send(AppResponse.SimpleResponse(value))
                 },
                 e => {
                     writeErrorResponse(res, e)
@@ -42,7 +42,7 @@ export class OrderApi {
 
             r.match(
                 value => {
-                    res.status(200).send(AppResponse.SimpleResponse(true))
+                    res.status(200).send(AppResponse.SimpleResponse(value))
                 },
                 e => {
                     writeErrorResponse(res, e)

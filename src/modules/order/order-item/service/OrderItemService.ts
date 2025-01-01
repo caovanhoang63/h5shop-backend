@@ -10,6 +10,7 @@ import {IRequester} from "../../../../libs/IRequester";
 import {OrderItemUpdate, orderItemUpdateSchema} from "../entity/orderItemUpdate";
 import {IOrderRepository} from "../../order/repository/IOrderRepository";
 import {ISkuRepository} from "../../../catalog/sku/repository/ISkuRepository";
+import {OrderItem} from "../entity/orderItem";
 
 @injectable()
 export class OrderItemService implements IOrderItemService {
@@ -20,7 +21,7 @@ export class OrderItemService implements IOrderItemService {
     ) {
     }
 
-    create = (requester: IRequester, o: OrderItemCreate): ResultAsync<void, Err> => {
+    create = (requester: IRequester, o: OrderItemCreate): ResultAsync<OrderItem, Err> => {
         return ResultAsync.fromPromise(
             (async () => {
                 const vR = (await Validator(orderItemCreateSchema, o))
@@ -43,12 +44,12 @@ export class OrderItemService implements IOrderItemService {
                     return err(r.error);
                 }
 
-                return ok(undefined);
+                return ok(r.value);
             })(), e => createInternalError(e)
         ).andThen(r => r)
     }
 
-    update = (requester: IRequester, orderId: number, skuId: number, o: OrderItemUpdate): ResultAsync<void, Err> => {
+    update = (requester: IRequester, orderId: number, skuId: number, o: OrderItemUpdate): ResultAsync<OrderItem, Err> => {
         return ResultAsync.fromPromise(
             (async () => {
                 const vR = (await Validator(orderItemUpdateSchema, o))
@@ -61,7 +62,7 @@ export class OrderItemService implements IOrderItemService {
                     return err(r.error);
                 }
 
-                return ok(undefined);
+                return ok(r.value);
             })(), e => createInternalError(e)
         ).andThen(r => r);
     }

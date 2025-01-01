@@ -17,7 +17,7 @@ export class OrderService implements IOrderService {
     constructor(@inject(TYPES.IOrderRepository) private readonly orderRepository: IOrderRepository) {
     }
 
-    create = (requester: IRequester, o: OrderCreate): ResultAsync<void, Err> => {
+    create = (requester: IRequester, o: OrderCreate): ResultAsync<Order, Err> => {
         return ResultAsync.fromPromise(
             (async () => {
                 const vR = (await Validator(orderCreateSchema, o))
@@ -33,12 +33,12 @@ export class OrderService implements IOrderService {
                     return err(r.error);
                 }
 
-                return ok(undefined);
+                return ok(r.value);
             })(), e => createInternalError(e)
         ).andThen(r => r)
     }
 
-    update = (requester: IRequester, id: number, o: OrderUpdate): ResultAsync<void, Err> => {
+    update = (requester: IRequester, id: number, o: OrderUpdate): ResultAsync<Order, Err> => {
         return ResultAsync.fromPromise(
             (async () => {
                 const vR = (await Validator(orderUpdateSchema, o))
@@ -54,7 +54,7 @@ export class OrderService implements IOrderService {
                     return err(r.error);
                 }
 
-                return ok(undefined);
+                return ok(r.value);
             })(), e => createInternalError(e)
         ).andThen(r => r)
     }

@@ -8,8 +8,8 @@ import {ICondition} from "../../../../libs/condition";
 import {Order} from "../entity/order";
 
 export interface IOrderRepository extends IBaseRepo {
-    create: (o: OrderCreate) => ResultAsync<void, Err>;
-    update: (id: number, o: OrderUpdate) => ResultAsync<void, Err>
+    create: (o: OrderCreate) => ResultAsync<Order, Err>;
+    update: (id: number, o: OrderUpdate) => ResultAsync<Order, Err>
     delete: (id: number) => ResultAsync<void, Err>;
     findById: (id: number) => ResultAsync<Order | null, Err>;
     list: (cond: ICondition) => ResultAsync<OrderDetail[], Err>;

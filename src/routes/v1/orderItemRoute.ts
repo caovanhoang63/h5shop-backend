@@ -11,7 +11,7 @@ const OrderItemRoute = (appContext: IAppContext) => {
     const orderItemService = container.get<IOrderItemService>(TYPES.IOrderItemService)
     const orderItemApi = new OrderItemApi(orderItemService);
 
-    router.use(authentication())
+    // router.use(authentication())
 
     router.post('/', orderItemApi.create())
     router.delete('/', orderItemApi.delete())

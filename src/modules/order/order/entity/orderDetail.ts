@@ -7,8 +7,8 @@ export interface OrderDetail {
     status: number;
     orderType: OrderType;
     description?: string;
-    createAt: Date | null;
-    updateAt: Date | null;
+    createdAt: Date;
+    updatedAt: Date;
     items: OrderItemDetail[];
 }
 
@@ -19,5 +19,5 @@ export interface OrderItemDetail {
     description?: string;
     unitPrice: number;
     discount: number;
-    createAt: Date | null;
+    createdAt: Date;
 }
