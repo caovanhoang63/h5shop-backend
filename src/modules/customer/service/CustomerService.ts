@@ -8,13 +8,14 @@ import {CustomerCreate, customerCreateSchema} from "../entity/customerCreate";
 import {Validator} from "../../../libs/validator";
 import {IRequester} from "../../../libs/IRequester";
 import {CustomerUpdate, customerUpdateSchema} from "../entity/customerUpdate";
+import {Customer} from "../entity/customer";
 
 @injectable()
 export class CustomerService implements ICustomerService{
     constructor(@inject(TYPES.ICustomerRepository) private readonly customerRepository: ICustomerRepository) {
     }
 
-    create = (requester: IRequester, c: CustomerCreate): ResultAsync<void, Err> => {
+    create = (requester: IRequester, c: CustomerCreate): ResultAsync<Customer, Err> => {
         return ResultAsync.fromPromise(
             (async () => {
                 const vR = (await Validator(customerCreateSchema, c))
@@ -27,12 +28,12 @@ export class CustomerService implements ICustomerService{
                     return err(r.error);
                 }
 
-                return ok(undefined);
+                return ok(r.value);
             })(), e => createInternalError(e)
         ).andThen(r => r)
     }
 
-    update = (requester: IRequester, id: number, c: CustomerUpdate): ResultAsync<void, Err> => {
+    update = (requester: IRequester, id: string, c: CustomerUpdate): ResultAsync<Customer, Err> => {
         return ResultAsync.fromPromise(
             (async () => {
                 const vR = (await Validator(customerUpdateSchema, c))
@@ -45,15 +46,54 @@ export class CustomerService implements ICustomerService{
                     return err(r.error);
                 }
 
+                return ok(r.value);
+            })(), e => createInternalError(e)
+        ).andThen(r => r)
+    }
+
+    delete(requester: IRequester, id: string): ResultAsync<void, Err> {
+        return ResultAsync.fromPromise(
+            (async () => {
+                const r = await this.customerRepository.delete(id);
+                if (r.isErr()) {
+                    return err(r.error);
+                }
+
                 return ok(undefined);
             })(), e => createInternalError(e)
         ).andThen(r => r)
     }
 
-    delete(requester: IRequester, id: number): ResultAsync<void, Err> {
+    findById(requester: IRequester, id: string): ResultAsync<Customer, Err> {
         return ResultAsync.fromPromise(
             (async () => {
-                const r = await this.customerRepository.delete(id);
+                const r = await this.customerRepository.findById(id);
+                if (r.isErr()) {
+                    return err(r.error);
+                }
+
+                return ok(r.value);
+            })(), e => createInternalError(e)
+        ).andThen(r => r)
+    }
+
+    list(requester: IRequester): ResultAsync<Customer[], Err> {
+        return ResultAsync.fromPromise(
+            (async () => {
+                const r = await this.customerRepository.list();
+                if (r.isErr()) {
+                    return err(r.error);
+                }
+
+                return ok(r.value);
+            })(), e => createInternalError(e)
+        ).andThen(r => r)
+    }
+
+    increasePaymentAmount(id: string): ResultAsync<void, Err> {
+        return ResultAsync.fromPromise(
+            (async () => {
+                const r = await this.customerRepository.increasePaymentAmount(id);
                 if (r.isErr()) {
                     return err(r.error);
                 }

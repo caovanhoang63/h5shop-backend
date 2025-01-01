@@ -7,6 +7,7 @@ import {ResultSetHeader, RowDataPacket} from "mysql2";
 import {OrderItemUpdate} from "../entity/orderItemUpdate";
 import {OrderItem} from "../entity/orderItem";
 import {Order} from "../../order/entity/order";
+import {SqlHelper} from "../../../../libs/sqlHelper";
 
 export class OrderItemMysqlRepo extends BaseMysqlRepo implements IOrderItemRepository{
     create(o: OrderItemCreate): ResultAsync<OrderItem, Err> {
@@ -39,21 +40,22 @@ export class OrderItemMysqlRepo extends BaseMysqlRepo implements IOrderItemRepos
     }
 
     update(orderId: number, skuId: number, o: OrderItemUpdate): ResultAsync<OrderItem, Err> {
-        const query = `UPDATE order_item SET amount = ?, description = ?, unit_price = ?, discount = ? WHERE order_id = ? AND sku_id = ?`;
+        const [clause, values] = SqlHelper.buildUpdateClause(o);
+        const query = `UPDATE order_item SET ${clause} WHERE order_id = ? AND sku_id = ?`;
         return this.executeQuery(query,
-            [o.amount, o.description, o.unitPrice, o.discount, orderId, skuId]
+            [values, orderId, skuId]
         ).andThen(
             ([r, f]) => {
                 const header = r as ResultSetHeader;
 
-
+``
                 // Check if any rows were affected
                 if (header.affectedRows === 0) {
                     return errAsync(createDatabaseError("Order item not found or no changes made"));
                 }
 
                 // Retrieve the updated record
-                const selectQuery = `SELECT * FROM \`order\` WHERE order_id = ? AND sku_id = ?`;
+                const selectQuery = `SELECT * FROM \`order_item\` WHERE order_id = ? AND sku_id = ?`;
                 return this.executeQuery(selectQuery, [orderId, skuId]).andThen(([r]) => {
                     const fetchedRows = r as OrderItem[];
 

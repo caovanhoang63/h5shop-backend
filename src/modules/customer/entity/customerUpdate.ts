@@ -3,16 +3,14 @@ import {CustomerGender} from "./customer";
 import Joi from "joi";
 
 export interface CustomerUpdate extends BaseModel {
-    phoneNumber?: string;
     address?: string;
-    firstName?: string;
-    lastName?: string;
+    firstName: string;
+    lastName: string;
     dateOfBirth? : Date;
-    gender?: CustomerGender;
+    gender: CustomerGender;
 }
 
 export const customerUpdateSchema = Joi.object({
-    phoneNumber: Joi.string().pattern(/^[0-9]{10,15}$/),
     address: Joi.string(),
     firstName: Joi.string(),
     lastName: Joi.string(),
