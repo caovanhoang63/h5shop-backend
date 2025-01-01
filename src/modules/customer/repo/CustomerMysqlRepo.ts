@@ -1,38 +1,92 @@
 import {ICustomerRepository} from "./ICustomerRepository";
 import {BaseMysqlRepo} from "../../../components/mysql/BaseMysqlRepo";
-import {okAsync, ResultAsync} from "neverthrow";
+import {errAsync, okAsync, ResultAsync} from "neverthrow";
 import {CustomerCreate} from "../entity/customerCreate";
-import {Err} from "../../../libs/errors";
+import {createDatabaseError, createEntityNotFoundError, Err} from "../../../libs/errors";
 import {ResultSetHeader} from "mysql2";
 import {CustomerUpdate} from "../entity/customerUpdate";
 import {SqlHelper} from "../../../libs/sqlHelper";
+import {Customer} from "../entity/customer";
 
 export class CustomerMysqlRepo extends BaseMysqlRepo implements ICustomerRepository {
-    create(c: CustomerCreate): ResultAsync<void, Err> {
+    create(c: CustomerCreate): ResultAsync<Customer, Err> {
         const query = `INSERT INTO customer (phone_number, address, first_name, last_name, date_of_birth, gender) VALUES (?, ?, ?, ?, ?, ?)`;
         return this.executeQuery(query,
             [c.phoneNumber, c.address, c.firstName, c.lastName, c.dateOfBirth, c.gender]
         ).andThen(
             ([r, f]) => {
-                const header = r as ResultSetHeader;
-                c.id = header.insertId;
-                return okAsync(undefined);
+                const createdCustomer: Customer = {
+                    phoneNumber: c.phoneNumber,
+                    address: c.address,
+                    firstName: c.firstName,
+                    lastName: c.lastName,
+                    dateOfBirth: c.dateOfBirth,
+                    paymentAmount: 0,
+                    gender: c.gender,
+                    status: 1,
+                }
+                return okAsync(createdCustomer);
             });
     }
 
-    update(id: number, c: CustomerUpdate): ResultAsync<void, Err> {
+    update(id: string, c: CustomerUpdate): ResultAsync<Customer, Err> {
         const [clause, values] = SqlHelper.buildUpdateClause(c);
-        const query = `UPDATE customer SET ${clause} WHERE id = ?`;
+        const query = `UPDATE customer SET ${clause} WHERE phone_number = ?`;
         return this.executeQuery(query, [...values, id]).andThen(
+            ([r, f]) => {
+                const header = r as ResultSetHeader;
+
+                // Check if any rows were affected
+                if (header.affectedRows === 0) {
+                    return errAsync(createDatabaseError("Customer not found or no changes made"));
+                }
+
+                const selectQuery = `SELECT * FROM customer WHERE phone_number = ?`;
+                return this.executeQuery(selectQuery, [id]).andThen(([r]) => {
+                    const fetchedRows = r as Customer[];
+
+                    if (fetchedRows.length === 0) {
+                        return errAsync(createDatabaseError("Customer not found after update"));
+                    }
+
+                    return okAsync(fetchedRows[0]);
+                });
+            });
+    }
+
+    delete(id: string): ResultAsync<void, Err> {
+        const query = `UPDATE customer SET status = 0 WHERE phone_number = ?`;
+        return this.executeQuery(query, [id]).andThen(
             ([r, f]) => {
                 const header = r as ResultSetHeader;
                 return okAsync(undefined);
             });
     }
 
-    delete(id: number): ResultAsync<void, Err> {
-        const query = `UPDATE customer SET status = 0 WHERE id = ?`;
-        return this.executeQuery(query, [id]).andThen(
+    findById(phone: string): ResultAsync<Customer, Err> {
+        const query = `SELECT * FROM customer WHERE phone_number = ?`;
+        return this.executeQuery(query, [phone]).andThen(
+            ([r, f]) => {
+                const rows = r as Customer[];
+                if (rows.length === 0) {
+                    return errAsync(createEntityNotFoundError("Customer"));
+                }
+                return okAsync(rows[0]);
+            });
+    }
+
+    list(): ResultAsync<Customer[], Err> {
+        const query = `SELECT * FROM customer WHERE status = 1`;
+        return this.executeQuery(query).andThen(
+            ([r, f]) => {
+                const rows = r as Customer[];
+                return okAsync(rows);
+            });
+    }
+
+    increasePaymentAmount(phone: string): ResultAsync<void, Err> {
+        const query = `UPDATE customer SET payment_amount = payment_amount + 1 WHERE phone_number = ?`;
+        return this.executeQuery(query, [phone]).andThen(
             ([r, f]) => {
                 const header = r as ResultSetHeader;
                 return okAsync(undefined);

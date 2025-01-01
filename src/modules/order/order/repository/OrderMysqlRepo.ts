@@ -132,7 +132,6 @@ export class OrderMysqlRepo extends BaseMysqlRepo implements IOrderRepository {
                 oi.amount,
                 oi.description AS item_description,
                 oi.unit_price,
-                oi.discount,
                 oi.created_at AS item_created_at
             FROM \`order\` AS o
                      LEFT JOIN order_item AS oi ON o.id = oi.order_id
@@ -173,7 +172,6 @@ export class OrderMysqlRepo extends BaseMysqlRepo implements IOrderRepository {
                             skuId: camelRow.skuId,
                             amount: camelRow.amount,
                             unitPrice: camelRow.unitPrice,
-                            discount: camelRow.discount,
                             description: camelRow.itemDescription,
                             createdAt: camelRow.itemCreatedAt,
                         });

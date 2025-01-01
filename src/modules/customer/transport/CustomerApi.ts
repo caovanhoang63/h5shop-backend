@@ -17,7 +17,7 @@ export class CustomerApi {
 
             r.match(
                 value => {
-                    res.status(200).send(AppResponse.SimpleResponse(true))
+                    res.status(200).send(AppResponse.SimpleResponse(value))
                 },
                 e => {
                     writeErrorResponse(res, e)
@@ -29,15 +29,37 @@ export class CustomerApi {
     update(): express.Handler {
         return async (req, res, next) => {
             const body = req.body as CustomerCreate;
-            const id = parseInt(req.params.id);
+            const phone = req.params.phone;
 
-            if (!id) {
-                res.status(400).send(AppResponse.ErrorResponse(createInvalidDataError(new Error("id must a number"))))
+            if (!phone) {
+                res.status(400).send(AppResponse.ErrorResponse(createInvalidDataError(new Error("Phone must be provided"))))
                 return
             }
 
             const requester = ReqHelper.getRequester(res)
-            const r = await this.customerService.update(requester, id, body)
+            const r = await this.customerService.update(requester, phone, body)
+
+            r.match(
+                value => {
+                    res.status(200).send(AppResponse.SimpleResponse(value))
+                },
+                e => {
+                    writeErrorResponse(res, e)
+                }
+            )
+        }
+    }
+
+    delete(): express.Handler {
+        return async (req, res, next) => {
+            const phone = req.params.phone;
+
+            if (!phone) {
+                res.status(400).send(AppResponse.ErrorResponse(createInvalidDataError(new Error("phone must be provided"))))
+                return
+            }
+            const requester = ReqHelper.getRequester(res)
+            const r = await this.customerService.delete(requester, phone)
 
             r.match(
                 value => {
@@ -49,20 +71,37 @@ export class CustomerApi {
             )
         }
     }
-    delete(): express.Handler {
-        return async (req, res, next) => {
-            const id = parseInt(req.params.id);
 
-            if (!id) {
-                res.status(400).send(AppResponse.ErrorResponse(createInvalidDataError(new Error("id must a number"))))
+    findById(): express.Handler {
+        return async (req, res, next) => {
+            const phone = req.params.phone;
+
+            if (!phone) {
+                res.status(400).send(AppResponse.ErrorResponse(createInvalidDataError(new Error("phone must be provided"))))
                 return
             }
             const requester = ReqHelper.getRequester(res)
-            const r = await this.customerService.delete(requester, id)
+            const r = await this.customerService.findById(requester, phone)
 
             r.match(
                 value => {
-                    res.status(200).send(AppResponse.SimpleResponse(true))
+                    res.status(200).send(AppResponse.SimpleResponse(value))
+                },
+                e => {
+                    writeErrorResponse(res, e)
+                }
+            )
+        }
+    }
+
+    list(): express.Handler {
+        return async (req, res, next) => {
+            const requester = ReqHelper.getRequester(res)
+            const r = await this.customerService.list(requester)
+
+            r.match(
+                value => {
+                    res.status(200).send(AppResponse.SimpleResponse(value))
                 },
                 e => {
                     writeErrorResponse(res, e)

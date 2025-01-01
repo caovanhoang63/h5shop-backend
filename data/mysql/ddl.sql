@@ -45,17 +45,17 @@ CREATE TABLE `user`
 DROP TABLE IF EXISTS `customer`;
 CREATE TABLE `customer`
 (
-    `id`            int                            NOT NULL AUTO_INCREMENT,
-    `phone_number`  VARCHAR(20),
+    `phone_number`  VARCHAR(20) NOT NULL,
     `address`       VARCHAR(255),
     `first_name`    VARCHAR(255) NOT NULL ,
     `last_name`     VARCHAR(255) NOT NULL,
     `date_of_birth` date,
+    `payment_amount` INT NOT NULL DEFAULT 0,
     `gender`        enum ('male','female','other') NOT NULL DEFAULT 'other',
     `status`        INT NOT NULL                                     DEFAULT 1,
     `created_at`    TIMESTAMP                               DEFAULT CURRENT_TIMESTAMP,
     `updated_at`    TIMESTAMP                               DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    PRIMARY KEY (`id`),
+    PRIMARY KEY (`phone_number`),
     KEY `status` (`status`) USING BTREE
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4;
@@ -420,7 +420,6 @@ CREATE TABLE `order_item`
   DEFAULT CHARSET = utf8mb4;
 
 ALTER TABLE `order_item`
-ADD COLUMN `discount` DECIMAL(15, 2) DEFAULT 0 AFTER `unit_price`,
 ADD COLUMN `description` VARCHAR(255) AFTER `amount`;
 
 # PAYMENT
