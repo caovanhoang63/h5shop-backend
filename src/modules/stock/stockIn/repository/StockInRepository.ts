@@ -20,7 +20,7 @@ export class StockInRepository extends BaseMysqlRepo implements IStockInReposito
             SELECT
                 std.id as id,
                 s.id as skuId,
-                std.cost_price as costPrice,
+                std.cost_price as costPrice,    
                 spu.name as spuName, 
                 std.amount,
                 st.warehouse_men as warehouseMan,
@@ -141,11 +141,17 @@ export class StockInRepository extends BaseMysqlRepo implements IStockInReposito
         const detailQuery = `INSERT INTO stock_in_detail (stock_in_id, sku_id, amount, cost_price,total_price)
                         VALUES ?`
 
+        const skuQuery = `UPDATE sku SET stock = CASE
+                            ${report.items.map(r => `WHEN id = ? THEN stock + ?`)}
+                            END
+                          WHERE id IN (?)`;
+        const skuValue = report.items.map(r =>[r.skuId,r.amount]).flat();
+        const ids = report.items.map(r => r.skuId)
         const headerValues = [
             report.providerId,
             report.warehouseMen,
         ];
-        return this.executeInTransaction<number>(conn =>
+        return this.executeInTransaction(conn =>
             this.executeQuery(query, headerValues)
                 .andThen(([headerResult, _]) => {
                     const header = headerResult as ResultSetHeader;
@@ -160,6 +166,9 @@ export class StockInRepository extends BaseMysqlRepo implements IStockInReposito
                     ]);
 
                     return this.executeQuery(detailQuery, [detailValuesWithInsertId])
+                        .andThen(()=>
+                            this.executeQuery(skuQuery, [...skuValue,...ids])
+                        )
                         .map(() => insertId);
                 })
         );

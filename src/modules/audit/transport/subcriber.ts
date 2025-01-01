@@ -44,7 +44,7 @@ export class AuditSubscribeHandler {
                     const create: Audit = {
                         createdAt: new Date(),
                         oldValues: undefined,
-                        action: "DELTE",
+                        action: "DELETE",
                         ipAddress: requester.ipAddress ?? null,
                         newValues: undefined,
                         objectId: m.data.data.id,

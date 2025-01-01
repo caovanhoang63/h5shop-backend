@@ -59,7 +59,8 @@ export class StockInApi {
     create(): express.Handler {
         return async (req, res, next) => {
             const body = req.body as StockInCreate;
-            const r = await this.service.createReport(body);
+            const requester =  ReqHelper.getRequester(res)
+            const r = await this.service.createReport( requester,body);
 
             r.match(
                 value => {

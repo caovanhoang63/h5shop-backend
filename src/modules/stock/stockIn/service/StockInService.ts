@@ -1,24 +1,39 @@
 import {inject, injectable} from "inversify";
 import {err, ok, ResultAsync} from "neverthrow";
 import { ICondition } from "../../../../libs/condition";
-import {createInternalError, Err} from "../../../../libs/errors";
+import {createEntityNotFoundError, createInternalError, Err} from "../../../../libs/errors";
 import { Paging } from "../../../../libs/paging";
 import { StockInDetailTable } from "../entity/stockInDetailTable";
 import { StockInTable } from "../entity/stockInTable";
 import {IStockInService} from "./IStockInService";
 import {TYPES} from "../../../../types";
-import {IInventoryReportRepository} from "../../../inventory/repository/IInventoryReportRepository";
 import {IStockInRepository} from "../repository/IStockInRepository";
-import {InventoryReportCreate, inventoryReportCreateSchema} from "../../../inventory/entity/inventoryReport";
 import {Validator} from "../../../../libs/validator";
 import {StockInCreate, stockInCreateSchema} from "../entity/stockIn";
+import {createMessage, IPubSub} from "../../../../components/pubsub";
+import {topicCreateBrand, topicCreateStockIn} from "../../../../libs/topics";
+import {IRequester} from "../../../../libs/IRequester";
+import {ISkuService} from "../../../catalog/sku/service/ISkuService";
+import {ISkuRepository} from "../../../catalog/sku/repository/ISkuRepository";
+import {Sku} from "../../../catalog/sku/entity/sku";
+import {SkuCreate} from "../../../catalog/sku/entity/skuCreate";
 
 @injectable()
 export class StockInService implements IStockInService {
-    constructor(@inject(TYPES.IStockInRepository) private readonly stockInRepository: IStockInRepository) {}
+    constructor(@inject(TYPES.IStockInRepository) private readonly stockInRepository: IStockInRepository,
+                @inject(TYPES.IPubSub) private readonly pubSub : IPubSub,
+                @inject(TYPES.ISkuRepository) private readonly skuRepo : ISkuRepository,
+    ) {}
 
     getStockInDetails(reportId: number): ResultAsync<StockInDetailTable | null, Err> {
-        return this.stockInRepository.getStockInDetails(reportId);
+        return ResultAsync.fromPromise(
+            (async () =>{
+                const result = await this.stockInRepository.getStockInDetails(reportId);
+                if (result.isErr())
+                    return err(result.error)
+                return ok(result.value)
+            })(), e => createInternalError(e)
+        ).andThen(r=> r)
     }
     getStockInTable(condition: ICondition, paging: Paging): ResultAsync<StockInTable[] | null, Err> {
         return ResultAsync.fromPromise(
@@ -30,7 +45,7 @@ export class StockInService implements IStockInService {
             })(), e => createInternalError(e)
         ).andThen(r=> r)
     }
-    public createReport = (report: StockInCreate): ResultAsync<number | null, Err> => {
+    public createReport = (requester: IRequester,report: StockInCreate): ResultAsync<number | null, Err> => {
         return ResultAsync.fromPromise(
             (async () => {
                 const vR = (await Validator(stockInCreateSchema, report))
@@ -41,9 +56,9 @@ export class StockInService implements IStockInService {
                 if (r.isErr()) {
                     return err(r.error);
                 }
+                this.pubSub.Publish(topicCreateStockIn,createMessage(report,requester))
                 return ok(r.value);
             })(), e => e as Err
         ).andThen(r => r)
     }
-
 }

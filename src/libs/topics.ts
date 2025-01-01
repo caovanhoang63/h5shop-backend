@@ -24,3 +24,6 @@ export const topicUpdateSkuAttr = "TopicUpdateSkuAttr";
 export const topicDeleteSku = "TopicDeleteSku";
 
 export const topicDeleteSkuWholeSalePrice = "TopicDeleteSkuWholeSalePrice";
+
+
+export const topicCreateStockIn = "TopicCreateStockIn";
