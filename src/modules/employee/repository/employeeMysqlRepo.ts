@@ -11,8 +11,9 @@ import {Err} from "../../../libs/errors";
 
 export class EmployeeMysqlRepo extends BaseMysqlRepo implements IEmployeeRepository {
     create(employeeCreate: EmployeeCreate): ResultAsync<void, Error> {
-        const query = `INSERT INTO employee (first_name,last_name, email, phone_number, address) VALUES (?, ?, ?, ?, ?)`;
-        return this.executeQuery(query, [employeeCreate.firstName, employeeCreate.lastName, employeeCreate.email, employeeCreate.phoneNumber, employeeCreate.address])
+        const query = `INSERT INTO employee (first_name, last_name, email, phone_number, address, date_of_birth)
+                       VALUES (?, ?, ?, ?, ?, ?)`;
+        return this.executeQuery(query, [employeeCreate.firstName, employeeCreate.lastName, employeeCreate.email, employeeCreate.phoneNumber, employeeCreate.address, employeeCreate.dateOfBirth])
             .andThen(([r, f]) => {
                 const header = r as ResultSetHeader;
                 return okAsync(undefined);
@@ -35,8 +36,8 @@ export class EmployeeMysqlRepo extends BaseMysqlRepo implements IEmployeeReposit
         const query = `SELECT *
                        FROM employee
                        WHERE id = ? LIMIT 1`;
-        return this.executeQuery(query,[id]).andThen(
-            ([r,f]) => {
+        return this.executeQuery(query, [id]).andThen(
+            ([r, f]) => {
                 const firstRow = (r as RowDataPacket[])[0];
                 if (!firstRow) {
                     return ok(null);

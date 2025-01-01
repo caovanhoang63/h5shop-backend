@@ -23,6 +23,7 @@ import providerRouter from "./providerRouter";
 import stockInRouter from "./stockInRoute";
 
 import orderItemRoute from "./orderItemRoute";
+import employeeRoute from "./employeeRoute";
 
 
 
@@ -58,6 +59,7 @@ const v1Router = () => {
     router.use("/customer", customerRoute(appCtx))
 
     router.use("/provider", providerRouter(appCtx))
+    router.use("/employee", employeeRoute(appCtx))
 
 
     router.post("/pubsub/test", async (req, res, next) => {
