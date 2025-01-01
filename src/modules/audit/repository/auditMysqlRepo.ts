@@ -24,6 +24,12 @@ export class AuditMysqlRepo extends BaseMysqlRepo implements IAuditRepository {
         const [whereClause, values] = SqlHelper.buildWhereClause(condition);
         const offset = (paging.page - 1) * paging.limit;
         const limit = paging.limit;
+        const cursor = paging.cursor;
+
+        const query = `SELECT * FROM audit_log ${whereClause} ${cursor ? 'AND id < ?' : ''}
+                      ORDER BY id DESC LIMIT ? ${cursor ? '' : 'OFFSET ?'}
+                      `
+        const pagingValue = cursor ? [cursor,limit] : [limit,offset];
         return this.executeQuery(`SELECT COUNT(*) as total
                                FROM audit_log ${whereClause}`, values)
                 // total
@@ -40,12 +46,12 @@ export class AuditMysqlRepo extends BaseMysqlRepo implements IAuditRepository {
                     if (r.total == 0) {
                         return ok([])
                     }
-                    return this.executeQuery(`SELECT *
-                                              FROM audit_log ${whereClause}
-                                              ORDER BY created_at DESC
-                                              LIMIT ? OFFSET ?`, [...values, limit, offset])
+                    return this.executeQuery(query, [...values,...pagingValue])
                         .andThen(([r, f]) => {
                             const audits = (r as RowDataPacket[]).map(row => SqlHelper.toCamelCase(row) as Audit);
+                            if (audits.length > 0) {
+                                paging.nextCursor =   audits[audits.length - 1].id
+                            }
                             return ok(audits)
                         })
                 })
