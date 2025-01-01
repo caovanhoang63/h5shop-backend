@@ -20,7 +20,7 @@ export class StockInRepository extends BaseMysqlRepo implements IStockInReposito
             SELECT
                 std.id as id,
                 s.id as skuId,
-                s.cost_price as costPrice,
+                std.cost_price as costPrice,
                 spu.name as spuName, 
                 std.amount,
                 st.warehouse_men as warehouseMan,
@@ -138,7 +138,7 @@ export class StockInRepository extends BaseMysqlRepo implements IStockInReposito
         const query = `INSERT INTO stock_in (provider_id, warehouse_men)
                        VALUES (?, ?)`;
 
-        const detailQuery = `INSERT INTO stock_in_detail (stock_in_id, sku_id, amount, total_price)
+        const detailQuery = `INSERT INTO stock_in_detail (stock_in_id, sku_id, amount, cost_price,total_price)
                         VALUES ?`
 
         const headerValues = [
@@ -155,6 +155,7 @@ export class StockInRepository extends BaseMysqlRepo implements IStockInReposito
                         insertId,
                         item.skuId,
                         item.amount,
+                        item.costPrice,
                         item.totalPrice,
                     ]);
 
