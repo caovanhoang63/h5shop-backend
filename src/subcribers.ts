@@ -1,7 +1,7 @@
 import {
     topicCreateCategory, topicCreateSpu,
     topicDeleteCategory, topicDeleteSpu,
-    topicDeleteUser,
+    topicDeleteUser, topicPayOrder,
     topicRegister,
     topicUpdateCategory, topicUpdateSpu
 } from "./libs/topics";
@@ -32,6 +32,7 @@ subscriberEngine.subscribe(topicUpdateSpu, audit.onUpdate("spu"));
 subscriberEngine.subscribe(topicDeleteSpu, audit.onDelete("spu"));
 
 subscriberEngine.subscribe(topicDeleteUser, user.onHardDelete());
+subscriberEngine.subscribe(topicPayOrder,audit.onPayOrder());
 
 
 export default subscriberEngine

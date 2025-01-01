@@ -12,11 +12,14 @@ import {OrderDetail} from "../entity/orderDetail";
 import {ICondition} from "../../../../libs/condition";
 import {Order} from "../entity/order";
 import {ISkuRepository} from "../../../catalog/sku/repository/ISkuRepository";
+import {createMessage, IPubSub} from "../../../../components/pubsub";
+import {topicPayOrder} from "../../../../libs/topics";
 
 @injectable()
 export class OrderService implements IOrderService {
     constructor(@inject(TYPES.IOrderRepository) private readonly orderRepository: IOrderRepository,
-                @inject(TYPES.ISkuRepository) private readonly skuRepository: ISkuRepository,) {
+                @inject(TYPES.ISkuRepository) private readonly skuRepository: ISkuRepository,
+                @inject(TYPES.IPubSub) private readonly pubSub : IPubSub,) {
     }
 
 
@@ -97,20 +100,24 @@ export class OrderService implements IOrderService {
                 if (orderR.isErr()) {
                     return errAsync(orderR.error)
                 }
-
                 const order = orderR.value!
+
+                if (order.status != 1) {
+                    return err(createInvalidRequestError(new Error("order not found or already pay")))
+                }
+                if (order.items.length <= 0) {
+                    return errAsync(createInvalidDataError(new Error("empty order")))
+                }
                 const SkuR = await this.skuRepository.findByIds(order.items.map(r=>r.skuId))
                 if (SkuR.isErr()) {
                     return errAsync(SkuR.error)
                 }
 
-                if (order.status != 1) {
-                    return err(createInvalidRequestError(new Error("order not found or already pay")))
-                }
+
 
                 const skus = SkuR.value;
                 if (skus.length != order.items.length){
-                    return errAsync(createInvalidDataError(new Error("")))
+                    return errAsync(createInvalidDataError(new Error("Invalid skus")))
                 }
 
                 for (let i = 0 ; i< skus.length; i++) {
@@ -122,12 +129,11 @@ export class OrderService implements IOrderService {
 
                 order.finalAmount = order.totalAmount -order.discountAmount;
 
-
                 const r = await this.orderRepository.payOrder(order)
                 if (r.isErr()) {
                     return err(r.error)
                 }
-
+                this.pubSub.Publish(topicPayOrder, createMessage(order,requester))
 
                 return ok(undefined)
 
