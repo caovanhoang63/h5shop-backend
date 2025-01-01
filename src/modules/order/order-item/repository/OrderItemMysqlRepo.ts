@@ -18,12 +18,12 @@ export class OrderItemMysqlRepo extends BaseMysqlRepo implements IOrderItemRepos
             const unitPrice = result[0].price;
 
             const insertQuery = `
-            INSERT INTO order_item (order_id, sku_id, amount, description, unit_price, discount)
-            VALUES (?, ?, ?, ?, ?, ?)
+            INSERT INTO order_item (order_id, sku_id, amount, description, unit_price)
+            VALUES (?, ?, ?, ?, ?)
         `;
 
             return this.executeQuery(insertQuery,
-                [o.orderId, o.skuId, o.amount, o.description, unitPrice, o.discount]
+                [o.orderId, o.skuId, o.amount, o.description, unitPrice]
             ).andThen(([r, f]) => {
                 const createdOrderItem: OrderItem = {
                     orderId: o.orderId,
@@ -31,7 +31,6 @@ export class OrderItemMysqlRepo extends BaseMysqlRepo implements IOrderItemRepos
                     amount: o.amount,
                     description: o.description,
                     unitPrice: unitPrice,
-                    discount: 0,
                     createdAt: new Date(),
                 }
                 return okAsync(createdOrderItem);

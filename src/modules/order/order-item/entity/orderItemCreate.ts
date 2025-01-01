@@ -6,7 +6,6 @@ export interface OrderItemCreate extends BaseModel {
     skuId: number;
     amount: number;
     description?: string;
-    discount?: number;
 }
 
 export const orderItemCreateSchema = Joi.object({
@@ -14,5 +13,4 @@ export const orderItemCreateSchema = Joi.object({
     skuId: Joi.number().required(),
     amount: Joi.number().required(),
     description: Joi.string().optional(),
-    discount: Joi.number().optional(),
 })

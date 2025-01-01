@@ -407,7 +407,6 @@ CREATE TABLE `order_item`
   DEFAULT CHARSET = utf8mb4;
 
 ALTER TABLE `order_item`
-ADD COLUMN `discount` DECIMAL(15, 2) DEFAULT 0 AFTER `unit_price`,
 ADD COLUMN `description` VARCHAR(255) AFTER `amount`;
 
 # PAYMENT
