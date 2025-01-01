@@ -257,6 +257,9 @@ CREATE TABLE `stock_in_detail`
 ALTER TABLE stock_in_detail
     ADD COLUMN total_price INT NOT NULL
     AFTER amount;
+ALTER TABLE stock_in_detail
+    ADD COLUMN cost_price INT NOT NULL
+    AFTER amount;
 
 
 # REPORT

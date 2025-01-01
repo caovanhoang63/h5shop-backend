@@ -6,6 +6,7 @@ export interface StockInDetail extends BaseModel
     stockInId: number;
     skuId:number;
     amount:number;
+    costPrice:number;
     totalPrice:number;
     status:number;
 }
@@ -15,5 +16,6 @@ export interface StockInDetailCreate extends Omit<StockInDetail, 'id' | 'created
 export const stockInDetailCreateSchema = Joi.object({
     skuId: Joi.number().required(),
     amount: Joi.number().optional(),
+    costPrice: Joi.number().optional(),
     totalPrice: Joi.number().optional(),
 });
