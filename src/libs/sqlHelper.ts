@@ -142,7 +142,7 @@ export class SqlHelper {
         });
 
         return [
-            `WHERE 1 = 1  ${clauses.join(' AND ')}`,
+            clauses.length > 0 ? `WHERE ${clauses.join(' AND ')}` : 'WHERE 1 = 1 ',
             values
         ];
     }

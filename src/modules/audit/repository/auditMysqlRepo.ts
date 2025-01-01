@@ -21,14 +21,15 @@ export class AuditMysqlRepo extends BaseMysqlRepo implements IAuditRepository {
     }
 
     list(condition: any, paging: Paging): ResultAsync<Audit[], Err> {
-        const [whereClause, values] = SqlHelper.buildWhereClause(condition);
+        const [whereClause, values] = SqlHelper.buildWhereClause(condition,"audit_log");
         const offset = (paging.page - 1) * paging.limit;
         const limit = paging.limit;
         const cursor = paging.cursor;
 
-        const query = `SELECT * FROM audit_log ${whereClause} ${cursor ? 'AND id < ?' : ''}
-                      ORDER BY id DESC LIMIT ? ${cursor ? '' : 'OFFSET ?'}
+        const query = `SELECT audit_log.*, user.last_name, user.first_name FROM audit_log  RIGHT JOIN   user  ON user_id = user.id  ${whereClause} ${cursor ? 'AND audit_log.id < ?' : ''}
+                      ORDER BY audit_log.id DESC LIMIT ? ${cursor ? '' : 'OFFSET ?'}
                       `
+
         const pagingValue = cursor ? [cursor,limit] : [limit,offset];
         return this.executeQuery(`SELECT COUNT(*) as total
                                FROM audit_log ${whereClause}`, values)
@@ -48,7 +49,28 @@ export class AuditMysqlRepo extends BaseMysqlRepo implements IAuditRepository {
                     }
                     return this.executeQuery(query, [...values,...pagingValue])
                         .andThen(([r, f]) => {
-                            const audits = (r as RowDataPacket[]).map(row => SqlHelper.toCamelCase(row) as Audit);
+                            const audits = (r as RowDataPacket[]).map(row =>{
+                                const camel =  SqlHelper.toCamelCase(row)
+
+                                console.log(row)
+                                return {
+                                    action: camel.action,
+                                    createdAt: camel.createdAt,
+                                    id: camel.id,
+                                    ipAddress: camel.ipAddress,
+                                    newValues: camel.newValues,
+                                    objectId: camel.objectId,
+                                    objectType: camel.objectType,
+                                    oldValues: camel.oldValues,
+                                    user: {
+                                        firstName: camel.firstName,
+                                        lastName : camel.lastName,
+                                    },
+                                    userAgent: camel.userAgent,
+                                    userId: camel.userId,
+                                } as Audit
+                            });
+
                             if (audits.length > 0) {
                                 paging.nextCursor =   audits[audits.length - 1].id
                             }
