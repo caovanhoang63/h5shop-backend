@@ -142,9 +142,9 @@ export class StockInRepository extends BaseMysqlRepo implements IStockInReposito
                         VALUES ?`
 
         const skuQuery = `UPDATE sku SET stock = CASE
-                            ${report.items.map(r => `WHEN id = ? THEN stock + ?`)}
+                            ${report.items.map(r => `WHEN id = ? THEN stock + ?`).join(' ')}
                             END
-                          WHERE id IN (?)`;
+                          WHERE id IN (${report.items.map(()=> '?').join(',')})`;
         const skuValue = report.items.map(r =>[r.skuId,r.amount]).flat();
         const ids = report.items.map(r => r.skuId)
         const headerValues = [
