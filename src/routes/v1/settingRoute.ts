@@ -10,6 +10,7 @@ const settingRouter = (appContext: IAppContext) => {
 
     router.post('',settingService.create())
     router.get('/:name',settingService.findByName())
+    router.get('',settingService.find())
     router.patch('/:name',settingService.update())
     router.delete('/:name',settingService.delete())
 

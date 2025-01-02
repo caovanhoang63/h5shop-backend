@@ -1,4 +1,4 @@
-import {ok, ResultAsync} from "neverthrow";
+import {ok, okAsync, ResultAsync} from "neverthrow";
 import {BaseMysqlRepo} from "../../../components/mysql/BaseMysqlRepo";
 import {Paging} from "../../../libs/paging";
 import {SettingCreate, SettingUpdate, Setting, SettingFilter} from "../entity/setting";
@@ -6,6 +6,7 @@ import {ISettingRepo} from "./ISettingRepo";
 import {injectable} from "inversify";
 import {ResultSetHeader, RowDataPacket} from "mysql2";
 import {SqlHelper} from "../../../libs/sqlHelper";
+import {Brand} from "../../catalog/brand/entity/brand";
 
 @injectable()
 export class SettingMysqlRepo extends BaseMysqlRepo implements ISettingRepo {
@@ -49,7 +50,31 @@ export class SettingMysqlRepo extends BaseMysqlRepo implements ISettingRepo {
             }
         )
     }
-    Find(filter: SettingFilter, page: Paging): ResultAsync<Setting[], Error> {
-        throw new Error("Method not implemented.");
+    Find(filter: SettingFilter, paging: Paging): ResultAsync<Setting[], Error> {
+        const [clause,value] = SqlHelper.buildWhereClause(filter)
+        const pagingClause = SqlHelper.buildPaginationClause(paging)
+        const query = `SELECT * FROM system_settings ${clause} ${pagingClause}`;
+        const countQuery = `SELECT COUNT(1) FROM system_settings ${clause}`
+        return this.executeQuery(countQuery,value).andThen(
+            ([r,f]) => {
+                const firstRow = (r as RowDataPacket[])[0];
+                if(!firstRow) {
+                    return okAsync({total: 0});
+                }
+                paging.total = firstRow.total;
+                return ok({total: firstRow.total});
+            }
+        ).andThen(
+            (r) => {
+                if(r.total == 0)
+                    return ok([]);
+                else
+                    return this.executeQuery(query,value).andThen(
+                        ([r,f]) => {
+                            const data = (r as RowDataPacket[]).map(row => SqlHelper.toCamelCase(row) as Setting);
+                            return ok(data)
+                        }
+                    )
+            })
     }
 }

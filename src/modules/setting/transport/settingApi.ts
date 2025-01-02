@@ -3,7 +3,7 @@ import {SettingService} from "../service/settingService";
 import {ISettingService} from "../service/ISettingService";
 import {TYPES} from "../../../types";
 import express from "express";
-import {SettingCreate, SettingUpdate} from "../entity/setting";
+import {SettingCreate, SettingFilter, SettingUpdate} from "../entity/setting";
 import {ReqHelper} from "../../../libs/reqHelper";
 import {AppResponse} from "../../../libs/response";
 import {writeErrorResponse} from "../../../libs/writeErrorResponse";
@@ -75,6 +75,24 @@ export default class SettingApi {
         }
     }
     find() :express.Handler {
-        return async (req: express.Request, res: express.Response) => {}
+        return async (req: express.Request, res: express.Response) => {
+            const filter = {
+                lkName: req.query.lkName,
+            } as SettingFilter;
+
+
+            const paging = ReqHelper.getPaging(req.query);
+            (await this.settingService.Find(filter,paging)).match(
+                r=> {
+                    res.status(200).send(AppResponse.SuccessResponse(r,paging,filter))
+
+                },
+                e=>{
+                    writeErrorResponse(res,e)
+
+                }
+            )
+
+        }
     }
 }

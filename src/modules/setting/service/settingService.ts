@@ -100,8 +100,11 @@ export class SettingService implements ISettingService {
     }
     Find(filter: SettingFilter, page: Paging): ResultAsync<Setting[], Error> {
         return ResultAsync.fromPromise((async () => {
-            return ok([])
-
+            const r = await this.settingRepo.Find(filter,page)
+            if (r.isErr()) {
+                return err(createInternalError(r.error))
+            }
+            return ok(r.value)
         })(), e=> createInternalError(e)).andThen(r=>r)
     }
 }
