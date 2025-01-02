@@ -18,11 +18,14 @@ import {ICustomerRepository} from "../../../customer/repo/ICustomerRepository";
 import {ISettingRepo} from "../../../setting/repo/ISettingRepo";
 import {MONEY_TO_POINT_KEY, POINT_TO_DISCOUNT_KEY} from "../../../../libs/settingKey";
 import { Customer } from "../../../customer/entity/customer";
+import { ISkuService } from "../../../catalog/sku/service/ISkuService";
+import {FilterSkuGetWholeSale} from "../../../catalog/sku/entity/skuGetWholeSale";
 
 @injectable()
 export class OrderService implements IOrderService {
     constructor(@inject(TYPES.IOrderRepository) private readonly orderRepository: IOrderRepository,
-                @inject(TYPES.ISkuRepository) private readonly skuRepository: ISkuRepository,
+                @inject(TYPES.ISkuService) private readonly skuService: ISkuService,
+                // @inject(TYPES.ISkuRepository) private readonly skuRepository: ISkuRepository,
                 @inject(TYPES.IPubSub) private readonly pubSub : IPubSub,
                 @inject(TYPES.ICustomerRepository) private  readonly customerRepository : ICustomerRepository,
                 @inject(TYPES.ISettingRepository) private readonly settingRepository: ISettingRepo) {
@@ -134,13 +137,20 @@ export class OrderService implements IOrderService {
                     customer = customerR.value
                 }
 
-                const SkuR = await this.skuRepository.findByIds(order.items.map(r=>r.skuId))
+                const SkuR = await this.skuService.getListWholeSale(
+                    order.items.map(r=>{
+                            return {
+                                id: r.skuId,
+                                quantity: r.amount,
+                            } as  FilterSkuGetWholeSale
+                        }
+                    )
+                )
                 if (SkuR.isErr()) {
                     return errAsync(SkuR.error)
                 }
 
-
-                const skus = SkuR.value;
+                const skus = SkuR.value || [] ;
                 if (skus.length != order.items.length){
                     return errAsync(createInvalidDataError(new Error("Invalid skus")))
                 }
@@ -149,6 +159,8 @@ export class OrderService implements IOrderService {
                     if (skus[i].stock < order.items[i].amount) {
                         return errAsync(createInvalidRequestError(new Error(`${skus[i].id}`)))
                     }
+                    console.log(skus[i].stock,skus[i].price)
+
                     order.totalAmount = skus[i].price * order.items[i].amount;
                 }
 

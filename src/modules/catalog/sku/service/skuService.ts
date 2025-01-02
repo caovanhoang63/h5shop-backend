@@ -142,13 +142,15 @@ export class SkuService implements ISkuService {
     getListWholeSale(filter: FilterSkuGetWholeSale[]): ResultAsync<SkuIdAndWholeSalePrice[] | null, Err> {
         return ResultAsync.fromPromise(
             (async () => {
-                const filterValidate = filterSkuGetWholeSaleSchema.validate(filter)
-                if(filterValidate.error)
-                {
-                    return err(createInvalidDataError(filterValidate.error))
+                for(let i = 0; i< filter.length; i++ ) {
+                    const filterValidate = filterSkuGetWholeSaleSchema.validate(filter[i])
+                    if(filterValidate.error)
+                    {
+                        return err(createInvalidDataError(filterValidate.error))
+                    }
                 }
 
-                const ids = filter.map(f => f.ids)
+                const ids = filter.map(f => f.id)
                 const result = await this.repo.findDetailByIds(ids)
 
                 if (result.isErr())
@@ -166,7 +168,8 @@ export class SkuService implements ISkuService {
                     return {
                         id,
                         price: priceWhole.price,
-                        isWholeSale: priceWhole.isWholeSale
+                        isWholeSale: priceWhole.isWholeSale,
+                        stock : sku.stock,
                     }
                 })
 
@@ -178,14 +181,24 @@ export class SkuService implements ISkuService {
 
     getListPriceByQuantity(wholeSale: SkuWholesalePriceListDetail[], quantity: number, priceDefault: number): {price: number, isWholeSale: boolean} {
         let isWholeSale = false
-        const wholePrice = wholeSale.reduce((acc,wholeSale) => {
-            if(quantity >= wholeSale.minQuantity)
-            {
+        let max = 0;
+        let price = 0;
+        for(let i = 0; i<wholeSale.length; i++) {
+            if (wholeSale[i].minQuantity > max && quantity >= wholeSale[i].minQuantity) {
+                max = wholeSale[i].minQuantity
                 isWholeSale = true
-                return wholeSale.price
+                price = wholeSale[i].price
             }
-            return priceDefault
-        },0)
-        return {price: wholePrice, isWholeSale: isWholeSale}
+        }
+        //
+        // const wholePrice = wholeSale.reduce((acc,wholeSale) => {
+        //     if(quantity >= wholeSale.minQuantity)
+        //     {
+        //         isWholeSale = true
+        //         return wholeSale.price
+        //     }
+        //     return acc
+        // },0)
+        return {price: price || priceDefault, isWholeSale: isWholeSale}
     }
 }

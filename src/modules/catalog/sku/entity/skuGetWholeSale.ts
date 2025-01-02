@@ -12,12 +12,12 @@ export interface SkuGetWholeSale {
 }
 
 export interface FilterSkuGetWholeSale {
-    ids: number;
+    id: number;
     quantity: number;
 }
 
 export const filterSkuGetWholeSaleSchema = Joi.object({
-    ids: Joi.number().required(),
+    id: Joi.number().required(),
     quantity: Joi.number().required(),
 })
 
@@ -25,4 +25,5 @@ export interface SkuIdAndWholeSalePrice {
     id: number;
     price: number;
     isWholeSale: boolean;
+    stock: number;
 }
