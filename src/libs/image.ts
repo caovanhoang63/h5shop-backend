@@ -15,6 +15,6 @@ export const imageSchema = Joi.object({
     width: Joi.number().integer(),
     height: Joi.number().integer(),
     url: Joi.string().uri().required(),
-    extension: Joi.string().valid("jpg", "png", "webp").required(),
+    extension: Joi.string().valid("jpg", "png", "webp", "jpeg").required(),
     cloud: Joi.string().allow(""),
 });

@@ -16,10 +16,11 @@ const spuRouter = (appContext: IAppContext) => {
 
     router.get('/', spuApi.list())
     router.get('/:id', spuApi.getById())
+    router.get('/detail/:id', spuApi.getDetail())
     router.post('/upsert-detail', spuApi.upsertSpuDetail())
+    router.delete('/:id', spuApi.delete())
     router.use(requiredRole(appContext,SystemRole.Admin,SystemRole.Owner))
     router.post('/', spuApi.create())
-    router.delete('/:id', spuApi.delete())
     router.patch('/:id', spuApi.update())
     return router
 }

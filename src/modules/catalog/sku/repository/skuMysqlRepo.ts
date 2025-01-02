@@ -10,13 +10,41 @@ import {ResultSetHeader, RowDataPacket} from "mysql2";
 import {SqlHelper} from "../../../../libs/sqlHelper";
 import {SkuDetail} from "../entity/skuDetail";
 import {FilterSkuListDetail, SkuListDetail} from "../entity/skuListDetail";
+import {SkuGetWholeSale} from "../entity/skuGetWholeSale";
 
 export class SkuMysqlRepo extends BaseMysqlRepo implements ISkuRepository{
     findByIds(ids: number[]): ResultAsync<Sku[], Err> {
-        const query = 'SELECT * FROM sku WHERE id IN (?)';
+        const query = 'SELECT * FROM sku WHERE id IN (?) AND status = 1';
         return this.executeQuery(query,[ids]).andThen(
             ([r,f ]) => {
                 const data = (r as RowDataPacket[]).map(row => SqlHelper.toCamelCase(row) as Sku);
+                return ok(data)
+            }
+        )
+    }
+
+    findDetailByIds(ids: number[]): ResultAsync<SkuGetWholeSale[] | null, Err> {
+        const query = `SELECT
+            sku.id AS id,
+            sku.spu_id AS spu_id,
+            sku.cost_price AS cost_price,
+            sku.price AS price,
+            sku.stock AS stock,
+            (
+                SELECT JSON_ARRAYAGG(
+                               JSON_OBJECT(
+                                       'minQuantity', sku_wholesale_prices.min_quantity,
+                                       'price', sku_wholesale_prices.price
+                               )
+                       )
+                FROM sku_wholesale_prices
+                WHERE sku_wholesale_prices.sku_id = sku.id
+            ) AS wholesalePrices
+        FROM sku WHERE id IN (?) AND status = 1`;
+
+        return this.executeQuery(query,[ids]).andThen(
+            ([r,f ]) => {
+                const data = (r as RowDataPacket[]).map(row => SqlHelper.toCamelCase(row) as SkuGetWholeSale);
                 return ok(data)
             }
         )

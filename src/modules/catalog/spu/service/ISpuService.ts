@@ -9,12 +9,13 @@ import {SpuUpdate} from "../entity/spuUpdate";
 import {SpuDetailUpsert} from "../entity/spuDetailUpsert";
 import {SpuGetDetail} from "../entity/spuGetDetail";
 import {SpuDetail} from "../entity/spuDetail";
+import {SpuFilter} from "../entity/spuFilterSchema";
 
 export interface ISpuService  {
     create(requester : IRequester,c : SpuCreate): ResultAsync<void, Err>
     update(requester : IRequester,id : number,c : SpuUpdate): ResultAsync<void, Err>
     delete(requester : IRequester,id : number): ResultAsync<void, Err>
-    list(cond : ICondition, paging : Paging): ResultAsync<Spu[] | null , Err>
+    list(cond : SpuFilter, paging : Paging): ResultAsync<Spu[] | null , Err>
     findById(id : number): ResultAsync<Spu | null, Err>
     upsertSpuDetail(requester : IRequester, c: SpuDetailUpsert): ResultAsync<void, Err>
     getDetail(id: number): ResultAsync<SpuDetail | null, Err>
