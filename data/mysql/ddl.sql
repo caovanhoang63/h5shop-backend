@@ -349,7 +349,12 @@ CREATE TABLE `stock_out_detail`
     KEY `sku_id` (`sku_id`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4;
-
+ALTER TABLE stock_out_detail
+    ADD COLUMN total_price INT NOT NULL
+        AFTER amount;
+ALTER TABLE stock_out_detail
+    ADD COLUMN cost_price INT NOT NULL
+        AFTER amount;
 
 # WARRANTY
 DROP TABLE IF EXISTS `warranty_form`;
