@@ -6,6 +6,7 @@ import {writeErrorResponse} from "../../../../libs/writeErrorResponse";
 import {AppResponse} from "../../../../libs/response";
 import {createInvalidDataError} from "../../../../libs/errors";
 import {OrderUpdate} from "../entity/orderUpdate";
+import {PayOrder} from "../entity/order";
 
 export class OrderApi {
     constructor(private readonly userService: IOrderService) {}
@@ -114,13 +115,15 @@ export class OrderApi {
     payOrder() : express.Handler {
         return async (req, res) => {
             const id = parseInt(req.params.id);
-
+            const payOrder = {
+                isUsePoint: req.body.isUsePoint,
+            } as PayOrder;
             if (!id) {
                 res.status(400).send(AppResponse.ErrorResponse(createInvalidDataError(new Error("id must a number"))))
                 return
             }
             const requester = ReqHelper.getRequester(res);
-            (await this.userService.payOrder(requester, id)).match(
+            (await this.userService.payOrder(requester, id,payOrder)).match(
                 value => {
                     res.status(200).send(AppResponse.SimpleResponse(true))
                 },

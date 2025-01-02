@@ -13,6 +13,7 @@ export interface OrderDetail {
     totalAmount: number;
     discountAmount: number;
     finalAmount: number;
+    pointUsed: number
 }
 
 export interface OrderItemDetail {

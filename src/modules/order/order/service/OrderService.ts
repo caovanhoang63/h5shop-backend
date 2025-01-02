@@ -10,16 +10,22 @@ import {TYPES} from "../../../../types";
 import {OrderUpdate, orderUpdateSchema} from "../entity/orderUpdate";
 import {OrderDetail} from "../entity/orderDetail";
 import {ICondition} from "../../../../libs/condition";
-import {Order} from "../entity/order";
+import {Order, PayOrder} from "../entity/order";
 import {ISkuRepository} from "../../../catalog/sku/repository/ISkuRepository";
 import {createMessage, IPubSub} from "../../../../components/pubsub";
 import {topicPayOrder} from "../../../../libs/topics";
+import {ICustomerRepository} from "../../../customer/repo/ICustomerRepository";
+import {ISettingRepo} from "../../../setting/repo/ISettingRepo";
+import {MONEY_TO_POINT_KEY, POINT_TO_DISCOUNT_KEY} from "../../../../libs/settingKey";
+import { Customer } from "../../../customer/entity/customer";
 
 @injectable()
 export class OrderService implements IOrderService {
     constructor(@inject(TYPES.IOrderRepository) private readonly orderRepository: IOrderRepository,
                 @inject(TYPES.ISkuRepository) private readonly skuRepository: ISkuRepository,
-                @inject(TYPES.IPubSub) private readonly pubSub : IPubSub,) {
+                @inject(TYPES.IPubSub) private readonly pubSub : IPubSub,
+                @inject(TYPES.ICustomerRepository) private  readonly customerRepository : ICustomerRepository,
+                @inject(TYPES.ISettingRepository) private readonly settingRepository: ISettingRepo) {
     }
 
 
@@ -92,7 +98,7 @@ export class OrderService implements IOrderService {
     }
 
 
-    payOrder(requester: IRequester, id: number): ResultAsync<void, Err> {
+    payOrder(requester: IRequester, id: number,payOrder :PayOrder): ResultAsync<void, Err> {
         return ResultAsync.fromPromise(
             (async () => {
                 const orderR =await this.orderRepository.findById(id)
@@ -100,14 +106,30 @@ export class OrderService implements IOrderService {
                 if (orderR.isErr()) {
                     return errAsync(orderR.error)
                 }
+
                 const order = orderR.value!
 
+                // VALIDATE ORDER
                 if (order.status != 1) {
                     return err(createInvalidRequestError(new Error("order not found or already pay")))
                 }
+
                 if (order.items.length <= 0) {
                     return errAsync(createInvalidDataError(new Error("empty order")))
                 }
+
+                // HANDLE USE DISCOUNT POINT
+                let customer : Customer | null = null
+                if (order.customerId) {
+                    const customerR = await this.customerRepository.findById(order.customerId);
+                    if (customerR.isErr()) {return errAsync(createInternalError(customerR.error))}
+
+                    if (!customerR.value) {return errAsync(createInvalidDataError(new Error("Invalid customer")))}
+                    customer = customerR.value
+                }
+
+
+
                 const SkuR = await this.skuRepository.findByIds(order.items.map(r=>r.skuId))
                 if (SkuR.isErr()) {
                     return errAsync(SkuR.error)
@@ -127,7 +149,33 @@ export class OrderService implements IOrderService {
                     order.totalAmount = skus[i].price * order.items[i].amount;
                 }
 
-                order.finalAmount = order.totalAmount -order.discountAmount;
+
+                // CALCULATE DISCOUNT
+                if (payOrder.isUsePoint && customer) {
+                    const ratioR = await this.settingRepository.findByName(POINT_TO_DISCOUNT_KEY)
+                    if (ratioR.isErr()) {
+                        return err(createInternalError(ratioR.error))
+                    }
+                    if (!ratioR.value) {
+                        return err(createInternalError(`${POINT_TO_DISCOUNT_KEY} is not a valid value`));
+                    }
+                    const ratio = parseFloat(ratioR.value.value)
+                    order.discountAmount = ratio * customer.discountPoint
+                    if (order.discountAmount > order.totalAmount) {
+                        order.pointUsed =  Math.floor(order.discountAmount - order.discountAmount) / ratio
+                        order.discountAmount = order.totalAmount
+                    } else {
+                        order.pointUsed = customer.discountPoint
+                    }
+                }
+
+                // CALCULATE FINAL AMOUNT
+                order.finalAmount = order.totalAmount - order.discountAmount;
+                if (order.finalAmount <= 0 ) {
+                    order.finalAmount = 0
+                }
+
+
 
                 const r = await this.orderRepository.payOrder(order)
                 if (r.isErr()) {

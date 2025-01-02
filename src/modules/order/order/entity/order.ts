@@ -15,4 +15,10 @@ export interface Order {
     totalAmount: number;
     discountAmount: number;
     finalAmount: number;
+    pointUsed : number;
+}
+
+
+export interface PayOrder {
+    isUsePoint: boolean,
 }

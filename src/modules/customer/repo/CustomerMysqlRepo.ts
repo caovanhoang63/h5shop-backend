@@ -77,7 +77,7 @@ export class CustomerMysqlRepo extends BaseMysqlRepo implements ICustomerReposit
                 if (rows.length === 0) {
                     return errAsync(createEntityNotFoundError("Customer"));
                 }
-                return okAsync(rows[0]);
+                return okAsync(SqlHelper.toCamelCase(rows[0]));
             });
     }
 

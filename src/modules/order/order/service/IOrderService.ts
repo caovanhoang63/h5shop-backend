@@ -5,7 +5,7 @@ import {IRequester} from "../../../../libs/IRequester";
 import {OrderUpdate} from "../entity/orderUpdate";
 import {OrderDetail} from "../entity/orderDetail";
 import {ICondition} from "../../../../libs/condition";
-import {Order} from "../entity/order";
+import {Order, PayOrder} from "../entity/order";
 
 export interface IOrderService {
     create(requester: IRequester, o: OrderCreate): ResultAsync<Order, Err>;
@@ -13,5 +13,5 @@ export interface IOrderService {
     delete(requester: IRequester, id: number): ResultAsync<void, Err>;
     findById(id: number): ResultAsync<Order | null, Err>;
     list(cond: ICondition): ResultAsync<OrderDetail[], Err>;
-    payOrder(requester : IRequester, id: number): ResultAsync<void, Err>;
+    payOrder(requester : IRequester, id: number,payOrder :PayOrder): ResultAsync<void, Err>;
 }

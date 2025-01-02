@@ -32,7 +32,7 @@ export class OrderMysqlRepo extends BaseMysqlRepo implements IOrderRepository {
                     finalAmount: 0,
                     totalAmount: 0,
                     discountAmount: 0,
-
+                    pointUsed : 0,
                 };
                 return okAsync(createdOrder);
             });
@@ -122,8 +122,10 @@ export class OrderMysqlRepo extends BaseMysqlRepo implements IOrderRepository {
             SELECT
                 o.id,
                 o.customer_id,
+                o.point_used,
                 o.seller_id,
                 o.status,
+                o.point_used,
                 o.order_type,
                 o.description,
                 o.created_at AS order_created_at,
@@ -160,6 +162,7 @@ export class OrderMysqlRepo extends BaseMysqlRepo implements IOrderRepository {
                             totalAmount: camelRow.totalAmount,
                             discountAmount: camelRow.discountAmount,
                             finalAmount: camelRow.finalAmount,
+                            pointUsed: camelRow.pointUsed,
                             items: [], // Initialize the items array
                         });
                     }
@@ -190,7 +193,8 @@ export class OrderMysqlRepo extends BaseMysqlRepo implements IOrderRepository {
                      status = 2,
                      total_amount = ?,
                      discount_amount = ?,
-                     final_amount = ? 
+                     final_amount = ? ,
+                     point_used = ? 
                  WHERE id = ?`;
         const skuQuery = `UPDATE sku SET stock = CASE
                             ${order.items.map(r => `WHEN id = ? THEN stock - ?`)}
@@ -202,7 +206,7 @@ export class OrderMysqlRepo extends BaseMysqlRepo implements IOrderRepository {
         return this.executeInTransaction(
             conn => {
                 return ResultAsync.fromPromise(
-                    conn.query(orderQuery,[order.totalAmount,order.discountAmount,order.finalAmount,order.id]),
+                    conn.query(orderQuery,[order.totalAmount,order.discountAmount,order.finalAmount,order.pointUsed,order.id]),
                     e => createDatabaseError(e)
                 ).andThen(
                     r=>{
