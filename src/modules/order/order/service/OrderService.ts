@@ -140,7 +140,6 @@ export class OrderService implements IOrderService {
                 }
 
 
-
                 const skus = SkuR.value;
                 if (skus.length != order.items.length){
                     return errAsync(createInvalidDataError(new Error("Invalid skus")))
