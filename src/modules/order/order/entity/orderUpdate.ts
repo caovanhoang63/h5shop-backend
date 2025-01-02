@@ -3,7 +3,7 @@ import Joi from "joi";
 import {OrderType} from "./order";
 
 export interface OrderUpdate extends BaseModel {
-    customerId?: number;
+    customerId: number | null;
     sellerId?: number;
     status?: number;
     orderType?: OrderType;
@@ -11,7 +11,7 @@ export interface OrderUpdate extends BaseModel {
 }
 
 export const orderUpdateSchema = Joi.object({
-    customerId: Joi.number(),
+    customerId: Joi.number().allow(null),
     sellerId: Joi.number(),
     status: Joi.number(),
     orderType: Joi.string().valid(...Object.values(OrderType)),
