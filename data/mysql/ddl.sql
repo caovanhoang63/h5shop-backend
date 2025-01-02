@@ -61,6 +61,9 @@ CREATE TABLE `customer`
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4;
 
+ALTER TABLE customer
+    ADD COLUMN `discount_point` DECIMAL(15,2) DEFAULT 0 AFTER `payment_amount`;
+
 DROP TABLE IF EXISTS `provider`;
 CREATE TABLE `provider`
 (
