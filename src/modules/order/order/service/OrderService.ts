@@ -38,6 +38,12 @@ export class OrderService implements IOrderService {
                 }
 
                 // Check if customer exists
+                if (o.customerId) {
+                    const customerR = await this.customerRepository.findById(o.customerId);
+                    if (customerR.isErr()) {return errAsync(createInternalError(customerR.error))}
+
+                    if (!customerR.value) {return errAsync(createInvalidDataError(new Error("Invalid customer")))}
+                }
 
 
                 const r = await this.orderRepository.create(o);
@@ -127,8 +133,6 @@ export class OrderService implements IOrderService {
                     if (!customerR.value) {return errAsync(createInvalidDataError(new Error("Invalid customer")))}
                     customer = customerR.value
                 }
-
-
 
                 const SkuR = await this.skuRepository.findByIds(order.items.map(r=>r.skuId))
                 if (SkuR.isErr()) {
