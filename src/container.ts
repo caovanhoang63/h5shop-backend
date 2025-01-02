@@ -83,6 +83,12 @@ import {OrderItemMysqlRepo} from "./modules/order/order-item/repository/OrderIte
 import {IOrderItemRepository} from "./modules/order/order-item/repository/IOrderItemRepository";
 import {IOrderItemService} from "./modules/order/order-item/service/IOrderItemService";
 import {OrderItemService} from "./modules/order/order-item/service/OrderItemService";
+
+import {IStockOutRepository} from "./modules/stock/stockOut/repository/IStockOutRepository";
+import {StockOutRepository} from "./modules/stock/stockOut/repository/StockOutRepository";
+import {IStockOutService} from "./modules/stock/stockOut/service/IStockOutService";
+import {StockOutService} from "./modules/stock/stockOut/service/StockOutService";
+
 import {IWarrantyRepo} from "./modules/warranty/repo/IWarrantyRepo";
 import {WarrantyMysqlRepo} from "./modules/warranty/repo/warrantyMysqlRepo";
 import {IWarrantyService} from "./modules/warranty/service/IWarrantyService";
@@ -116,8 +122,14 @@ container.bind<ISkuWholesalePriceRepository>(TYPES.ISkuWholesalePriceRepository)
 container.bind<ICustomerRepository>(TYPES.ICustomerRepository).to(CustomerMysqlRepo).inRequestScope();
 container.bind<IProviderRepository>(TYPES.IProviderRepository).to(ProviderMySqlRepo).inRequestScope();
 container.bind<IStockInRepository>(TYPES.IStockInRepository).to(StockInRepository).inRequestScope();
+
+container.bind<IStockOutRepository>(TYPES.IStockOutRepository).to(StockOutRepository).inRequestScope();
+
+
+
 container.bind<IWarrantyRepo>(TYPES.IWarrantyRepository).to(WarrantyMysqlRepo).inRequestScope()
 container.bind<ISettingRepo>(TYPES.ISettingRepository).to(SettingMysqlRepo).inRequestScope();
+
 //Service
 container.bind<IAuthService>(TYPES.IAuthService).to(AuthService).inRequestScope();
 container.bind<IUserService>(TYPES.IUserService).to(UserService).inRequestScope();
@@ -137,6 +149,7 @@ container.bind<IUploadService>(TYPES.IUploadService).to(UploadService).inRequest
 
 container.bind<IProviderService>(TYPES.IProviderService).to(ProviderService).inRequestScope();
 container.bind<IStockInService>(TYPES.IStockInService).to(StockInService).inRequestScope();
+container.bind<IStockOutService>(TYPES.IStockOutService).to(StockOutService).inRequestScope();
 
 container.bind<IInventoryReportService>(TYPES.IInventoryReportService).to(InventoryReportService).inRequestScope();
 container.bind<ICustomerService>(TYPES.ICustomerService).to(CustomerService).inRequestScope();

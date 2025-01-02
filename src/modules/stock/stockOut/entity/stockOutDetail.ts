@@ -1,9 +1,9 @@
 import {BaseModel} from "../../../../libs/baseModel";
 import Joi from "joi";
 
-export interface StockInDetail extends BaseModel
+export interface StockOutDetail extends BaseModel
 {
-    stockInId: number;
+    stockOutId: number;
     skuId:number;
     amount:number;
     costPrice:number;
@@ -11,10 +11,10 @@ export interface StockInDetail extends BaseModel
     status:number;
 }
 
-export interface StockInDetailCreate extends Omit<StockInDetail, 'id' | 'createdAt' | 'updatedAt' | 'status'> {
+export interface StockOutDetailCreate extends Omit<StockOutDetail, 'id' | 'createdAt' | 'updatedAt' | 'status'> {
 }
-export const stockInDetailCreateSchema = Joi.object({
-    skuId: Joi.number().required(),
+export const stockOutDetailCreateSchema = Joi.object({
+    skuId: Joi.number().optional(),
     amount: Joi.number().optional(),
     costPrice: Joi.number().optional(),
     totalPrice: Joi.number().optional(),

@@ -1,16 +1,15 @@
-import {IStockInService} from "../service/IStockInService";
 import express from "express";
 import {ReqHelper} from "../../../../libs/reqHelper";
 import {inventoryReportFilterSchema} from "../../../inventory/entity/inventoryReportFilterSchema";
 import {writeErrorResponse} from "../../../../libs/writeErrorResponse";
 import {createInvalidDataError} from "../../../../libs/errors";
 import {AppResponse} from "../../../../libs/response";
-import {InventoryReportCreate} from "../../../inventory/entity/inventoryReport";
-import {StockInCreate} from "../entity/stockIn";
+import {IStockOutService} from "../service/IStockOutService";
+import {StockOutCreate} from "../entity/stockOut";
 
-export class StockInApi {
-    constructor(private readonly service: IStockInService) {}
-    findById(): express.Handler {
+export class StockOutApi {
+    constructor(private readonly service: IStockOutService) {}
+    /*findById(): express.Handler {
         return async (req, res, next) => {
             const reportId = parseInt(req.params.id);
 
@@ -30,7 +29,7 @@ export class StockInApi {
                 }
             );
         };
-    }
+    }*/
 
 
     list(): express.Handler {
@@ -42,7 +41,7 @@ export class StockInApi {
                 writeErrorResponse(res, createInvalidDataError(valueCond.error));
                 return;
             }
-            const r = await this.service.list(valueCond.value, paging);
+            const r = await this.service.list(req.query, paging);
 
             r.match(
                 value => {
@@ -57,7 +56,7 @@ export class StockInApi {
 
     create(): express.Handler {
         return async (req, res, next) => {
-            const body = req.body as StockInCreate;
+            const body = req.body as StockOutCreate;
             const requester =  ReqHelper.getRequester(res)
             const r = await this.service.create( requester,body);
 
