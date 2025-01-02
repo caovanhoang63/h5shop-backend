@@ -474,3 +474,17 @@ CREATE TABLE `_log` (
      KEY `idx_table_recauditord` (`object_type`, `object_id`) USING BTREE ,
      KEY `idx_user_id` (`user_id`) USING BTREE
 ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COMMENT = 'Tracks changes to database records';
+
+DROP TABLE IF EXISTS `system_settings`;
+CREATE TABLE `system_settings` (
+                                   `id` int NOT NULL AUTO_INCREMENT,
+                                   `name` varchar(255) NOT NULL,
+                                   `value` JSON DEFAULT NULL,
+                                   `description` TEXT ,
+                                   `status` INT DEFAULT 1,
+                                   `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                                   `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+                                   PRIMARY KEY (`id`),
+                                   UNIQUE `name` (`name`) USING BTREE,
+                                   KEY `status` (`status`) USING BTREE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

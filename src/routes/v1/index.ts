@@ -24,6 +24,7 @@ import stockInRouter from "./stockInRoute";
 
 import orderItemRoute from "./orderItemRoute";
 import warrantyRouter from "./warrantyRoute";
+import settingRouter from "./settingRoute";
 
 
 
@@ -44,6 +45,7 @@ const v1Router = () => {
     router.use("/audit", auditRouter(appCtx))
     router.use("/category", categoryRouter(appCtx))
     router.use("/brand", brandRouter(appCtx))
+    router.use("/setting", settingRouter(appCtx))
     router.use("/spu", spuRouter(appCtx))
     router.use("/sku", skuRouter(appCtx))
     router.use("/order", orderRoute(appCtx))
@@ -57,7 +59,6 @@ const v1Router = () => {
     router.use("/customer", customerRoute(appCtx))
 
     router.use("/provider", providerRouter(appCtx))
-
 
     router.post("/pubsub/test", async (req, res, next) => {
         await appCtx.GetPubsub().Publish(topicTest, {data: null, id: randomUUID(), topic: ""})

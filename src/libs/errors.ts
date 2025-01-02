@@ -118,3 +118,12 @@ export const createEntityNotFoundError = (entityName: string, metadata?: Record<
         code: HttpStatusCode.NOT_FOUND,
         metadata
     });
+
+
+export const createEntityAlreadyExistError = (entityName: string, metadata?: Record<string, unknown>) =>
+    new Err({
+        message: `${entityName} already exist`,
+        key: 'ENTITY_ALREADY_EXIST_ERROR',
+        code: HttpStatusCode.BAD_REQUEST,
+        metadata
+    });

@@ -26,10 +26,9 @@ export class AuditMysqlRepo extends BaseMysqlRepo implements IAuditRepository {
         const limit = paging.limit;
         const cursor = paging.cursor;
 
-        const query = `SELECT audit_log.*, user.last_name, user.first_name FROM audit_log  RIGHT JOIN   user  ON user_id = user.id  ${whereClause} ${cursor ? 'AND audit_log.id < ?' : ''}
+        const query = `SELECT audit_log.*, user.last_name, user.first_name FROM audit_log  LEFT OUTER JOIN    user  ON user_id = user.id  ${whereClause} ${cursor ? 'AND audit_log.id < ?' : ''}
                       ORDER BY audit_log.id DESC LIMIT ? ${cursor ? '' : 'OFFSET ?'}
                       `
-
         const pagingValue = cursor ? [cursor,limit] : [limit,offset];
         return this.executeQuery(`SELECT COUNT(*) as total
                                FROM audit_log ${whereClause}`, values)
