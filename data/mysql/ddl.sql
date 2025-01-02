@@ -265,6 +265,13 @@ CREATE TABLE `stock_in_detail`
     KEY `sku_id` (`sku_id`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4;
+ALTER TABLE stock_in_detail
+    ADD COLUMN total_price INT NOT NULL
+    AFTER amount;
+ALTER TABLE stock_in_detail
+    ADD COLUMN cost_price INT NOT NULL
+    AFTER amount;
+
 
 # REPORT
 DROP TABLE IF EXISTS `inventory_report`;
@@ -353,7 +360,12 @@ CREATE TABLE `stock_out_detail`
     KEY `sku_id` (`sku_id`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4;
-
+ALTER TABLE stock_out_detail
+    ADD COLUMN total_price INT NOT NULL
+        AFTER amount;
+ALTER TABLE stock_out_detail
+    ADD COLUMN cost_price INT NOT NULL
+        AFTER amount;
 
 # WARRANTY
 DROP TABLE IF EXISTS `warranty_form`;

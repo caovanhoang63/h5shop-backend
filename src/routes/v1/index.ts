@@ -23,8 +23,12 @@ import providerRouter from "./providerRouter";
 import stockInRouter from "./stockInRoute";
 
 import orderItemRoute from "./orderItemRoute";
+
+import stockOutRouter from "./stockOutRoute";
+
 import warrantyRouter from "./warrantyRoute";
 import settingRouter from "./settingRoute";
+
 
 
 
@@ -52,6 +56,7 @@ const v1Router = () => {
     router.use("/order-item", orderItemRoute(appCtx))
     router.use("/inventory", inventoryRouter(appCtx))
     router.use("/stock-in", stockInRouter(appCtx))
+    router.use("/stock-out", stockOutRouter(appCtx))
 
     router.use("/sku-wholesale-price", skuWholesalePriceRoute(appCtx))
     router.use("/upload", uploadRouter(appCtx))

@@ -7,18 +7,20 @@ import {Paging} from "../../../../libs/paging";
 import {StockInTable} from "../entity/stockInTable";
 import {Err} from "../../../../libs/errors";
 import {SqlHelper} from "../../../../libs/sqlHelper";
-import {RowDataPacket} from "mysql2";
+import {ResultSetHeader, RowDataPacket} from "mysql2";
 import {InventoryReportTable} from "../../../inventory/entity/inventoryReportTable";
 import {StockInDetailTable} from "../entity/stockInDetailTable";
 import {InventoryReportDetailTable} from "../../../inventory/entity/inventoryReportDetailTable";
+import {StockInCreate} from "../entity/stockIn";
+import {query} from "express";
 
 export class StockInRepository extends BaseMysqlRepo implements IStockInRepository {
-    getStockInDetails(reportId: number): ResultAsync<StockInDetailTable | null, Err> {
+    findById(reportId: number): ResultAsync<StockInDetailTable | null, Err> {
         const query = `
             SELECT
                 std.id as id,
                 s.id as skuId,
-                s.cost_price as costPrice,
+                std.cost_price as costPrice,    
                 spu.name as spuName, 
                 std.amount,
                 st.warehouse_men as warehouseMan,
@@ -77,7 +79,7 @@ export class StockInRepository extends BaseMysqlRepo implements IStockInReposito
         );
     }
 
-    getStockInTable(condition: ICondition, paging: Paging): ResultAsync<StockInTable[] | null, Err> {
+    list(condition: ICondition, paging: Paging): ResultAsync<StockInTable[] | null, Err> {
         const pagingClause = SqlHelper.buildPaginationClause(paging)
         const [whereClause, whereValues] = SqlHelper.buildWhereClause(condition,"st");
         const query = `
@@ -129,5 +131,46 @@ export class StockInRepository extends BaseMysqlRepo implements IStockInReposito
                     }
                 }
             );
+    }
+
+    create(report: StockInCreate): ResultAsync<number | null, Err> {
+
+        const query = `INSERT INTO stock_in (provider_id, warehouse_men)
+                       VALUES (?, ?)`;
+
+        const detailQuery = `INSERT INTO stock_in_detail (stock_in_id, sku_id, amount, cost_price,total_price)
+                        VALUES ?`
+
+        const skuQuery = `UPDATE sku SET stock = CASE
+                            ${report.items.map(r => `WHEN id = ? THEN stock + ?`).join(' ')}
+                            END
+                          WHERE id IN (${report.items.map(()=> '?').join(',')})`;
+        const skuValue = report.items.map(r =>[r.skuId,r.amount]).flat();
+        const ids = report.items.map(r => r.skuId)
+        const headerValues = [
+            report.providerId,
+            report.warehouseMen,
+        ];
+        return this.executeInTransaction(conn =>
+            this.executeQuery(query, headerValues)
+                .andThen(([headerResult, _]) => {
+                    const header = headerResult as ResultSetHeader;
+                    const insertId = header.insertId;
+
+                    const detailValuesWithInsertId = report.items.map(item => [
+                        insertId,
+                        item.skuId,
+                        item.amount,
+                        item.costPrice,
+                        item.totalPrice,
+                    ]);
+
+                    return this.executeQuery(detailQuery, [detailValuesWithInsertId])
+                        .andThen(()=>
+                            this.executeQuery(skuQuery, [...skuValue,...ids])
+                        )
+                        .map(() => insertId);
+                })
+        );
     }
 }

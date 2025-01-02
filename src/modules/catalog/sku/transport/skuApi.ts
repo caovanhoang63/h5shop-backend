@@ -34,10 +34,9 @@ export class SkuApi {
     list() : express.Handler {
         return async (req, res, next) => {
             const paging = ReqHelper.getPaging(req.query)
+            const cond = req.query;
 
-            const r = await this.service.list({
-
-            },paging)
+            const r = await this.service.list(cond,paging)
 
             r.match(
                 value => {
