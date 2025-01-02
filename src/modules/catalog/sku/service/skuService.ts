@@ -7,11 +7,12 @@ import {ICondition} from "../../../../libs/condition";
 import {Paging} from "../../../../libs/paging";
 import {err, ok, ResultAsync} from "neverthrow";
 import {Sku} from "../entity/sku";
-import {createEntityNotFoundError, createInternalError, Err} from "../../../../libs/errors";
+import {createEntityNotFoundError, createInternalError, createInvalidDataError, Err} from "../../../../libs/errors";
 import {IRequester} from "../../../../libs/IRequester";
 import {topicDeleteBrand, topicDeleteSku} from "../../../../libs/topics";
 import {SkuDetail} from "../entity/skuDetail";
-import {FilterSkuListDetail, SkuListDetail} from "../entity/skuListDetail";
+import {FilterSkuListDetail, SkuListDetail, SkuWholesalePriceListDetail} from "../entity/skuListDetail";
+import {FilterSkuGetWholeSale, filterSkuGetWholeSaleSchema, SkuIdAndWholeSalePrice} from "../entity/skuGetWholeSale";
 
 @injectable()
 export class SkuService implements ISkuService {
@@ -136,5 +137,68 @@ export class SkuService implements ISkuService {
                 return ok(newSkuDetail)
             })(), e => createInternalError(e)
         ).andThen(r=> r)
+    }
+
+    getListWholeSale(filter: FilterSkuGetWholeSale[]): ResultAsync<SkuIdAndWholeSalePrice[] | null, Err> {
+        return ResultAsync.fromPromise(
+            (async () => {
+                for(let i = 0; i< filter.length; i++ ) {
+                    const filterValidate = filterSkuGetWholeSaleSchema.validate(filter[i])
+                    if(filterValidate.error)
+                    {
+                        return err(createInvalidDataError(filterValidate.error))
+                    }
+                }
+
+                const ids = filter.map(f => f.id)
+                const result = await this.repo.findDetailByIds(ids)
+
+                if (result.isErr())
+                {
+                    return err(result.error)
+                }
+                if(!result.value)
+                {
+                    return ok([])
+                }
+
+                const data: SkuIdAndWholeSalePrice[] = result.value.map((sku,index) => {
+                    const id = sku.id
+                    const priceWhole = this.getListPriceByQuantity(sku.wholesalePrices,filter[index].quantity,sku.price)
+                    return {
+                        id,
+                        price: priceWhole.price,
+                        isWholeSale: priceWhole.isWholeSale,
+                        stock : sku.stock,
+                    }
+                })
+
+                return ok(data)
+
+            })(), e => createInternalError(e)
+        ).andThen(r=> r)
+    }
+
+    getListPriceByQuantity(wholeSale: SkuWholesalePriceListDetail[], quantity: number, priceDefault: number): {price: number, isWholeSale: boolean} {
+        let isWholeSale = false
+        let max = 0;
+        let price = 0;
+        for(let i = 0; i<wholeSale.length; i++) {
+            if (wholeSale[i].minQuantity > max && quantity >= wholeSale[i].minQuantity) {
+                max = wholeSale[i].minQuantity
+                isWholeSale = true
+                price = wholeSale[i].price
+            }
+        }
+        //
+        // const wholePrice = wholeSale.reduce((acc,wholeSale) => {
+        //     if(quantity >= wholeSale.minQuantity)
+        //     {
+        //         isWholeSale = true
+        //         return wholeSale.price
+        //     }
+        //     return acc
+        // },0)
+        return {price: price || priceDefault, isWholeSale: isWholeSale}
     }
 }

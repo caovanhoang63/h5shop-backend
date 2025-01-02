@@ -18,7 +18,7 @@ export interface SpuDetailUpsert{
 export const spuDetailUpsertSchema = Joi.object({
     id: Joi.number().allow(null),
     name: Joi.string().max(255).required(),
-    description: Joi.string().max(255).required(),
+    description: Joi.string().max(255).allow(""),
     categoryId: Joi.number().required(),
     brandId: Joi.number().required(),
     metadata: Joi.object(),

@@ -1,14 +1,18 @@
 import Joi from "joi";
 import {baseFilterSchema} from "../../../../libs/BaseFilterSchema";
 
-export const spuFilterSchema = baseFilterSchema.keys(
+export const spuFilterSchema = Joi.object(
     {
-        categoryId: Joi.number,
-        brandId: Joi.number,
+        name: Joi.string().allow(""),
+        brandId: Joi.number(),
+        categoryId: Joi.number(),
+        status: Joi.number().valid(0, 1),
     }
 )
 
 export interface SpuFilter {
-    brandId?: number
-    categoryId?: number
+    name?: string,
+    brandId?: number,
+    categoryId?: number,
+    status?: number,
 }

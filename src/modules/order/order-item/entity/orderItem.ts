@@ -4,6 +4,5 @@ export interface OrderItem {
     amount: number;
     description?: string;
     unitPrice: number;
-    discount: number;
-    createAt: Date | null;
+    createdAt: Date | null;
 }

@@ -83,10 +83,22 @@ import {OrderItemMysqlRepo} from "./modules/order/order-item/repository/OrderIte
 import {IOrderItemRepository} from "./modules/order/order-item/repository/IOrderItemRepository";
 import {IOrderItemService} from "./modules/order/order-item/service/IOrderItemService";
 import {OrderItemService} from "./modules/order/order-item/service/OrderItemService";
+
 import {IStockOutRepository} from "./modules/stock/stockOut/repository/IStockOutRepository";
 import {StockOutRepository} from "./modules/stock/stockOut/repository/StockOutRepository";
 import {IStockOutService} from "./modules/stock/stockOut/service/IStockOutService";
 import {StockOutService} from "./modules/stock/stockOut/service/StockOutService";
+
+import {IWarrantyRepo} from "./modules/warranty/repo/IWarrantyRepo";
+import {WarrantyMysqlRepo} from "./modules/warranty/repo/warrantyMysqlRepo";
+import {IWarrantyService} from "./modules/warranty/service/IWarrantyService";
+import {WarrantyService} from "./modules/warranty/service/warrantyService";
+import {WarrantyApi} from "./modules/warranty/transport/warrantyApi";
+import {ISettingRepo} from "./modules/setting/repo/ISettingRepo";
+import {SettingMysqlRepo} from "./modules/setting/repo/settingMysqlRepo";
+import {ISettingService} from "./modules/setting/service/ISettingService";
+import {SettingService} from "./modules/setting/service/settingService";
+import SettingApi from "./modules/setting/transport/settingApi";
 
 
 
@@ -106,14 +118,17 @@ container.bind<ISkuRepository>(TYPES.ISkuRepository).to(SkuMysqlRepo).inRequestS
 container.bind<IOrderRepository>(TYPES.IOrderRepository).to(OrderMysqlRepo).inRequestScope();
 container.bind<IOrderItemRepository>(TYPES.IOrderItemRepository).to(OrderItemMysqlRepo).inRequestScope();
 container.bind<IInventoryReportRepository>(TYPES.IInventoryReportRepository).to(InventoryReportMysqlRepo).inRequestScope();
-
 container.bind<ISkuWholesalePriceRepository>(TYPES.ISkuWholesalePriceRepository).to(SkuWholesalePriceMysqlRepo).inRequestScope();
-
 container.bind<ICustomerRepository>(TYPES.ICustomerRepository).to(CustomerMysqlRepo).inRequestScope();
 container.bind<IProviderRepository>(TYPES.IProviderRepository).to(ProviderMySqlRepo).inRequestScope();
 container.bind<IStockInRepository>(TYPES.IStockInRepository).to(StockInRepository).inRequestScope();
+
 container.bind<IStockOutRepository>(TYPES.IStockOutRepository).to(StockOutRepository).inRequestScope();
 
+
+
+container.bind<IWarrantyRepo>(TYPES.IWarrantyRepository).to(WarrantyMysqlRepo).inRequestScope()
+container.bind<ISettingRepo>(TYPES.ISettingRepository).to(SettingMysqlRepo).inRequestScope();
 
 //Service
 container.bind<IAuthService>(TYPES.IAuthService).to(AuthService).inRequestScope();
@@ -126,6 +141,7 @@ container.bind<IBrandService>(TYPES.IBrandService).to(BrandService).inRequestSco
 container.bind<ISkuService>(TYPES.ISkuService).to(SkuService).inRequestScope();
 container.bind<IOrderService>(TYPES.IOrderService).to(OrderService).inRequestScope();
 container.bind<IOrderItemService>(TYPES.IOrderItemService).to(OrderItemService).inRequestScope();
+container.bind<ISettingService>(TYPES.ISettingService).to(SettingService).inRequestScope();
 
 container.bind<ISkuWholesalePriceService>(TYPES.ISkuWholesalePriceService).to(SkuWholesalePriceService).inRequestScope();
 container.bind<IUploadService>(TYPES.IUploadService).to(UploadService).inRequestScope();
@@ -137,6 +153,13 @@ container.bind<IStockOutService>(TYPES.IStockOutService).to(StockOutService).inR
 
 container.bind<IInventoryReportService>(TYPES.IInventoryReportService).to(InventoryReportService).inRequestScope();
 container.bind<ICustomerService>(TYPES.ICustomerService).to(CustomerService).inRequestScope();
+
+container.bind<IWarrantyService>(TYPES.IWarrantyService).to(WarrantyService).inRequestScope()
+container.bind<SettingApi>(TYPES.ISettingController).to(SettingApi).inRequestScope();
+
+// Controller
+container.bind<WarrantyApi>(TYPES.IWarrantyController).to(WarrantyApi).inRequestScope()
+
 
 // Util
 container.bind<Pool>(TYPES.ConnPool).toConstantValue(mysql.createPool({

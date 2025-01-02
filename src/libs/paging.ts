@@ -5,11 +5,14 @@ export class Paging {
         this.default()
     }
 
+    getOffSet() : Number{
+        return (this.page - 1) * this.limit;
+    }
     total: number = 0;
     page: number;
     limit: number;
-    cursor?: number;
-    nextCursor?: number;
+    cursor?: number | bigint;
+    nextCursor?: number | bigint;
 
     default() {
         if (this.page <= 0)

@@ -29,10 +29,11 @@ export class AuditService implements IAuditService {
     list(requester: IRequester, condition: any, paging: Paging): ResultAsync<Audit[], Err> {
         return ResultAsync.fromPromise(
             (async () => {
-                if (requester.systemRole != SystemRole.Admin.toString()
-                    && requester.systemRole != SystemRole.Owner.toString()) {
-                    return errAsync(createForbiddenError())
-                }
+                // if (requester.systemRole != SystemRole.Admin.toString()
+                //     && requester.systemRole != SystemRole.Owner.toString()) {
+                //     return errAsync(createForbiddenError())
+                // }
+
 
                 const r = await this.auditRepo.list(condition, paging)
                 if (r.isErr()) return errAsync(createInternalError(r.error))

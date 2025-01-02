@@ -15,7 +15,7 @@ export const defaultExpireRefreshTokenInSeconds = 60 * 60 * 24 * 7; // 7 days
 
 export const InvalidToken = (e?: any) =>
     new Err({
-        code: 403, key: "ERR_INVALID_TOKEN", message: "Invalid token", metadata: undefined, originalError: e
+        code: 403, key: "ERR_INVALID_TOKEN", message: "Unauthorized", metadata: undefined, originalError: e
 
     })
 

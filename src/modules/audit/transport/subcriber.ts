@@ -36,6 +36,32 @@ export class AuditSubscribeHandler {
     }
 
 
+    onPayOrder(): SubHandler {
+        return (m): ResultAsync<void, Err> => {
+            return ResultAsync.fromPromise(
+                (async () => {
+                    const requester: IRequester = m.data.requester
+                    const create: Audit = {
+                        createdAt: new Date(),
+                        oldValues: undefined,
+                        action: "PAYORDER",
+                        ipAddress: requester.ipAddress ?? null,
+                        newValues: _.omit(m.data.data, ["createdAt", "updatedAt"]),
+                        objectId: m.data.data.id,
+                        objectType: "order",
+                        userId: requester.userId ?? 0,
+                        userAgent: requester.userAgent ?? null,
+                    }
+                    const r = await this.auditService.create(create)
+                    if (r.isErr()) {
+                        console.log(r.error)
+                    }
+                })(),
+                e => e as Err
+            )
+        }
+    }
+
     onDelete(entity: string) : SubHandler {
         return (m): ResultAsync<void, Err> => {
             return ResultAsync.fromPromise(

@@ -17,10 +17,13 @@ export class SkuAttrApi {
                 return
             }
 
-            if(!index){
+            if(index<0){
+                console.log("index",index)
                 res.status(400).send(AppResponse.ErrorResponse(createInvalidDataError(new Error("index must a number"))))
                 return
             }
+
+            console.log("delete",id,index)
 
             const requester = ReqHelper.getRequester(res)
             const r = await this.service.delete(requester, id ,index)

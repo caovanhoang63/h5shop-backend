@@ -11,6 +11,8 @@ import {SpuUpdate} from "../entity/spuUpdate";
 import {Spu} from "../entity/spu";
 import {SpuDetailUpsert} from "../entity/spuDetailUpsert";
 import {SpuDetail} from "../entity/spuDetail";
+import {SpuFilter} from "../entity/spuFilterSchema";
+import {object} from "joi";
 
 
 export class SpuMysqlRepo extends BaseMysqlRepo implements ISpuRepository {
@@ -57,20 +59,40 @@ export class SpuMysqlRepo extends BaseMysqlRepo implements ISpuRepository {
         );
     }
 
-    list(cond: ICondition, paging: Paging): ResultAsync<Spu[] | null, Err> {
-        const time = Date.now()
-        const [clause,values] = SqlHelper.buildWhereClause(cond)
-        console.log( Date.now() - time)
+    list(cond: SpuFilter, paging: Paging): ResultAsync<Spu[] | null, Err> {
         const pagingClause = SqlHelper.buildPaginationClause(paging)
-        const countQuery = `SELECT COUNT(*) as total FROM spu  ${clause}`;
+
+        const countQuery = `
+            SELECT COUNT(*) as total 
+            FROM spu
+            LEFT JOIN category_to_spu ON spu.id = category_to_spu.spu_id
+            LEFT JOIN category ON category.id = category_to_spu.category_id
+            LEFT JOIN brand ON brand.id = spu.brand_id
+            LEFT JOIN spu_to_provider ON spu.id = spu_to_provider.spu_id
+            LEFT JOIN provider ON provider.id = spu_to_provider.provider_id
+            WHERE 1 = 1
+                ${cond.brandId ? 'AND spu.brand_id = ?' : ''}
+                ${cond.categoryId ? 'AND category_to_spu.category_id = ?' : ''}
+                ${cond.name ? 'AND spu.name LIKE concat(?, \'%\')' : ''}
+                ${cond.status != undefined ? `AND spu.status = ${cond.status}` : ''}
+            `;
         const query = `
             SELECT spu.*, category_to_spu.category_id as category_id, category.name as category_name, brand.name as brand_name
             FROM spu
             LEFT JOIN category_to_spu ON spu.id = category_to_spu.spu_id 
             LEFT JOIN category ON category.id = category_to_spu.category_id
             LEFT JOIN brand ON brand.id = spu.brand_id
-            ${clause} ${pagingClause}`;
-        return this.executeQuery(countQuery,values).andThen(
+            LEFT JOIN spu_to_provider ON spu.id = spu_to_provider.spu_id
+            LEFT JOIN provider ON provider.id = spu_to_provider.provider_id
+            WHERE 1 = 1
+                ${cond.brandId ? 'AND spu.brand_id = ?' : ''}
+                ${cond.categoryId ? 'AND category_to_spu.category_id = ?' : ''}
+                ${cond.name ? 'AND spu.name LIKE concat(?, \'%\')' : ''}
+                ${cond.status != undefined ? `AND spu.status = ${cond.status}` : ''}
+                ${pagingClause}`;
+        const value =[cond.brandId,cond.categoryId,cond.name].filter(r => !!r)
+        console.log(query)
+        return this.executeQuery(countQuery,value).andThen(
             ([r,f]) => {
                 const firstRow = (r as RowDataPacket[])[0];
                 if (!firstRow) {
@@ -85,7 +107,7 @@ export class SpuMysqlRepo extends BaseMysqlRepo implements ISpuRepository {
                     return ok([])
                 else
                     return this.executeQuery(
-                        query,values
+                        query,value
                     ).andThen(
                         ([r, f]) => {
                             const data = (r as RowDataPacket[]).map(row => SqlHelper.toCamelCase(row) as Spu);

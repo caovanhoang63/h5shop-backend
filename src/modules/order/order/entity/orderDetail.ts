@@ -7,9 +7,13 @@ export interface OrderDetail {
     status: number;
     orderType: OrderType;
     description?: string;
-    createAt: Date | null;
-    updateAt: Date | null;
+    createdAt: Date;
+    updatedAt: Date;
     items: OrderItemDetail[];
+    totalAmount: number;
+    discountAmount: number;
+    finalAmount: number;
+    pointUsed: number
 }
 
 export interface OrderItemDetail {
@@ -18,6 +22,5 @@ export interface OrderItemDetail {
     amount: number;
     description?: string;
     unitPrice: number;
-    discount: number;
-    createAt: Date | null;
+    createdAt: Date;
 }
