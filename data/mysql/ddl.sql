@@ -141,6 +141,10 @@ CREATE TABLE `spu`
     `images`       JSON,
     `out_of_stock` BOOLEAN NOT NULL DEFAULT false,
     `status`       INT NOT NULL              DEFAULT 1,
+    `time_warranty` INT DEFAULT 0,
+    `time_return`  INT DEFAULT 0,
+    `type_time_warranty` ENUM ('day','month','year') DEFAULT 'day',
+    `type_time_return` ENUM ('day','month','year') DEFAULT 'day',
     `created_at`   TIMESTAMP        DEFAULT CURRENT_TIMESTAMP,
     `updated_at`   TIMESTAMP        DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     PRIMARY KEY (`id`),
@@ -148,6 +152,21 @@ CREATE TABLE `spu`
     KEY `status` (`status`) USING BTREE
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4;
+
+ALTER TABLE spu
+    ADD COLUMN time_warranty INT NOT NULL
+    AFTER status;
+ALTER TABLE spu
+    ADD COLUMN time_return INT NOT NULL
+    AFTER status;
+ALTER TABLE spu
+    ADD COLUMN type_time_warranty ENUM ('day','month','year') DEFAULT 'day'
+    AFTER status;
+ALTER TABLE spu
+    ADD COLUMN type_time_return ENUM ('day','month','year') DEFAULT 'day'
+    AFTER status;
+
+
 
 DROP TABLE IF EXISTS `spu_to_provider`;
 CREATE TABLE `spu_to_provider`

@@ -10,9 +10,13 @@ export interface SpuDetailUpsert{
     categoryId: number,
     brandId: number,
     metadata: any,
+    timeWarranty?: number,
+    timeReturn?: number,
+    typeTimeWarranty?: string,
+    typeTimeReturn?: string,
     images? : Image[],
-    skus: SkuCreate[]
-    attrs: SkuAttrCreate[]
+    skus: SkuCreate[],
+    attrs: SkuAttrCreate[],
 }
 
 export const spuDetailUpsertSchema = Joi.object({
@@ -22,6 +26,10 @@ export const spuDetailUpsertSchema = Joi.object({
     categoryId: Joi.number().required(),
     brandId: Joi.number().required(),
     metadata: Joi.object(),
+    timeWarranty: Joi.number().allow(null),
+    timeReturn: Joi.number().allow(null),
+    typeTimeWarranty: Joi.string().allow(null),
+    typeTimeReturn: Joi.string().allow(null),
     images: Joi.array().items(imageSchema),
     skus: Joi.array().items(skuCreateSchema),
     attrs: Joi.array().items(skuAttrCreateSchema)

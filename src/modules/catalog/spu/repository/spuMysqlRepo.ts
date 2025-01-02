@@ -135,14 +135,18 @@ export class SpuMysqlRepo extends BaseMysqlRepo implements ISpuRepository {
 
     upsert(c: SpuCreate): ResultAsync<number, Err> {
         const query = `
-            INSERT INTO spu (id, name, brand_id, description, metadata, images)
-            VALUES (?, ?, ?, ?, ?, ?)
+            INSERT INTO spu (id, name, brand_id, description, metadata, images, time_warranty, time_return, type_time_warranty, type_time_return)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 ON DUPLICATE KEY UPDATE
                                      name = VALUES(name),
                                      brand_id = VALUES(brand_id),
                                      description = VALUES(description),
                                      metadata = VALUES(metadata),
-                                     images = VALUES(images)
+                                     images = VALUES(images),
+                                     time_warranty = VALUES(time_warranty),
+                                     time_return = VALUES(time_return),
+                                     type_time_warranty = VALUES(type_time_warranty),
+                                     type_time_return = VALUES(type_time_return);
         `;
 
         const queryCate = `
@@ -156,7 +160,18 @@ export class SpuMysqlRepo extends BaseMysqlRepo implements ISpuRepository {
 
         return this.executeInTransaction(conn => {
             return ResultAsync.fromPromise(
-                conn.query(query,[c.id ,c.name,c.brandId,c.description,JSON.stringify(c.metadata),JSON.stringify(c.images)]),
+                conn.query(query,[
+                    c.id ,
+                    c.name,
+                    c.brandId,
+                    c.description,
+                    JSON.stringify(c.metadata),
+                    JSON.stringify(c.images),
+                    c.timeWarranty,
+                    c.timeReturn,
+                    c.typeTimeWarranty,
+                    c.typeTimeReturn
+                ]),
                 e => createDatabaseError(e)
             ).andThen(([r,f]) => {
                 const header = r as ResultSetHeader;
