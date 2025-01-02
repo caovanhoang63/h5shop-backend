@@ -14,12 +14,15 @@ import {Paging} from "../../../libs/paging";
 import {createMessage, IPubSub} from "../../../components/pubsub";
 import {topicCreateCustomer, topicDeleteCustomer, topicUpdateCustomer} from "../../../libs/topics";
 import {SystemRole} from "../../user/entity/user";
+import {ISettingRepo} from "../../setting/repo/ISettingRepo";
+import {MONEY_TO_POINT_KEY} from "../../../libs/settingKey";
 
 @injectable()
 export class CustomerService implements ICustomerService{
     constructor(
         @inject(TYPES.ICustomerRepository) private readonly customerRepository: ICustomerRepository,
-        @inject(TYPES.IPubSub) private readonly pubSub: IPubSub
+        @inject(TYPES.IPubSub) private readonly pubSub: IPubSub,
+        @inject(TYPES.ISettingRepository) private  readonly settingRepository : ISettingRepo,
     ) {
     }
 
@@ -118,11 +121,25 @@ export class CustomerService implements ICustomerService{
         ).andThen(r => r)
     }
 
-    increasePaymentAmount(id: number): ResultAsync<void, Err> {
+    increasePaymentAmount(userId: number,finalAmount : number): ResultAsync<void, Err> {
         return ResultAsync.fromPromise(
             (async () => {
-                const r = await this.customerRepository.increasePaymentAmount(id);
+                const ratioR = await this.settingRepository.findByName(MONEY_TO_POINT_KEY)
+                if (ratioR.isErr()) {
+                    return err(createInternalError(ratioR.error))
+                }
+                if (!ratioR.value) {
+                    return err(createInternalError(`${MONEY_TO_POINT_KEY} is not a valid value`));
+                }
+                console.log(ratioR.value.value)
+                const ratio = parseFloat(ratioR.value.value)
+
+                console.log(`ratio ${ratio}`)
+                const discountPoint = Math.floor(finalAmount * ratio);
+
+                const r = await this.customerRepository.increasePaymentAmount(userId,discountPoint);
                 if (r.isErr()) {
+                    console.log(r.error)
                     return err(r.error);
                 }
 

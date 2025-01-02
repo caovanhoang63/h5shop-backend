@@ -13,5 +13,5 @@ export interface ICustomerService {
     delete(requester: IRequester, id: number): ResultAsync<void, Err>;
     findById(id: number): ResultAsync<Customer, Err>;
     list(filter: CustomerFilter, page: Paging): ResultAsync<Customer[], Err>;
-    increasePaymentAmount(id: number): ResultAsync<void, Err>
+    increasePaymentAmount(userId: number,finalAmount : number): ResultAsync<void, Err>
 }

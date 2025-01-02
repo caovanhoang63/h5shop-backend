@@ -13,5 +13,5 @@ export interface ICustomerRepository extends IBaseRepo {
     delete: (id: number) => ResultAsync<void, Err>;
     findById: (id: number) => ResultAsync<Customer, Err>;
     list: (cond: CustomerFilter, page: Paging) => ResultAsync<Customer[], Err>
-    increasePaymentAmount: (id: number) => ResultAsync<void, Err>
+    increasePaymentAmount: (userId: number,discountPoint : number) => ResultAsync<void, Err>
 }

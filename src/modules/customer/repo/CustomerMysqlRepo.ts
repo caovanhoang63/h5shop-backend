@@ -110,9 +110,9 @@ export class CustomerMysqlRepo extends BaseMysqlRepo implements ICustomerReposit
             });
     }
 
-    increasePaymentAmount(id: number): ResultAsync<void, Err> {
-        const query = `UPDATE customer SET payment_amount = payment_amount + 1 WHERE id = ?`;
-        return this.executeQuery(query, [id]).andThen(
+    increasePaymentAmount(userId: number,discountPoint : number): ResultAsync<void, Err> {
+        const query = `UPDATE customer SET payment_amount = payment_amount + 1, discount_point = ? WHERE id = ? `;
+        return this.executeQuery(query, [discountPoint,userId]).andThen(
             ([r, f]) => {
                 const header = r as ResultSetHeader;
                 return okAsync(undefined);

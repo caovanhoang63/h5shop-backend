@@ -11,7 +11,7 @@ export class CustomerSubCribeHandler {
         return (m) : ResultAsync<void, Err> => {
             return ResultAsync.fromPromise(
                 (async () => {
-                    const r = await this.customerService.increasePaymentAmount(m.data.data.customerId);
+                    const r = await this.customerService.increasePaymentAmount(m.data.data.customerId,m.data.data.finalAmount );
                     if (r.isErr()) {
                         console.log(r.error)
                     }
