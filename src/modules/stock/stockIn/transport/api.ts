@@ -36,18 +36,17 @@ export class StockInApi {
     list(): express.Handler {
         return async (req, res, next) => {
             const paging = ReqHelper.getPaging(req.query);
-            const value = inventoryReportFilterSchema.validate(req.query, { stripUnknown: true });
-
-            if (value.error) {
-                writeErrorResponse(res, createInvalidDataError(value.error));
+            const valueCond = inventoryReportFilterSchema.validate(req.query, { stripUnknown: true });
+            console.log(paging)
+            if (valueCond.error) {
+                writeErrorResponse(res, createInvalidDataError(valueCond.error));
                 return;
             }
-            const filter = req.query;
-            const r = await this.service.list(filter, paging);
+            const r = await this.service.list(valueCond.value, paging);
 
             r.match(
                 value => {
-                    res.status(200).send(AppResponse.SuccessResponse(value, paging, filter));
+                    res.status(200).send(AppResponse.SuccessResponse(value, paging, valueCond));
                 },
                 e => {
                     writeErrorResponse(res, e);
