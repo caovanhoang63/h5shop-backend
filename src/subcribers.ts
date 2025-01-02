@@ -1,6 +1,6 @@
 import {
 
-    topicCreateCategory, topicCreateCustomer, topicCreateSpu,
+    topicCreateCategory, topicCreateCustomer, topicCreateSpu, topicCreateStockIn,
     topicDeleteCategory, topicDeleteCustomer, topicDeleteSpu,
     topicDeleteUser, topicPayOrder,
     topicRegister,
