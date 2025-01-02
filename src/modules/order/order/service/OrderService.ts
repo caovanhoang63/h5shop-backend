@@ -10,7 +10,7 @@ import {TYPES} from "../../../../types";
 import {OrderUpdate, orderUpdateSchema} from "../entity/orderUpdate";
 import {OrderDetail} from "../entity/orderDetail";
 import {ICondition} from "../../../../libs/condition";
-import {Order, PayOrder} from "../entity/order";
+import {Order, OrderType, PayOrder} from "../entity/order";
 import {ISkuRepository} from "../../../catalog/sku/repository/ISkuRepository";
 import {createMessage, IPubSub} from "../../../../components/pubsub";
 import {topicPayOrder} from "../../../../libs/topics";
@@ -146,6 +146,7 @@ export class OrderService implements IOrderService {
                         }
                     )
                 )
+
                 if (SkuR.isErr()) {
                     return errAsync(SkuR.error)
                 }
@@ -155,15 +156,23 @@ export class OrderService implements IOrderService {
                     return errAsync(createInvalidDataError(new Error("Invalid skus")))
                 }
 
+
+
+                let isWhole = false;
                 for (let i = 0 ; i< skus.length; i++) {
                     if (skus[i].stock < order.items[i].amount) {
                         return errAsync(createInvalidRequestError(new Error(`${skus[i].id}`)))
                     }
                     console.log(skus[i].stock,skus[i].price)
-
+                    isWhole = skus[i].isWholeSale;
                     order.totalAmount = skus[i].price * order.items[i].amount;
                 }
 
+                // if is a whole bill => don't use discount point
+                if (isWhole) {
+                    order.orderType = OrderType.Wholesale
+                    payOrder.isUsePoint = false
+                }
 
                 // CALCULATE DISCOUNT
                 if (payOrder.isUsePoint && customer) {
@@ -189,8 +198,6 @@ export class OrderService implements IOrderService {
                 if (order.finalAmount <= 0 ) {
                     order.finalAmount = 0
                 }
-
-
 
                 const r = await this.orderRepository.payOrder(order)
                 if (r.isErr()) {

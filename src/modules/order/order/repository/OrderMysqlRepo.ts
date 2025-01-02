@@ -194,7 +194,8 @@ export class OrderMysqlRepo extends BaseMysqlRepo implements IOrderRepository {
                      total_amount = ?,
                      discount_amount = ?,
                      final_amount = ? ,
-                     point_used = ? 
+                     order_type = ?,
+                     point_used = ?
                  WHERE id = ?`;
 
 
@@ -211,7 +212,7 @@ export class OrderMysqlRepo extends BaseMysqlRepo implements IOrderRepository {
         return this.executeInTransaction(
             conn => {
                 return ResultAsync.fromPromise(
-                    conn.query(orderQuery,[order.totalAmount,order.discountAmount,order.finalAmount,order.pointUsed,order.id]),
+                    conn.query(orderQuery,[order.totalAmount,order.discountAmount,order.finalAmount,order.orderType,order.pointUsed,order.id]),
                     e => createDatabaseError(e)
                 ).andThen(
                     r=>{
