@@ -21,8 +21,7 @@ export interface EmployeeUpdate {
     lastName?: string;
     email?: string;
     dateOfBirth?: Date | null;
-    gender: 'male' | 'female' | 'other';
-
+    gender?: 'male' | 'female' | 'other';
 }
 export const employeeUpdateSchema = Joi.object({
     phoneNumber: Joi.string().pattern(/^[0-9]{10,15}$/),
