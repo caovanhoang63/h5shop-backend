@@ -196,10 +196,15 @@ export class OrderMysqlRepo extends BaseMysqlRepo implements IOrderRepository {
                      final_amount = ? ,
                      point_used = ? 
                  WHERE id = ?`;
+
+
         const skuQuery = `UPDATE sku SET stock = CASE
                             ${order.items.map(r => `WHEN id = ? THEN stock - ?`)}
                             END
                           WHERE id IN (?)`;
+
+        const customerQuery = `UPDATE customer SET discount_point = discount_point - ? WHERE id = ? `
+
 
         const skuValue = order.items.map(r =>[r.skuId,r.amount]).flat();
         const ids = order.items.map(r => r.skuId)
