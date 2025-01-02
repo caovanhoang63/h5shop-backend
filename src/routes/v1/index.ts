@@ -28,6 +28,7 @@ import stockOutRouter from "./stockOutRoute";
 
 import warrantyRouter from "./warrantyRoute";
 import settingRouter from "./settingRoute";
+import reportRoute from "./reportRoute";
 
 
 
@@ -43,6 +44,7 @@ const v1Router = () => {
     router.get('/', function (req, res, next) {
         res.render('index', {title: 'Express'});
     });
+    router.use("/report", reportRoute());
     router.use("/warranty",warrantyRouter());
     router.use("/users", usersRouter(appCtx))
     router.use("/auth", authRouter(appCtx))

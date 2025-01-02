@@ -99,6 +99,11 @@ import {SettingMysqlRepo} from "./modules/setting/repo/settingMysqlRepo";
 import {ISettingService} from "./modules/setting/service/ISettingService";
 import {SettingService} from "./modules/setting/service/settingService";
 import SettingApi from "./modules/setting/transport/settingApi";
+import {IReportRepo} from "./modules/report/repository/IReportRepo";
+import {ReportMysqlRepo} from "./modules/report/repository/reportMysqlRepo";
+import {IReportService} from "./modules/report/service/IReportService";
+import {ReportService} from "./modules/report/service/reportService";
+import {ReportApi} from "./modules/report/transport/reportApi";
 
 
 
@@ -124,7 +129,7 @@ container.bind<IProviderRepository>(TYPES.IProviderRepository).to(ProviderMySqlR
 container.bind<IStockInRepository>(TYPES.IStockInRepository).to(StockInRepository).inRequestScope();
 
 container.bind<IStockOutRepository>(TYPES.IStockOutRepository).to(StockOutRepository).inRequestScope();
-
+container.bind<IReportRepo>(TYPES.IReportRepository).to(ReportMysqlRepo).inRequestScope();
 
 
 container.bind<IWarrantyRepo>(TYPES.IWarrantyRepository).to(WarrantyMysqlRepo).inRequestScope()
@@ -145,7 +150,7 @@ container.bind<ISettingService>(TYPES.ISettingService).to(SettingService).inRequ
 
 container.bind<ISkuWholesalePriceService>(TYPES.ISkuWholesalePriceService).to(SkuWholesalePriceService).inRequestScope();
 container.bind<IUploadService>(TYPES.IUploadService).to(UploadService).inRequestScope();
-
+container.bind<IReportService>(TYPES.IReportService).to(ReportService).inRequestScope()
 
 container.bind<IProviderService>(TYPES.IProviderService).to(ProviderService).inRequestScope();
 container.bind<IStockInService>(TYPES.IStockInService).to(StockInService).inRequestScope();
@@ -155,10 +160,12 @@ container.bind<IInventoryReportService>(TYPES.IInventoryReportService).to(Invent
 container.bind<ICustomerService>(TYPES.ICustomerService).to(CustomerService).inRequestScope();
 
 container.bind<IWarrantyService>(TYPES.IWarrantyService).to(WarrantyService).inRequestScope()
-container.bind<SettingApi>(TYPES.ISettingController).to(SettingApi).inRequestScope();
 
 // Controller
 container.bind<WarrantyApi>(TYPES.IWarrantyController).to(WarrantyApi).inRequestScope()
+container.bind<SettingApi>(TYPES.ISettingController).to(SettingApi).inRequestScope();
+container.bind<ReportApi>(TYPES.IReportController).to(ReportApi).inRequestScope();
+
 
 
 // Util
