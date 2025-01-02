@@ -85,10 +85,12 @@ export class CustomerMysqlRepo extends BaseMysqlRepo implements ICustomerReposit
         const [whereClause, whereValues] = SqlHelper.buildWhereClause(cond);
         const pagingClause = SqlHelper.buildPaginationClause(page);
         const query = `SELECT * FROM customer ${whereClause} ${pagingClause}`;
+        console.log(cond);
+        console.log(query);
         const countQuery = `SELECT COUNT(id) FROM customer ${whereClause}`;
         return this.executeQuery(countQuery, whereValues).andThen(
             ([r, f]) => {
-                const firstRow = (r as any)[0];
+                const firstRow = (r as RowDataPacket[])[0];
                 if (!firstRow) {
                     return okAsync({total: 0});
                 }

@@ -99,7 +99,7 @@ export class CustomerApi {
         return async (req, res, next) => {
             const filter = {
                 status: req.query.status,
-                lkCustomerPhoneNumber : req.query.lkCustomerPhoneNumber,
+                lkPhoneNumber : req.query.lkPhoneNumber,
                 gtCreatedAt : req.query.gtCreatedAt,
                 ltCreatedAt : req.query.ltCreatedAt,
                 gtUpdatedAt : req.query.gtUpdatedAt,
@@ -112,7 +112,7 @@ export class CustomerApi {
 
             r.match(
                 value => {
-                    res.status(200).send(AppResponse.SimpleResponse(value))
+                    res.status(200).send(AppResponse.SuccessResponse(value, paging, filter))
                 },
                 e => {
                     writeErrorResponse(res, e)
