@@ -16,4 +16,5 @@ export interface Customer extends BaseModel{
     paymentAmount: number;
     gender: CustomerGender;
     status: number;
+    discountPoint: number;
 }

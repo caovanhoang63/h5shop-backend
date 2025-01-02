@@ -64,6 +64,13 @@ CREATE TABLE `customer`
 ALTER TABLE customer
     ADD COLUMN `discount_point` DECIMAL(15,2) DEFAULT 0 AFTER `payment_amount`;
 
+ALTER TABLE customer
+    DROP COLUMN `discount_point` ;
+
+ALTER TABLE customer
+    ADD COLUMN `discount_point`  INT UNSIGNED DEFAULT 0 AFTER `payment_amount`;
+
+
 DROP TABLE IF EXISTS `provider`;
 CREATE TABLE `provider`
 (

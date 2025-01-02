@@ -28,6 +28,7 @@ export class CustomerMysqlRepo extends BaseMysqlRepo implements ICustomerReposit
                     dateOfBirth: c.dateOfBirth,
                     paymentAmount: 0,
                     gender: c.gender,
+                    discountPoint: 0,
                     status: 1,
                 }
                 return okAsync(createdCustomer);
