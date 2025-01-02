@@ -11,8 +11,8 @@ export class Paging {
     total: number = 0;
     page: number;
     limit: number;
-    cursor?: number;
-    nextCursor?: number;
+    cursor?: number | bigint;
+    nextCursor?: number | bigint;
 
     default() {
         if (this.page <= 0)

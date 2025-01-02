@@ -459,7 +459,7 @@ CREATE TABLE `payment`
 
 
 DROP TABLE IF EXISTS `audit_log`;
-CREATE TABLE `audit_log` (
+CREATE TABLE `_log` (
      `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
      `user_id` INT NOT NULL COMMENT 'id = 0 if it is system action',
      `action` VARCHAR(50) NOT NULL,
@@ -471,6 +471,6 @@ CREATE TABLE `audit_log` (
      `user_agent` VARCHAR(255),
      `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
      PRIMARY KEY (`id`),
-     KEY `idx_table_record` (`object_type`, `object_id`) USING BTREE ,
+     KEY `idx_table_recauditord` (`object_type`, `object_id`) USING BTREE ,
      KEY `idx_user_id` (`user_id`) USING BTREE
 ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COMMENT = 'Tracks changes to database records';
