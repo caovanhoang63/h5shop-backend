@@ -121,7 +121,9 @@ export class SkuAttrService implements ISkuAttrService {
                 const skus = await this.skuRepo.list({
                     status: 1,
                     spuId: old.value.spuId
-                },new Paging(1,50))
+                },new Paging(1,1000))
+
+                console.log("skus",skus)
                 // update TierIdx
                 if (skus.isErr()) return err(skus.error)
                 if(!skus.value) return err(createEntityNotFoundError("sku"))

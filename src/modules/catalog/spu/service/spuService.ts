@@ -23,6 +23,7 @@ import {ISkuWholesalePriceRepository} from "../../sku-wholesale-prices/repositor
 import {SkuWholesalePriceCreate} from "../../sku-wholesale-prices/entity/SkuWholesalePriceCreate";
 import {IUploadProvider} from "../../../../components/uploadProvider/IUploadProvider";
 import {SpuDetail} from "../entity/spuDetail";
+import {SpuFilter} from "../entity/spuFilterSchema";
 
 @injectable()
 export class SpuService implements ISpuService {
@@ -95,9 +96,9 @@ export class SpuService implements ISpuService {
     delete(requester: IRequester, id: number): ResultAsync<void, Err> {
         return ResultAsync.fromPromise(
             (async () => {
-                if (requester.systemRole != SystemRole.Admin &&  requester.systemRole != SystemRole.Owner) {
-                    return err(createForbiddenError())
-                }
+                // if (requester.systemRole != SystemRole.Admin &&  requester.systemRole != SystemRole.Owner) {
+                //     return err(createForbiddenError())
+                // }
 
                 const old = await this.repo.findById(id)
 
@@ -118,7 +119,7 @@ export class SpuService implements ISpuService {
         ).andThen(r=> r)
     }
 
-    list(cond: ICondition, paging: Paging): ResultAsync<Spu[] | null, Err> {
+    list(cond: SpuFilter, paging: Paging): ResultAsync<Spu[] | null, Err> {
         return ResultAsync.fromPromise(
             (async () => {
                 const result = await this.repo.list(cond,paging)

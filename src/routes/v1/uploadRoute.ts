@@ -9,10 +9,14 @@ import {randomUUID} from "node:crypto";
 
 const storage = multer.diskStorage({
     filename: function (req, file, cb) {
-        const uniqueSuffix = randomUUID()
-        cb(null, uniqueSuffix + '-' + file.originalname);
+        const uniqueSuffix = randomUUID();
+
+        const sanitizedFileName = file.originalname.replace(/[^a-zA-Z0-9.\-_]/g, '');
+
+        cb(null, `${uniqueSuffix}-${sanitizedFileName}`);
     }
 });
+
 const upload = multer({
     storage: storage,
     fileFilter(req, file , cb) {

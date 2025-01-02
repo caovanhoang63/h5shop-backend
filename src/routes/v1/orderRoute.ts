@@ -11,13 +11,14 @@ const orderRoute = (appContext: IAppContext) => {
     const orderService = container.get<IOrderService>(TYPES.IOrderService)
     const orderApi = new OrderApi(orderService);
 
-    router.use(authentication())
+    // router.use(authentication())
 
     router.post('/', orderApi.create())
     router.delete('/:id', orderApi.delete())
     router.patch('/:id', orderApi.update())
     router.get('/', orderApi.list())
     router.get('/:id', orderApi.findById())
+    router.post('/:id/pay', orderApi.payOrder())
 
     return router;
 }

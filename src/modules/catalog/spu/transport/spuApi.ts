@@ -8,7 +8,7 @@ import {SpuCreate} from "../entity/spuCreate";
 import {SpuUpdate} from "../entity/spuUpdate";
 import {SpuDetailUpsert} from "../entity/spuDetailUpsert";
 import {categoryFilterSchema} from "../../category/entity/CategoryFilterSchema";
-import {spuFilterSchema} from "../entity/spuFilterSchema";
+import {SpuFilter, spuFilterSchema} from "../entity/spuFilterSchema";
 
 export class SpuApi {
     constructor(private readonly service : ISpuService) {}
@@ -78,20 +78,20 @@ export class SpuApi {
     list() : express.Handler {
         return async (req, res, next) => {
             const paging = ReqHelper.getPaging(req.query)
-            const value=  spuFilterSchema.validate(req.query, {stripUnknown: true});
+            const value =  spuFilterSchema.validate(req.query, {stripUnknown: true});
 
             if (value.error) {
                 writeErrorResponse(res,createInvalidRequestError(value.error))
                 return
             }
 
-            const filter = value.value
+            const filter: SpuFilter = value.value
 
             const r = await this.service.list(filter,paging)
 
             r.match(
                 value => {
-                    res.status(200).send(AppResponse.SuccessResponse(value,paging,{}))
+                    res.status(200).send(AppResponse.SuccessResponse(value,paging,filter))
                 },
                 e => {
                     writeErrorResponse(res,e)
