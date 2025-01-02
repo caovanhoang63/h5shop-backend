@@ -11,13 +11,15 @@ import {OrderItemUpdate, orderItemUpdateSchema} from "../entity/orderItemUpdate"
 import {IOrderRepository} from "../../order/repository/IOrderRepository";
 import {ISkuRepository} from "../../../catalog/sku/repository/ISkuRepository";
 import {OrderItem} from "../entity/orderItem";
+import { ISkuService } from "../../../catalog/sku/service/ISkuService";
 
 @injectable()
 export class OrderItemService implements IOrderItemService {
     constructor(
         @inject(TYPES.IOrderItemRepository) private readonly orderItemRepository: IOrderItemRepository,
         @inject(TYPES.IOrderRepository) private readonly orderRepository: IOrderRepository,
-        @inject(TYPES.ISkuRepository) private readonly skuRepository: ISkuRepository
+        @inject(TYPES.ISkuRepository) private readonly skuRepository: ISkuRepository,
+        @inject(TYPES.ISkuService) private readonly skuService: ISkuService,
     ) {
     }
 
@@ -35,12 +37,20 @@ export class OrderItemService implements IOrderItemService {
                 if (orderCheck.value === null) return err(createEntityNotFoundError("Order"));
 
                 // Check if the sku exists
-                const skuCheck = await this.skuRepository.findById(o.skuId);
-                if (skuCheck.isErr()) return err(skuCheck.error);
-                if (skuCheck.value === null) return err(createEntityNotFoundError("Sku"));
+                // const skuCheck = await this.skuRepository.findById(o.skuId);
 
-                if (skuCheck.value.stock < o.amount)
+
+                const skuCheck = await this.skuService.getListWholeSale([{
+                    quantity : o.amount,
+                    id: o.skuId,
+                }])
+                if (skuCheck.isErr()) return err(skuCheck.error);
+                if (skuCheck.value === null || skuCheck.value.length == 0) return err(createEntityNotFoundError("Sku"));
+
+                if (skuCheck.value[0].stock < o.amount)
                     return err(createInvalidDataError(new Error("Stock not enough")));
+
+                o.unitPrice = skuCheck.value[0].price
 
                 const r = await this.orderItemRepository.create(o);
                 if (r.isErr()) {
@@ -56,6 +66,7 @@ export class OrderItemService implements IOrderItemService {
         return ResultAsync.fromPromise(
             (async () => {
                 const vR = (await Validator(orderItemUpdateSchema, o))
+
                 if (vR.isErr()) {
                     return err(vR.error);
                 }

@@ -11,30 +11,28 @@ import {SqlHelper} from "../../../../libs/sqlHelper";
 
 export class OrderItemMysqlRepo extends BaseMysqlRepo implements IOrderItemRepository{
     create(o: OrderItemCreate): ResultAsync<OrderItem, Err> {
-        const getPriceQuery = `SELECT price FROM sku WHERE id = ? AND status = 1`;
-        return this.executeQuery(getPriceQuery, [o.skuId]).andThen(([rows, _]) => {
-            const result = rows as RowDataPacket[];
-
-            const unitPrice = result[0].price;
-
-            const insertQuery = `
+        const insertQuery = `
             INSERT INTO order_item (order_id, sku_id, amount, description, unit_price)
-            VALUES (?, ?, ?, ?, ?)
+            VALUES (?, ?, ?, ?, ?) 
+            ON DUPLICATE  KEY UPDATE
+                amount = VALUES(amount),
+                description = VALUES(description),
+                unit_price = VALUES(unit_price)
         `;
-
-            return this.executeQuery(insertQuery,
-                [o.orderId, o.skuId, o.amount, o.description, unitPrice]
-            ).andThen(([r, f]) => {
-                const createdOrderItem: OrderItem = {
-                    orderId: o.orderId,
-                    skuId: o.skuId,
-                    amount: o.amount,
-                    description: o.description,
-                    unitPrice: unitPrice,
-                    createdAt: new Date(),
-                }
-                return okAsync(createdOrderItem);
-            });
+        return this.executeQuery(insertQuery,
+            [o.orderId, o.skuId, o.amount, o.description, o.unitPrice]
+        ).andThen(([r, f]) => {
+            const header  = r as ResultSetHeader;
+            o.id = header.insertId && o.id
+            const createdOrderItem: OrderItem = {
+                orderId: o.orderId,
+                skuId: o.skuId,
+                amount: o.amount,
+                description: o.description,
+                unitPrice: o.unitPrice,
+                createdAt: new Date(),
+            }
+            return okAsync(createdOrderItem);
         });
     }
 
