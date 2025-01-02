@@ -84,38 +84,38 @@ export class SqlHelper {
                     switch (field) {
                         case 'gt_created_at' :
                             if(table!=null){
-                                clauses.push(`${table}.created_at >= ?`);
+                                clauses.push(`${table}.created_at > ?`);
                                 values.push(value);
                                 break;
                             }
-                            clauses.push(`created_at >= ?`);
+                            clauses.push(`created_at > ?`);
                             values.push(value);
                             break;
                         case 'lt_created_at' :
                             if(table!=null){
-                                clauses.push(`${table}.created_at <= ?`);
+                                clauses.push(`${table}.created_at < ?`);
                                 values.push(value);
                                 break;
                             }
-                            clauses.push(`created_at <= ?`);
+                            clauses.push(`created_at < ?`);
                             values.push(value);
                             break;
                         case 'gt_updated_at' :
                             if(table!=null){
-                                clauses.push(`${table}.updated_at >= ?`);
+                                clauses.push(`${table}.updated_at > ?`);
                                 values.push(value);
                                 break;
                             }
-                            clauses.push(`updated_at >= ?`);
+                            clauses.push(`updated_at > ?`);
                             values.push(value);
                             break;
                         case 'lt_updated_at' :
                             if(table!=null){
-                                clauses.push(`${table}.updated_at <= ?`);
+                                clauses.push(`${table}.updated_at < ?`);
                                 values.push(value);
                                 break;
                             }
-                            clauses.push(`updated_at <= ?`);
+                            clauses.push(`updated_at < ?`);
                             values.push(value);
                             break;
                         default:
@@ -142,7 +142,7 @@ export class SqlHelper {
         });
 
         return [
-            clauses.length > 0 ? `WHERE ${clauses.join(' AND ')}` : '',
+            clauses.length > 0 ? `WHERE ${clauses.join(' AND ')}` : 'WHERE 1 = 1 ',
             values
         ];
     }

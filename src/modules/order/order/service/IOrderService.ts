@@ -8,9 +8,10 @@ import {ICondition} from "../../../../libs/condition";
 import {Order} from "../entity/order";
 
 export interface IOrderService {
-    create(requester: IRequester, o: OrderCreate): ResultAsync<void, Err>;
-    update(requester: IRequester, id: number, o: OrderUpdate): ResultAsync<void, Err>;
+    create(requester: IRequester, o: OrderCreate): ResultAsync<Order, Err>;
+    update(requester: IRequester, id: number, o: OrderUpdate): ResultAsync<Order, Err>;
     delete(requester: IRequester, id: number): ResultAsync<void, Err>;
     findById(id: number): ResultAsync<Order | null, Err>;
     list(cond: ICondition): ResultAsync<OrderDetail[], Err>;
+    payOrder(requester : IRequester, id: number): ResultAsync<void, Err>;
 }

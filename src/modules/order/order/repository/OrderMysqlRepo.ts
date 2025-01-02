@@ -1,17 +1,18 @@
 import {IOrderRepository} from "./IOrderRepository";
 import {BaseMysqlRepo} from "../../../../components/mysql/BaseMysqlRepo";
-import {errAsync, ok, okAsync, ResultAsync} from "neverthrow";
+import {err, errAsync, ok, okAsync, ResultAsync} from "neverthrow";
 import {OrderCreate} from "../entity/orderCreate";
-import {Err} from "../../../../libs/errors";
+import {createDatabaseError, createEntityNotFoundError, Err} from "../../../../libs/errors";
 import {ResultSetHeader, RowDataPacket} from "mysql2";
 import {OrderUpdate} from "../entity/orderUpdate";
 import {SqlHelper} from "../../../../libs/sqlHelper";
-import {OrderDetail} from "../entity/orderDetail";
+import {OrderDetail, OrderItemDetail} from "../entity/orderDetail";
 import {ICondition} from "../../../../libs/condition";
 import {Order} from "../entity/order";
 
 export class OrderMysqlRepo extends BaseMysqlRepo implements IOrderRepository {
-    create(o: OrderCreate): ResultAsync<void, Err> {
+
+    create(o: OrderCreate): ResultAsync<Order, Err> {
         const query = `INSERT INTO \`order\` (customer_id, seller_id, order_type, description) VALUES (?, ?, ?, ?)`;
         return this.executeQuery(query,
             [o.customerId, o.sellerId, o.orderType, o.description]
@@ -19,17 +20,48 @@ export class OrderMysqlRepo extends BaseMysqlRepo implements IOrderRepository {
             ([r, f]) => {
                 const header = r as ResultSetHeader;
                 o.id = header.insertId;
-                return okAsync(undefined);
+                const createdOrder: Order = {
+                    id: header.insertId,
+                    customerId: o.customerId,
+                    status: 1,
+                    sellerId: o.sellerId,
+                    orderType: o.orderType,
+                    description: o.description,
+                    createdAt: new Date(),
+                    updatedAt: new Date(),
+                    finalAmount: 0,
+                    totalAmount: 0,
+                    discountAmount: 0,
+
+                };
+                return okAsync(createdOrder);
             });
     }
 
-    update(id: number, o: OrderUpdate): ResultAsync<void, Err> {
+    update(id: number, o: OrderUpdate): ResultAsync<Order, Err> {
         const [clause, values] = SqlHelper.buildUpdateClause(o);
         const query = `UPDATE \`order\` SET ${clause} WHERE id = ?`;
         return this.executeQuery(query, [...values, id]).andThen(
             ([r, f]) => {
                 const header = r as ResultSetHeader;
-                return okAsync(undefined);
+
+
+                // Check if any rows were affected
+                if (header.affectedRows === 0) {
+                    return errAsync(createDatabaseError("Order not found or no changes made"));
+                }
+
+                // Retrieve the updated record
+                const selectQuery = `SELECT * FROM \`order\` WHERE id = ?`;
+                return this.executeQuery(selectQuery, [id]).andThen(([r]) => {
+                    const fetchedRows = r as Order[];
+
+                    if (fetchedRows.length === 0) {
+                        return errAsync(createDatabaseError("Order not found after update"));
+                    }
+
+                    return okAsync(fetchedRows[0]);
+                });
             });
     }
 
@@ -57,18 +89,31 @@ export class OrderMysqlRepo extends BaseMysqlRepo implements IOrderRepository {
         )
     }
 
-    findById(id: number): ResultAsync<Order | null, Err> {
+    findById(id: number): ResultAsync<OrderDetail | null, Err> {
         const query = `SELECT * FROM \`order\` WHERE id = ?`;
+        const itemQuery = `SELECT * FROM order_item WHERE order_id = ?`;
+        let order : OrderDetail | null = null;
         return this.executeQuery(query, [id]).andThen(
             ([r, f]) => {
                 const firstRow = (r as RowDataPacket[])[0];
                 if(!firstRow) {
-                    return ok(null);
+                    return err(createEntityNotFoundError("Order not found"));
                 }
-
-                return ok(SqlHelper.toCamelCase(firstRow) as Order)
+                order = SqlHelper.toCamelCase(firstRow) as OrderDetail
+                return ok(order)
             }
-        );
+        ).andThen(
+            r => this.executeQuery(
+                itemQuery,
+                [r.id]
+            )
+        ).andThen(
+            ([r, f]) => {
+                const rows = r as RowDataPacket[];
+                order!.items = rows.map(row => SqlHelper.toCamelCase(row) as OrderItemDetail)
+                return ok(order)
+            }
+        )
     }
 
     list(cond: ICondition): ResultAsync<OrderDetail[], Err> {
@@ -87,7 +132,6 @@ export class OrderMysqlRepo extends BaseMysqlRepo implements IOrderRepository {
                 oi.amount,
                 oi.description AS item_description,
                 oi.unit_price,
-                oi.discount,
                 oi.created_at AS item_created_at
             FROM \`order\` AS o
                      LEFT JOIN order_item AS oi ON o.id = oi.order_id
@@ -111,8 +155,11 @@ export class OrderMysqlRepo extends BaseMysqlRepo implements IOrderRepository {
                             status: camelRow.status,
                             orderType: camelRow.orderType,
                             description: camelRow.description,
-                            createAt: camelRow.createdAt,
-                            updateAt: camelRow.updatedAt,
+                            createdAt: camelRow.orderCreatedAt,
+                            updatedAt: camelRow.orderUpdatedAt,
+                            totalAmount: camelRow.totalAmount,
+                            discountAmount: camelRow.discountAmount,
+                            finalAmount: camelRow.finalAmount,
                             items: [], // Initialize the items array
                         });
                     }
@@ -125,9 +172,8 @@ export class OrderMysqlRepo extends BaseMysqlRepo implements IOrderRepository {
                             skuId: camelRow.skuId,
                             amount: camelRow.amount,
                             unitPrice: camelRow.unitPrice,
-                            discount: camelRow.discount,
                             description: camelRow.itemDescription,
-                            createAt: camelRow.itemCreatedAt,
+                            createdAt: camelRow.itemCreatedAt,
                         });
                     }
                 });
@@ -138,5 +184,37 @@ export class OrderMysqlRepo extends BaseMysqlRepo implements IOrderRepository {
                 return okAsync(uniqueOrders);
             })
             .orElse((error) => errAsync(error));
+    }
+    payOrder(order: OrderDetail): ResultAsync<void, Err> {
+        const orderQuery = `UPDATE \`order\` SET
+                     status = 2,
+                     total_amount = ?,
+                     discount_amount = ?,
+                     final_amount = ? 
+                 WHERE id = ?`;
+        const skuQuery = `UPDATE sku SET stock = CASE
+                            ${order.items.map(r => `WHEN id = ? THEN stock - ?`)}
+                            END
+                          WHERE id IN (?)`;
+
+        const skuValue = order.items.map(r =>[r.skuId,r.amount]).flat();
+        const ids = order.items.map(r => r.skuId)
+        return this.executeInTransaction(
+            conn => {
+                return ResultAsync.fromPromise(
+                    conn.query(orderQuery,[order.totalAmount,order.discountAmount,order.finalAmount,order.id]),
+                    e => createDatabaseError(e)
+                ).andThen(
+                    r=>{
+                        return ResultAsync.fromPromise(
+                            conn.query(skuQuery,[...skuValue,...ids]),
+                            e => createDatabaseError(e)
+                        )
+                    }
+                ).andThen(
+                    r=> ok(undefined)
+                )
+            }
+        )
     }
 }

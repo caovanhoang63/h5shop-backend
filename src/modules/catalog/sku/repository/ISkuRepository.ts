@@ -13,7 +13,9 @@ export interface ISkuRepository extends IBaseRepo {
     list(cond : ICondition, paging : Paging): ResultAsync<Sku[] | null , Err>
     findById(id : number): ResultAsync<Sku | null, Err>
     delete(id : number): ResultAsync<void, Err>
+    findByIds(ids: number[]) : ResultAsync<Sku[] , Err>
     searchDetail(cond : ICondition, paging : Paging): ResultAsync<SkuDetail[] | null, Err>
     listDetail(cond: FilterSkuListDetail, paging: Paging): ResultAsync<SkuListDetail[] | null, Err>
     getDetailById(id : number): ResultAsync<SkuListDetail | null, Err>
+    findByIds(ids: number[]): ResultAsync<Sku[] | null, Err>
 }

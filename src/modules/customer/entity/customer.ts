@@ -7,12 +7,14 @@ export enum CustomerGender {
 }
 
 export interface Customer extends BaseModel{
-    phoneNumber?: string;
+    id: number;
+    phoneNumber: string;
     address?: string;
     firstName: string;
-    lastName?: string;
+    lastName: string;
     dateOfBirth?: Date;
-    gender?: CustomerGender;
+    paymentAmount: number;
+    gender: CustomerGender;
     status: number;
-
+    discountPoint: number;
 }

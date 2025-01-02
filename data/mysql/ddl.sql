@@ -45,12 +45,13 @@ CREATE TABLE `user`
 DROP TABLE IF EXISTS `customer`;
 CREATE TABLE `customer`
 (
-    `id`            int                            NOT NULL AUTO_INCREMENT,
-    `phone_number`  VARCHAR(20),
+    `id`        INT NOT NULL AUTO_INCREMENT,
+    `phone_number`  VARCHAR(20) NOT NULL UNIQUE,
     `address`       VARCHAR(255),
     `first_name`    VARCHAR(255) NOT NULL ,
     `last_name`     VARCHAR(255) NOT NULL,
     `date_of_birth` date,
+    `payment_amount` INT NOT NULL DEFAULT 0,
     `gender`        enum ('male','female','other') NOT NULL DEFAULT 'other',
     `status`        INT NOT NULL                                     DEFAULT 1,
     `created_at`    TIMESTAMP                               DEFAULT CURRENT_TIMESTAMP,
@@ -59,6 +60,16 @@ CREATE TABLE `customer`
     KEY `status` (`status`) USING BTREE
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4;
+
+ALTER TABLE customer
+    ADD COLUMN `discount_point` DECIMAL(15,2) DEFAULT 0 AFTER `payment_amount`;
+
+ALTER TABLE customer
+    DROP COLUMN `discount_point` ;
+
+ALTER TABLE customer
+    ADD COLUMN `discount_point`  INT UNSIGNED DEFAULT 0 AFTER `payment_amount`;
+
 
 DROP TABLE IF EXISTS `provider`;
 CREATE TABLE `provider`
@@ -348,14 +359,27 @@ CREATE TABLE `stock_out_detail`
 DROP TABLE IF EXISTS `warranty_form`;
 CREATE TABLE `warranty_form`
 (
-    `id`            INT NOT NULL AUTO_INCREMENT,
-    `order_item_id` INT NOT NULL,
-    `amount`        INT NOT NULL DEFAULT 0,
-    `status`        INT NOT NULL         DEFAULT 1,
-    `created_at`    TIMESTAMP    DEFAULT CURRENT_TIMESTAMP,
-    `updated_at`    TIMESTAMP    DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    `id`                    INT NOT NULL AUTO_INCREMENT,
+    `warranty_type` ENUM('new', 'fix', 'part', 'mf_fix'),
+
+    `customer_id`           INT,
+    `customer_phone_number` VARCHAR(255) NOT NULL,
+    `stock_in_id`           INT,
+    `sku_id`                INT NOT NULL,
+    `order_id`              INT NOT NULL,
+
+    `amount`                INT NOT NULL DEFAULT 0,
+
+    `return_date`           TIMESTAMP,
+    `note`                  TEXT,
+
+    `status`                INT NOT NULL         DEFAULT 1,
+    `created_at`            TIMESTAMP    DEFAULT CURRENT_TIMESTAMP,
+    `updated_at`            TIMESTAMP    DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     PRIMARY KEY (`id`),
-    KEY `order_item_id` (`order_item_id`) USING BTREE,
+    KEY `warranty_type` (`warranty_type`) USING BTREE,
+    KEY `sku_id` (`sku_id`) USING BTREE,
+    KEY `order_id` (`order_id`) USING BTREE ,
     KEY `status` (`status`) USING BTREE
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4;
@@ -382,6 +406,17 @@ CREATE TABLE `order`
 ALTER TABLE `order`
 ADD COLUMN `description` VARCHAR(255) AFTER `order_type`;
 
+ALTER TABLE `order`
+ADD COLUMN `total_amount` DECIMAL(15, 2) DEFAULT 0 AFTER `description`;
+
+ALTER TABLE `order`
+ADD COLUMN `discount_amount` DECIMAL(15, 2) DEFAULT 0 AFTER `total_amount`;
+
+
+ALTER TABLE `order`
+    ADD COLUMN `final_amount` DECIMAL(15, 2) DEFAULT 0 AFTER `discount_amount`;
+
+
 DROP TABLE IF EXISTS `order_item`;
 CREATE TABLE `order_item`
 (
@@ -396,7 +431,6 @@ CREATE TABLE `order_item`
   DEFAULT CHARSET = utf8mb4;
 
 ALTER TABLE `order_item`
-ADD COLUMN `discount` DECIMAL(15, 2) DEFAULT 0 AFTER `unit_price`,
 ADD COLUMN `description` VARCHAR(255) AFTER `amount`;
 
 # PAYMENT
@@ -435,7 +469,7 @@ CREATE TABLE `payment`
 
 
 DROP TABLE IF EXISTS `audit_log`;
-CREATE TABLE `audit_log` (
+CREATE TABLE `_log` (
      `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
      `user_id` INT NOT NULL COMMENT 'id = 0 if it is system action',
      `action` VARCHAR(50) NOT NULL,
@@ -447,6 +481,20 @@ CREATE TABLE `audit_log` (
      `user_agent` VARCHAR(255),
      `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
      PRIMARY KEY (`id`),
-     KEY `idx_table_record` (`object_type`, `object_id`) USING BTREE ,
+     KEY `idx_table_recauditord` (`object_type`, `object_id`) USING BTREE ,
      KEY `idx_user_id` (`user_id`) USING BTREE
 ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COMMENT = 'Tracks changes to database records';
+
+DROP TABLE IF EXISTS `system_settings`;
+CREATE TABLE `system_settings` (
+                                   `id` int NOT NULL AUTO_INCREMENT,
+                                   `name` varchar(255) NOT NULL,
+                                   `value` JSON DEFAULT NULL,
+                                   `description` TEXT ,
+                                   `status` INT DEFAULT 1,
+                                   `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                                   `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+                                   PRIMARY KEY (`id`),
+                                   UNIQUE `name` (`name`) USING BTREE,
+                                   KEY `status` (`status`) USING BTREE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

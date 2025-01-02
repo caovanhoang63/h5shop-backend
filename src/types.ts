@@ -19,7 +19,8 @@ const TYPES = {
     ICustomerRepository: Symbol.for("ICustomerRepository"),
     IProviderRepository: Symbol.for("IProviderRepository"),
     IStockInRepository: Symbol.for("IStockInRepository"),
-
+    IWarrantyRepository: Symbol.for("IWarrantyRepository"),
+    ISettingRepository: Symbol.for("ISettingRepository"),
 
     // SERVICE
     IAuthService: Symbol.for("IAuthService"),
@@ -32,6 +33,8 @@ const TYPES = {
     ISkuService: Symbol.for("ISkuService"),
     IOrderService: Symbol.for("IOrderService"),
     IOrderItemService: Symbol.for("IOrderItemService"),
+    ISettingService: Symbol.for("ISettingService"),
+
 
     ISkuWholesalePriceService: Symbol.for("ISkuWholesalePriceService"),
     IUploadService: Symbol.for("IUploadService"),
@@ -42,6 +45,12 @@ const TYPES = {
 
     IInventoryReportService: Symbol.for("IInventoryReportService"),
     ICustomerService: Symbol.for("ICustomerService"),
+
+    IWarrantyService: Symbol.for("IWarrantyService"),
+    //Controller
+    IWarrantyController: Symbol.for("IWarrantyController"),
+    ISettingController: Symbol.for("ISettingController"),
+
     // UTILS
     IHasher: Symbol.for("IHasher"),
     IJwtProvider: Symbol.for("IJwtProvider"),

@@ -12,6 +12,15 @@ import {SkuDetail} from "../entity/skuDetail";
 import {FilterSkuListDetail, SkuListDetail} from "../entity/skuListDetail";
 
 export class SkuMysqlRepo extends BaseMysqlRepo implements ISkuRepository{
+    findByIds(ids: number[]): ResultAsync<Sku[], Err> {
+        const query = 'SELECT * FROM sku WHERE id IN (?)';
+        return this.executeQuery(query,[ids]).andThen(
+            ([r,f ]) => {
+                const data = (r as RowDataPacket[]).map(row => SqlHelper.toCamelCase(row) as Sku);
+                return ok(data)
+            }
+        )
+    }
 
     upsertMany(records: SkuCreate[]): ResultAsync<SkuCreate[], Err> {
         const placeholders = records.map(() => '(?, ?, ?, ?, ?, ?, ?)').join(',');
@@ -62,9 +71,7 @@ export class SkuMysqlRepo extends BaseMysqlRepo implements ISkuRepository{
     }
 
     list(cond: ICondition, paging: Paging): ResultAsync<Sku[] | null, Err> {
-        const time = Date.now();
         const [clause, values] = SqlHelper.buildWhereClause(cond);
-        console.log(Date.now() - time);
         const pagingClause = SqlHelper.buildPaginationClause(paging);
         const countQuery = `SELECT COUNT(*) as total FROM sku ${clause}`;
         const query = `SELECT * FROM sku ${clause} ${pagingClause}`;
