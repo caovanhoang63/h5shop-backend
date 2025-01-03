@@ -12,6 +12,7 @@ import {SqlHelper} from "../../../../libs/sqlHelper";
 import {ResultSetHeader, RowDataPacket} from "mysql2";
 import {query} from "express";
 import {StockInDetailTable} from "../../stockIn/entity/stockInDetailTable";
+import { StockOutReason} from "../entity/stockOutReason";
 
 export class StockOutRepository extends BaseMysqlRepo implements IStockOutRepository {
 
@@ -25,7 +26,6 @@ export class StockOutRepository extends BaseMysqlRepo implements IStockOutReposi
                    sor.description as stockOutReasonDescription
             FROM stock_out so
                      JOIN stock_out_detail sod ON so.id = sod.stock_out_id
-                     JOIN sku s ON sod.sku_id = s.id
                      JOIN stock_out_reason sor ON so.stock_out_reason_id = sor.id
                 ${whereClause}
             GROUP BY so.id ${pagingClause}
@@ -54,7 +54,6 @@ export class StockOutRepository extends BaseMysqlRepo implements IStockOutReposi
                         return this.executeQuery(query, whereValues)
                             .andThen(([queryResult, _]) => {
                                 const data = (queryResult as RowDataPacket[]).map(row => SqlHelper.toCamelCase(row) as StockOutTable);
-                                console.log("gege", data)
                                 return ok(data);
                             });
                     }
@@ -159,6 +158,22 @@ export class StockOutRepository extends BaseMysqlRepo implements IStockOutReposi
                 return ok(groupedResults);
             }
         );
+    }
+
+    listReason(condition: ICondition, paging: Paging): ResultAsync<StockOutReason[] | null, Err> {
+        const pagingClause = SqlHelper.buildPaginationClause(paging)
+        const [whereClause, whereValues] = SqlHelper.buildWhereClause(condition);
+        const query = `
+            SELECT sor.*
+            FROM stock_out_reason sor`;
+        console.log(query)
+        return this.executeQuery(query,whereValues)
+        .andThen(([queryResult,_]) =>{
+            const rows = queryResult as RowDataPacket[];
+            if (!rows.length) {}
+            const data = (queryResult as RowDataPacket[]).map(row => SqlHelper.toCamelCase(row) as StockOutReason)
+            return ok(data);
+        })
     }
 
 }

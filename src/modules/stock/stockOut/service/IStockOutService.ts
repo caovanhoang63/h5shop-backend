@@ -7,12 +7,13 @@ import {IRequester} from "../../../../libs/IRequester";
 import {StockOutCreate} from "../entity/stockOut";
 import {StockOutTable} from "../entity/stockOutTable";
 import {StockOutDetailTable} from "../entity/stockOutDetailTable";
+import { StockOutReason} from "../entity/stockOutReason";
 
 
 export interface IStockOutService {
     findById(reportId: number): ResultAsync<StockOutDetailTable | null, Err>
     list(condition: ICondition, paging: Paging): ResultAsync<StockOutTable[] | null, Err>
     create(requester: IRequester, report: StockOutCreate): ResultAsync<number | null, Err>
-
+    listReason(condition: ICondition,paging: Paging): ResultAsync<StockOutReason[] | null, Err>
 }
 

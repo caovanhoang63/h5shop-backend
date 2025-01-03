@@ -6,6 +6,8 @@ import {createInvalidDataError} from "../../../../libs/errors";
 import {AppResponse} from "../../../../libs/response";
 import {IStockOutService} from "../service/IStockOutService";
 import {StockOutCreate} from "../entity/stockOut";
+import {StockOutReason} from "../entity/stockOutReason";
+import {err} from "neverthrow";
 
 export class StockOutApi {
     constructor(private readonly service: IStockOutService) {}
@@ -69,5 +71,20 @@ export class StockOutApi {
                 }
             );
         };
+    }
+
+    listReason(): express.Handler {
+        return async (req, res, next) => {
+            const paging = ReqHelper.getPaging(req.query);
+            const r = await this.service.listReason(req.query, paging);
+            r.match(
+                value => {
+                    res.status(200).send(AppResponse.SimpleResponse(value));
+                },
+                e=>{
+                    writeErrorResponse(res,e);
+                }
+            )
+        }
     }
 }

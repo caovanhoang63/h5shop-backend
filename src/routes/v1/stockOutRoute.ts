@@ -19,8 +19,9 @@ const stockOutRouter = (appContext: IAppContext) => {
 
 
     router.get('/', stockOutApi.list());
-    router.get('/:id', stockOutApi.findById());
+    router.get('/detail/:id', stockOutApi.findById());
     router.post('/', stockOutApi.create());
+    router.get('/reasons',stockOutApi.listReason());
     return router;
 }
 

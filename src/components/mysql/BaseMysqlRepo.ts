@@ -116,6 +116,7 @@ export abstract class BaseMysqlRepo implements IBaseRepo {
                 ResultAsync.fromPromise(
                     conn.query(query, params)
                         .then((row) => {
+                            this.releaseConnection();
                             return row
                         }),
                     e => {
