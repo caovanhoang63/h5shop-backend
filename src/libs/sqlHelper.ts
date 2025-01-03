@@ -80,7 +80,16 @@ export class SqlHelper {
                         clauses.push(`${field.split('_').slice(1).join("_")} LIKE concat('%' ,?, '%')`);
                         values.push(value);
                     }
-                } else {
+                } else if (field.startsWith("date_",0)) {
+                    if(table !=null){
+                        clauses.push(`${table}.${field.split('_').slice(1).join("_")} = DATE(?)`);
+                        values.push(value);
+                    }else{
+                        clauses.push(`${field.split('_').slice(1).join("_")} = DATE(?)`);
+                        values.push(value);
+                    }
+                }
+                else {
                     switch (field) {
                         case 'gt_created_at' :
                             if(table!=null){

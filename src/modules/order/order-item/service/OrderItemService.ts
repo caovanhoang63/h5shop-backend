@@ -53,6 +53,7 @@ export class OrderItemService implements IOrderItemService {
                 if (skuCheck.isErr()) return err(skuCheck.error);
                 if (skuCheck.value === null || skuCheck.value.length == 0) return err(createEntityNotFoundError("Sku"));
 
+                console.log(skuCheck.value)
                 if (skuCheck.value[0].stock < o.amount)
                     return err(createInvalidDataError(new Error("Stock not enough")));
 

@@ -5,6 +5,8 @@ import {IReportRepo} from "./IReportRepo";
 import {RowDataPacket} from "mysql2";
 import {injectable} from "inversify";
 import {SkuOrder} from "../entity/skuOrder";
+import {Sale} from "../entity/sale";
+import {SqlHelper} from "../../../libs/sqlHelper";
 
 @injectable()
 export class ReportMysqlRepo extends BaseMysqlRepo implements IReportRepo {
@@ -50,6 +52,27 @@ export class ReportMysqlRepo extends BaseMysqlRepo implements IReportRepo {
         )
     }
 
+    sale(startDate: Date, endDate: Date): ResultAsync<Sale[], Error> {
+        const query = `
+            SELECT o.*,
+                   c.phone_number                         as customer_phone_number,
+                   CONCAT(u.first_name, ' ', u.last_name) as seller_name
+            FROM \`order\` o
+                     JOIN user u on o.seller_id = u.id
+                     LEFT JOIN customer c on o.customer_id = c.id
+            WHERE o.status = 2
+              AND DATE(o.created_at) >= DATE(?)
+              AND DATE(o.created_at) <= DATE(?)
+        `
+        return this.executeQuery(query,[startDate,endDate]).andThen(
+            ([r,f]) => {
+                const rows = r as RowDataPacket[]
+                return okAsync(rows.map(row => SqlHelper.toCamelCase(row)))
+            }
+        )
+    }
+
+
 
     skuOrder(startDate: Date, endDate: Date,limit : number, order: string): ResultAsync<SkuOrder[], Error> {
         const query = `
@@ -80,17 +103,16 @@ export class ReportMysqlRepo extends BaseMysqlRepo implements IReportRepo {
             FROM sku_amounts AS sa
                      JOIN sku AS sk ON sa.sku_id = sk.id
                      JOIN spu AS sp ON sp.id = sa.spu_id
-                     JOIN sku_attr AS attr ON sk.spu_id = attr.spu_id
-            WHERE attr.status = 1
+                     LEFT JOIN sku_attr AS attr ON sk.spu_id = attr.spu_id
             GROUP BY sa.sku_id, sk.spu_id, sa.amount
             ORDER BY sa.amount DESC;
         `
         return this.executeQuery(query,[startDate,endDate,order,limit]).andThen(
             ([r,f]) => {
                 const rows = r as RowDataPacket[]
+
                 return ok(rows.map(row => {
                     let name = ""
-                    console.log(row.idx)
                     row.attributes?.forEach( (r : {name : string,value : any[]}, i : number) => {
                         name += r.value?.[row.idx?.[i]] ?  ' ' +  r.name + ' ' + r.value?.[row.idx?.[i]] : ''
                     })
