@@ -281,10 +281,9 @@ export class SkuMysqlRepo extends BaseMysqlRepo implements ISkuRepository{
         )
     }
 
-    findWarningStock(ltStock: number): ResultAsync<SkuWarningStock[] | null, Err> {
+    findWarningStock(gtStock : number, ltStock: number): ResultAsync<SkuWarningStock[] | null, Err> {
         const time = Date.now();
         console.log(Date.now() - time);
-
         const query = `
             SELECT
                 sku.id AS id,
@@ -303,7 +302,7 @@ export class SkuMysqlRepo extends BaseMysqlRepo implements ISkuRepository{
                 ) AS attributes
             FROM sku
             LEFT JOIN spu ON sku.spu_id = spu.id
-            WHERE sku.status = 1 AND spu.status = 1 AND sku.stock < ${ltStock}`;
+            WHERE sku.status = 1 AND spu.status = 1 AND sku.stock <= ${ltStock} AND sku.stock >= ${gtStock}`;
 
         return this.executeQuery(query, []).andThen(
             ([r, f]) => {
@@ -312,6 +311,7 @@ export class SkuMysqlRepo extends BaseMysqlRepo implements ISkuRepository{
             }
         )
     }
+
 
     getDetailById(id: number): ResultAsync<SkuListDetail | null, Err> {
         const countQuery = `

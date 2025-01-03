@@ -21,5 +21,5 @@ export interface ISkuRepository extends IBaseRepo {
     getDetailById(id : number): ResultAsync<SkuListDetail | null, Err>
     findByIds(ids: number[]): ResultAsync<Sku[] | null, Err>
     findDetailByIds(ids: number[]): ResultAsync<SkuGetWholeSale[] | null, Err>
-    findWarningStock(ltStock: number): ResultAsync<SkuWarningStock[] | null, Err>
+    findWarningStock(gtStock : number,ltStock: number): ResultAsync<SkuWarningStock[] | null, Err>
 }

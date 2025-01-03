@@ -209,7 +209,7 @@ export class SkuService implements ISkuService {
                 if(!parseInt(ltStock.value.value))
                     return ok(null)
 
-                const result = await this.repo.findWarningStock(ltStock.value.value)
+                const result = await this.repo.findWarningStock(0,ltStock.value.value)
                 if (result.isErr())
                     return err(result.error)
                 if(!result.value)

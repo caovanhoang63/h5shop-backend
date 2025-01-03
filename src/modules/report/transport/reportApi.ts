@@ -112,5 +112,29 @@ export class ReportApi {
             );
         };
     }
+    inventory() : express.Handler {
+        return async (req :express.Request, res : express.Response) => {
+            const schema = Joi.object({
+                gtStock: Joi.number().integer().min(0).required(),
+                ltStock: Joi.number().integer().min(0).required()
+                    .greater(Joi.ref('gtStock')).message('"ltStock" must be greater than "gtStock"')
+            });
 
+            const { error, value } = schema.validate(req.query, { abortEarly: false });
+            if (error) {
+                writeErrorResponse(res, createInvalidRequestError(error));
+                return
+            }
+            const { gtStock, ltStock } = value;
+            ( await this.reportService.inventory(gtStock, ltStock)).match(
+                (r) => {
+                    res.status(200).send(AppResponse.SimpleResponse(r));
+                },
+                (e) => {
+                    writeErrorResponse(res, e);
+                }
+            );
+        };
+
+    }
 }

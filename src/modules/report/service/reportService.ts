@@ -4,9 +4,12 @@ import {TYPES} from "../../../types";
 import {IReportRepo} from "../repository/IReportRepo";
 import { ResultAsync } from "neverthrow";
 import { Revenue } from "../entity/revenue";
-import {createInternalError} from "../../../libs/errors";
+import {createInternalError, Err} from "../../../libs/errors";
 import { SkuOrder } from "../entity/skuOrder";
 import { Sale } from "../entity/sale";
+import {SkuWarningStock} from "../../catalog/sku/entity/skuWarningStock";
+import {ISkuRepository} from "../../catalog/sku/repository/ISkuRepository";
+import {SkuStock} from "../entity/skuStock";
 
 @injectable()
 export class ReportService implements IReportService {
@@ -26,5 +29,8 @@ export class ReportService implements IReportService {
 
     revenue(startDate: Date, endDate: Date): ResultAsync<Revenue[], Error> {
         return this.reportRepo.revenue(startDate, endDate);
+    }
+    inventory(gtStock : number,ltStock: number) :  ResultAsync<SkuStock[], Error>{
+        return this.reportRepo.inventory(gtStock, ltStock);
     }
 }

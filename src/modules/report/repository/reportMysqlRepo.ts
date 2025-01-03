@@ -7,6 +7,7 @@ import {injectable} from "inversify";
 import {SkuOrder} from "../entity/skuOrder";
 import {Sale} from "../entity/sale";
 import {SqlHelper} from "../../../libs/sqlHelper";
+import {SkuStock} from "../entity/skuStock";
 
 @injectable()
 export class ReportMysqlRepo extends BaseMysqlRepo implements IReportRepo {
@@ -72,7 +73,46 @@ export class ReportMysqlRepo extends BaseMysqlRepo implements IReportRepo {
         )
     }
 
+    inventory(gtStock : number,ltStock: number) : ResultAsync<SkuStock[], Error> {
+        const query = `
+            SELECT
+                sk.id,
+                sp.name,
+                sk.stock,
+                sk.sku_tier_idx as idx,
+                sk.status,
+                JSON_ARRAYAGG(
+                        JSON_OBJECT(
+                                'name', attr.name,
+                                'value', attr.value
+                        )
+                ) AS attributes
+            FROM sku sk
+                     JOIN spu sp ON  sp.id = sk.spu_id
+                     LEFT JOIN sku_attr AS attr ON sk.spu_id = attr.spu_id
+            WHERE sk.stock >= ? AND sk.stock <= ?
+            GROUP BY sk.id , sp.id, sk.stock ORDER BY sk.stock;
+        `
+        console.log(gtStock,ltStock)
+        return this.executeQuery(query,[gtStock,ltStock]).andThen(
+            ([r,f]) => {
+                const rows = r as RowDataPacket[]
 
+                return ok(rows.map(row => {
+                    let name = ""
+                    row.attributes?.forEach( (r : {name : string,value : any[]}, i : number) => {
+                        name += r.value?.[row.idx?.[i]] ?  ' ' +  r.name + ' ' + r.value?.[row.idx?.[i]] : ''
+                    })
+                    return {
+                        id: row.id,
+                        name : row.name + name,
+                        stock: row.stock,
+                        status: row.status
+                    } as SkuStock
+                }))
+            }
+        )
+    }
 
     skuOrder(startDate: Date, endDate: Date,limit : number, order: string): ResultAsync<SkuOrder[], Error> {
         const query = `

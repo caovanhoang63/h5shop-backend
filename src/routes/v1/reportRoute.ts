@@ -11,6 +11,7 @@ const reportRoute = () => {
     router.get("/total-order", reportService.totalOrder())
     router.get("/sku-order", reportService.skuOrder())
     router.get("/sale",reportService.sale())
+    router.get("/inventory",reportService.inventory())
     return router;
 }
 
