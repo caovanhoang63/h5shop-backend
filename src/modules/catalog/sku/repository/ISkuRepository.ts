@@ -8,6 +8,7 @@ import {Sku} from "../entity/sku";
 import {SkuDetail} from "../entity/skuDetail";
 import {FilterSkuListDetail, SkuListDetail} from "../entity/skuListDetail";
 import {SkuGetWholeSale} from "../entity/skuGetWholeSale";
+import {SkuWarningStock} from "../entity/skuWarningStock";
 
 export interface ISkuRepository extends IBaseRepo {
     upsertMany(records : SkuCreate[]): ResultAsync<SkuCreate[], Err>
@@ -20,4 +21,5 @@ export interface ISkuRepository extends IBaseRepo {
     getDetailById(id : number): ResultAsync<SkuListDetail | null, Err>
     findByIds(ids: number[]): ResultAsync<Sku[] | null, Err>
     findDetailByIds(ids: number[]): ResultAsync<SkuGetWholeSale[] | null, Err>
+    findWarningStock(ltStock: number): ResultAsync<SkuWarningStock[] | null, Err>
 }

@@ -11,6 +11,7 @@ import {SqlHelper} from "../../../../libs/sqlHelper";
 import {SkuDetail} from "../entity/skuDetail";
 import {FilterSkuListDetail, SkuListDetail} from "../entity/skuListDetail";
 import {SkuGetWholeSale} from "../entity/skuGetWholeSale";
+import {SkuWarningStock} from "../entity/skuWarningStock";
 
 export class SkuMysqlRepo extends BaseMysqlRepo implements ISkuRepository{
     findByIds(ids: number[]): ResultAsync<Sku[], Err> {
@@ -276,6 +277,38 @@ export class SkuMysqlRepo extends BaseMysqlRepo implements ISkuRepository{
                             return ok(data)
                         }
                     )
+            }
+        )
+    }
+
+    findWarningStock(ltStock: number): ResultAsync<SkuWarningStock[] | null, Err> {
+        const time = Date.now();
+        console.log(Date.now() - time);
+
+        const query = `
+            SELECT
+                sku.id AS id,
+                sku.sku_tier_idx AS sku_tier_idx,
+                sku.stock AS stock,
+                spu.name AS spu_name,
+                (
+                    SELECT JSON_ARRAYAGG(
+                                   JSON_OBJECT(
+                                           'name', sku_attr.name,
+                                           'value', sku_attr.value
+                                   )
+                           )
+                    FROM sku_attr 
+                    WHERE sku_attr.spu_id = sku.spu_id AND sku_attr.status = 1
+                ) AS attributes
+            FROM sku
+            LEFT JOIN spu ON sku.spu_id = spu.id
+            WHERE sku.status = 1 AND spu.status = 1 AND sku.stock < ${ltStock}`;
+
+        return this.executeQuery(query, []).andThen(
+            ([r, f]) => {
+                const data = (r as RowDataPacket[]).map(row => SqlHelper.toCamelCase(row) as SkuWarningStock);
+                return ok(data)
             }
         )
     }

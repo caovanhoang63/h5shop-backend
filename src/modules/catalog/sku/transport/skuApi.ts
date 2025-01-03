@@ -109,4 +109,19 @@ export class SkuApi {
             )
         }
     }
+
+    listWarningStock() : express.Handler {
+        return async (req, res, next) => {
+            const r = await this.service.findWarningStock()
+
+            r.match(
+                value => {
+                    res.status(200).send(AppResponse.SimpleResponse(value))
+                },
+                e => {
+                    writeErrorResponse(res,e)
+                }
+            )
+        }
+    }
 }

@@ -13,12 +13,16 @@ import {topicDeleteBrand, topicDeleteSku} from "../../../../libs/topics";
 import {SkuDetail} from "../entity/skuDetail";
 import {FilterSkuListDetail, SkuListDetail, SkuWholesalePriceListDetail} from "../entity/skuListDetail";
 import {FilterSkuGetWholeSale, filterSkuGetWholeSaleSchema, SkuIdAndWholeSalePrice} from "../entity/skuGetWholeSale";
+import {SkuWarningStock} from "../entity/skuWarningStock";
+import {ISettingRepo} from "../../../setting/repo/ISettingRepo";
+import {QUANTITY_ALERT_KEY} from "../../../../libs/settingKey";
 
 @injectable()
 export class SkuService implements ISkuService {
     constructor(
         @inject(TYPES.ISkuRepository) private readonly repo: ISkuRepository,
         @inject(TYPES.IPubSub) private readonly pubSub: IPubSub,
+        @inject(TYPES.ISettingRepository) private readonly settingRepo: ISettingRepo,
     ) {}
 
     list(cond: ICondition, paging: Paging): ResultAsync<Sku[] | null, Err> {
@@ -190,15 +194,43 @@ export class SkuService implements ISkuService {
                 price = wholeSale[i].price
             }
         }
-        //
-        // const wholePrice = wholeSale.reduce((acc,wholeSale) => {
-        //     if(quantity >= wholeSale.minQuantity)
-        //     {
-        //         isWholeSale = true
-        //         return wholeSale.price
-        //     }
-        //     return acc
-        // },0)
         return {price: price || priceDefault, isWholeSale: isWholeSale}
+    }
+
+    findWarningStock(): ResultAsync<SkuWarningStock[] | null, Err> {
+        return ResultAsync.fromPromise(
+            (async () => {
+                const ltStock = await this.settingRepo.findByName(QUANTITY_ALERT_KEY)
+                if (ltStock.isErr())
+                    return err(createInternalError(ltStock.error))
+                if(!ltStock.value)
+                    return ok(null)
+                if(!parseInt(ltStock.value.value))
+                    return ok(null)
+
+                const result = await this.repo.findWarningStock(ltStock.value.value)
+                if (result.isErr())
+                    return err(result.error)
+                if(!result.value)
+                    return ok(null)
+
+                // Ghep name spu voi value attribute
+                const newNameSkuDetail: string[] = result.value.map(skuDetail => {
+                    const nameSpu = skuDetail.spuName
+                    const skuTierIdxByAttribute = skuDetail.skuTierIdx?.map((skuTierIdx,index) => {
+                        return skuDetail.attributes[index]?.value[skuTierIdx]
+                    })
+                    return `${nameSpu} ${skuTierIdxByAttribute?.join(' ')}`
+                })
+                const newSkuWarningStock = result.value.map((skuDetail,index) => {
+                    return {
+                        ...skuDetail,
+                        name: newNameSkuDetail[index],
+                        attributes: [],
+                    }
+                })
+                return ok(newSkuWarningStock)
+            })(), e => createInternalError(e)
+        ).andThen(r=> r)
     }
 }
