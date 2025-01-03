@@ -74,10 +74,10 @@ export class SqlHelper {
                     }
                 } else if ( field.startsWith('lk_',0)) {
                     if(table !=null){
-                        clauses.push(`${table}.${field.split('_').slice(1).join("_")} LIKE concat(?, '%')`);
+                        clauses.push(`${table}.${field.split('_').slice(1).join("_")} LIKE concat('%' ,?, '%')`);
                         values.push(value);
                     }else{
-                        clauses.push(`${field.split('_').slice(1).join("_")} LIKE concat(?, '%')`);
+                        clauses.push(`${field.split('_').slice(1).join("_")} LIKE concat('%' ,?, '%')`);
                         values.push(value);
                     }
                 } else {

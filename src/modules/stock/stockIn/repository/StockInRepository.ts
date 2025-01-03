@@ -108,7 +108,7 @@ export class StockInRepository extends BaseMysqlRepo implements IStockInReposito
                      JOIN stock_in_detail std ON st.id = std.stock_in_id
                 ${whereClause}
         `;
-
+        console.log(query)
         return this.executeQuery(countQuery, whereValues)
             .andThen(([countResult, _]) => {
                 const firstRow = (countResult as RowDataPacket[])[0];

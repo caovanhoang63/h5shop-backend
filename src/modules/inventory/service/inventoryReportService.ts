@@ -10,12 +10,16 @@ import { inject, injectable } from "inversify";
 import { TYPES } from "../../../types";
 import { InventoryReportDetailTable } from "../entity/inventoryReportDetailTable";
 import {InventoryReportTable} from "../entity/inventoryReportTable";
+import {createMessage, IPubSub} from "../../../components/pubsub";
+import {topicCreateInventory} from "../../../libs/topics";
+import {IRequester} from "../../../libs/IRequester";
 
 @injectable()
 export class InventoryReportService implements IInventoryReportService {
-    constructor(@inject(TYPES.IInventoryReportRepository) private readonly inventoryReportRepository: IInventoryReportRepository) {}
+    constructor(@inject(TYPES.IInventoryReportRepository) private readonly inventoryReportRepository: IInventoryReportRepository,
+                @inject(TYPES.IPubSub) private readonly pubSub : IPubSub,) {}
 
-    public createReport = (report: InventoryReportCreate): ResultAsync<number, Err> => {
+    public createReport = (requester: IRequester,report: InventoryReportCreate): ResultAsync<number, Err> => {
         return ResultAsync.fromPromise(
             (async () => {
                 const vR = (await Validator(inventoryReportCreateSchema, report))
@@ -26,6 +30,7 @@ export class InventoryReportService implements IInventoryReportService {
                 if (r.isErr()) {
                     return err(r.error);
                 }
+                this.pubSub.Publish(topicCreateInventory,createMessage(report,requester))
                 return ok(r.value);
             })(), e => e as Err
         ).andThen(r => r)

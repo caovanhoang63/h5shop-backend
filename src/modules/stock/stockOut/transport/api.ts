@@ -9,7 +9,7 @@ import {StockOutCreate} from "../entity/stockOut";
 
 export class StockOutApi {
     constructor(private readonly service: IStockOutService) {}
-    /*findById(): express.Handler {
+    findById(): express.Handler {
         return async (req, res, next) => {
             const reportId = parseInt(req.params.id);
 
@@ -29,7 +29,7 @@ export class StockOutApi {
                 }
             );
         };
-    }*/
+    }
 
 
     list(): express.Handler {

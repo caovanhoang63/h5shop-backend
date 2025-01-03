@@ -11,6 +11,7 @@ import {Err} from "../../../../libs/errors";
 import {SqlHelper} from "../../../../libs/sqlHelper";
 import {ResultSetHeader, RowDataPacket} from "mysql2";
 import {query} from "express";
+import {StockInDetailTable} from "../../stockIn/entity/stockInDetailTable";
 
 export class StockOutRepository extends BaseMysqlRepo implements IStockOutRepository {
 
@@ -21,8 +22,8 @@ export class StockOutRepository extends BaseMysqlRepo implements IStockOutReposi
             SELECT
                 so.*,
                 SUM(sod.amount) AS totalAmount,
-                sor.name,
-                sor.description
+                sor.name as stockOutReasonName,
+                sor.description as stockOutReasonDescription
             FROM
                 stock_out so
                     JOIN stock_out_detail sod ON so.id = sod.stock_out_id
@@ -103,5 +104,61 @@ export class StockOutRepository extends BaseMysqlRepo implements IStockOutReposi
                 })
         );
     }
+
+    findById(reportId: number): ResultAsync<StockOutDetailTable | null, Err> {
+        const query = `
+            SELECT
+                sod.*,
+                s.id as skuId,
+                spu.name as spuName,
+                so.warehouse_men as warehouseMan,
+                u.last_name + u.first_name  as warehouseName
+            FROM
+                stock_out_detail sod
+                    JOIN stock_out so ON sod.stock_out_id = so.id
+                    JOIN sku s ON sod.sku_id = s.id
+                    JOIN spu spu ON s.spu_id = spu.id
+                    JOIN user u ON so.warehouse_men = u.id
+            WHERE
+                sod.stock_out_id = ?`;
+
+        return this.executeQuery(query, [reportId]).andThen(
+            ([r, f]) => {
+                const rows = r as RowDataPacket[];
+
+                const groupedResults: StockInDetailTable = {
+                    id: reportId,
+                    providerId: 0,
+                    providerName:"",
+                    warehouseMen: 0,
+                    warehouseName:"",
+                    totalAmount:0,
+                    status: 1,
+                    items: [],
+                    createdAt: null,
+                    updatedAt: null,
+                };
+
+                rows.forEach(row => {
+                    groupedResults.totalAmount += row.amount;
+                    groupedResults.providerId = row.providerId;
+                    groupedResults.providerName = row.providerName;
+                    groupedResults.warehouseMen = row.warehouseMan;
+                    groupedResults.warehouseName = row.warehouseName;
+                    groupedResults.status = row.status;
+                    groupedResults.createdAt = row.createdAt || groupedResults.createdAt;
+                    groupedResults.updatedAt = row.updatedAt || groupedResults.updatedAt;
+
+                    groupedResults.items.push({
+                        skuId: row.skuId,
+                        name: row.spuName,
+                        amount: row.amount,
+                        price: row.costPrice
+                    });
+                });
+
+                return ok(groupedResults);
+            }
+        );    }
 
 }

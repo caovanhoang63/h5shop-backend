@@ -1,6 +1,6 @@
 import {
 
-    topicCreateCategory, topicCreateCustomer, topicCreateSpu, topicCreateStockIn,
+    topicCreateCategory, topicCreateCustomer, topicCreateInventory, topicCreateSpu, topicCreateStockIn,
     topicDeleteCategory, topicDeleteCustomer, topicDeleteSpu,
     topicDeleteUser, topicPayOrder,
     topicRegister,
@@ -56,5 +56,6 @@ subscriberEngine.subscribe(topicUpdateCustomer, audit.onUpdate("customer"));
 subscriberEngine.subscribe(topicDeleteCustomer, audit.onDelete("customer"));
 
 subscriberEngine.subscribe(topicCreateStockIn, sku.onUpdate())
+subscriberEngine.subscribe(topicCreateInventory, audit.onCreate("inventory"))
 
 export default subscriberEngine

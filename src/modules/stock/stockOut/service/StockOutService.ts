@@ -22,7 +22,7 @@ export class StockOutService implements IStockOutService {
                 @inject(TYPES.ISkuRepository) private readonly skuRepo : ISkuRepository,
     ) {}
 
-    /*findById(reportId: number): ResultAsync<StockOutDetailTable | null, Err> {
+    findById(reportId: number): ResultAsync<StockOutDetailTable | null, Err> {
         return ResultAsync.fromPromise(
             (async () =>{
                 const result = await this.stockOutRepository.findById(reportId);
@@ -31,7 +31,7 @@ export class StockOutService implements IStockOutService {
                 return ok(result.value)
             })(), e => createInternalError(e)
         ).andThen(r=> r)
-    }*/
+    }
     list(condition: ICondition, paging: Paging): ResultAsync<StockOutTable[] | null, Err> {
         return ResultAsync.fromPromise(
             (async () =>{
