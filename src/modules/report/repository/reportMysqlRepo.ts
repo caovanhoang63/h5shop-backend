@@ -5,6 +5,8 @@ import {IReportRepo} from "./IReportRepo";
 import {RowDataPacket} from "mysql2";
 import {injectable} from "inversify";
 import {SkuOrder} from "../entity/skuOrder";
+import {Sale} from "../entity/sale";
+import {SqlHelper} from "../../../libs/sqlHelper";
 
 @injectable()
 export class ReportMysqlRepo extends BaseMysqlRepo implements IReportRepo {
@@ -50,6 +52,27 @@ export class ReportMysqlRepo extends BaseMysqlRepo implements IReportRepo {
         )
     }
 
+    sale(startDate: Date, endDate: Date): ResultAsync<Sale[], Error> {
+        const query = `
+            SELECT o.*,
+                   c.phone_number                         as customer_phone_number,
+                   CONCAT(u.first_name, ' ', u.last_name) as seller_name
+            FROM \`order\` o
+                     JOIN user u on o.seller_id = u.id
+                     LEFT JOIN customer c on o.customer_id = c.id
+            WHERE o.status = 2
+              AND DATE(o.created_at) >= DATE(?)
+              AND DATE(o.created_at) <= DATE(?)
+        `
+        return this.executeQuery(query,[startDate,endDate]).andThen(
+            ([r,f]) => {
+                const rows = r as RowDataPacket[]
+                return okAsync(rows.map(row => SqlHelper.toCamelCase(row)))
+            }
+        )
+    }
+
+
 
     skuOrder(startDate: Date, endDate: Date,limit : number, order: string): ResultAsync<SkuOrder[], Error> {
         const query = `
@@ -87,7 +110,6 @@ export class ReportMysqlRepo extends BaseMysqlRepo implements IReportRepo {
         return this.executeQuery(query,[startDate,endDate,order,limit]).andThen(
             ([r,f]) => {
                 const rows = r as RowDataPacket[]
-                console.log(rows    )
 
                 return ok(rows.map(row => {
                     let name = ""

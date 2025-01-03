@@ -117,7 +117,7 @@ export class OrderMysqlRepo extends BaseMysqlRepo implements IOrderRepository {
     }
 
     list(cond: ICondition): ResultAsync<OrderDetail[], Err> {
-        const [whereClause, values] = SqlHelper.buildWhereClause(cond);
+        const [whereClause, values] = SqlHelper.buildWhereClause(cond,"o");
         const query = `
             SELECT
                 o.id,
