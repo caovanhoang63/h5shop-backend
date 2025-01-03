@@ -59,7 +59,7 @@ export class ReportMysqlRepo extends BaseMysqlRepo implements IReportRepo {
                    c.phone_number                         as customer_phone_number,
                    CONCAT(u.first_name, ' ', u.last_name) as seller_name
             FROM \`order\` o
-                     JOIN user u on o.seller_id = u.id
+                     LEFT JOIN user u on o.seller_id = u.id
                      LEFT JOIN customer c on o.customer_id = c.id
             WHERE o.status = 2
               AND DATE(o.created_at) >= DATE(?)
