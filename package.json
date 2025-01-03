@@ -9,6 +9,7 @@
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.717.0",
+    "@aws-sdk/client-ses": "^3.721.0",
     "@types/multer": "^1.4.12",
     "async-mutex": "^0.5.0",
     "body-parser": "^1.20.3",
