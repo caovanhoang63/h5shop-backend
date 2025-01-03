@@ -5,9 +5,10 @@ import { ICondition } from "../../../libs/condition";
 import { Paging } from "../../../libs/paging";
 import { InventoryReportDetailTable } from "../entity/inventoryReportDetailTable";
 import {InventoryReportTable} from "../entity/inventoryReportTable";
+import {IRequester} from "../../../libs/IRequester";
 
 export interface IInventoryReportService {
-    createReport(report: InventoryReportCreate): ResultAsync<number, Err>
+    createReport(requester: IRequester,report: InventoryReportCreate): ResultAsync<number, Err>
     listReports(cond: ICondition, paging: Paging): ResultAsync<InventoryReport[], Err>
     getReportById(id: number): ResultAsync<InventoryReport | null, Err>
     updateReport(id: number, report: Partial<InventoryReport>): ResultAsync<void, Err>

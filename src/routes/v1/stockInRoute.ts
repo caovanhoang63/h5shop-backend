@@ -16,7 +16,7 @@ const stockInRouter = (appContext: IAppContext) => {
     const stockInService = container.get<IStockInService>(TYPES.IStockInService);
     const stockInApi = new StockInApi(stockInService);
 
-    //router.use(authentication());
+    router.use(authentication());
     //router.use(requiredRole(appContext, SystemRole.Admin, SystemRole.Owner, SystemRole.WarehouseStaff));
 
 
