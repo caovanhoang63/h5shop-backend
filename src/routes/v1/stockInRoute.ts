@@ -3,7 +3,7 @@ import {IAppContext} from "../../components/appContext/appContext";
 import {container} from "../../container";
 import {IInventoryReportService} from "../../modules/inventory/service/IInventoryReportService";
 import {TYPES} from "../../types";
-import {InventoryReportApi} from "../../modules/inventory/transport/api";
+import {InventoryReportApi} from "../../modules/inventory/transport/inventoryApi";
 import authentication from "../../middlewares/authentication";
 import requiredRole from "../../middlewares/requiredRole";
 import {SystemRole} from "../../modules/user/entity/user";

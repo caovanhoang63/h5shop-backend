@@ -5,6 +5,7 @@ export interface StockOutDetailTable {
     warehouseMen: number;
     warehouseName: string;
     items: StockItem[];
+    totalPrice: number;
     totalAmount: number;
     status: number;
     createdAt: Date | null;

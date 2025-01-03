@@ -60,6 +60,7 @@ export abstract class BaseMysqlRepo implements IBaseRepo {
 
     Rollback(): ResultAsync<void, Err> {
         if (!this.connection || !this.hasActiveTransaction) {
+            console.log(!this.connection);
             return errAsync(createDatabaseError(new Error('No active transaction')));
         }
 

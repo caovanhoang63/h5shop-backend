@@ -9,11 +9,7 @@ import {InventoryReportTable} from "../entity/inventoryReportTable";
 
 export interface IInventoryReportRepository extends IBaseRepo {
     create: (report: InventoryReportCreate) => ResultAsync<number, Err>
-    findByCondition: (condition: ICondition, paging: Paging) => ResultAsync<InventoryReport[], Err>
-    findById: (id: number) => ResultAsync<InventoryReport | null, Err>
-    update: (id: number, report: Partial<InventoryReport>) => ResultAsync<void, Err>
-    hardDeleteById: (id: number) => ResultAsync<void, Err>
-    getInventoryReportDetails: (reportId: number) => ResultAsync<InventoryReportDetailTable | null, Err>
-    getInventoryReportsTable: (condition: ICondition, paging: Paging) => ResultAsync<InventoryReportTable[] | null, Err>
+    findById: (reportId: number) => ResultAsync<InventoryReportDetailTable | null, Err>
+    list: (condition: ICondition, paging: Paging) => ResultAsync<InventoryReportTable[] | null, Err>
 }
 

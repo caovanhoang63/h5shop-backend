@@ -36,30 +36,14 @@ export class InventoryReportService implements IInventoryReportService {
         ).andThen(r => r)
     }
 
-    public listReports = (cond: ICondition, paging: Paging): ResultAsync<InventoryReport[], Err> => {
-        return this.inventoryReportRepository.findByCondition(cond, paging)
+    public findById = (reportId: number): ResultAsync<InventoryReportDetailTable | null, Err> => {
+        return this.inventoryReportRepository.findById(reportId);
     }
 
-    public getReportById = (id: number): ResultAsync<InventoryReport | null, Err> => {
-        return this.inventoryReportRepository.findById(id)
-    }
-
-    public updateReport = (id: number, report: Partial<InventoryReport>): ResultAsync<void, Err> => {
-        return this.inventoryReportRepository.update(id, report)
-    }
-
-    public deleteReport = (id: number): ResultAsync<void, Err> => {
-        return this.inventoryReportRepository.hardDeleteById(id)
-    }
-
-    public getInventoryReportDetails = (reportId: number): ResultAsync<InventoryReportDetailTable | null, Err> => {
-        return this.inventoryReportRepository.getInventoryReportDetails(reportId);
-    }
-
-    public getInventoryReportsTable = (condition: ICondition, paging: Paging): ResultAsync<InventoryReportTable[] | null, Err> => {
+    public list = (condition: ICondition, paging: Paging): ResultAsync<InventoryReportTable[] | null, Err> => {
         return ResultAsync.fromPromise(
             (async () =>{
-                const result = await this.inventoryReportRepository.getInventoryReportsTable(condition, paging);
+                const result = await this.inventoryReportRepository.list(condition, paging);
                 if (result.isErr())
                     return err(result.error)
                 return ok(result.value)

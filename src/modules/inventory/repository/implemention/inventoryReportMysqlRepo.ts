@@ -18,8 +18,14 @@ export class InventoryReportMysqlRepo extends BaseMysqlRepo implements IInventor
                        VALUES (?, ?, ?, ?)`;
 
 
-        const detailQuery = `INSERT INTO inventory_report_detail (inventory_report_id, sku_id, amount, inventory_dif)
+        const detailQuery = `INSERT INTO inventory_report_detail (inventory_report_id, sku_id, amount,old_stock, inventory_dif)
                         VALUES ?`
+        const skuQuery = `UPDATE sku SET stock = CASE
+                            ${report.items.map(r => `WHEN id = ? THEN stock + ?`).join(' ')}
+                            END
+                          WHERE id IN (${report.items.map(()=> '?').join(',')})`;
+        const skuValue = report.items.map(r =>[r.skuId,r.inventoryDif]).flat();
+        const ids = report.items.map(r => r.skuId)
 
         const headerValues = [
             report.warehouseMan1,
@@ -37,57 +43,20 @@ export class InventoryReportMysqlRepo extends BaseMysqlRepo implements IInventor
                         insertId,
                         item.skuId,
                         item.amount,
+                        item.oldStock,
                         item.inventoryDif
                     ]);
 
                     return this.executeQuery(detailQuery, [detailValuesWithInsertId])
+                        .andThen(()=>
+                            this.executeQuery(skuQuery, [...skuValue,...ids])
+                        )
                         .map(() => insertId);
                 })
         );
     }
 
-    public findById = (id: number): ResultAsync<InventoryReport | null, Err> => {
-        const query = `SELECT * FROM inventory_report WHERE id = ? LIMIT 1`;
-        return this.executeQuery(query, [id])
-            .andThen(([r, f]) => {
-                const a = r as RowDataPacket[]
-                if (a.length <= 0) {
-                    return ok(null)
-                }
-                const data: InventoryReport = SqlHelper.toCamelCase(a[0]);
-                return ok(data)
-            })
-    }
-
-    public update = (id: number, report: Partial<InventoryReport>): ResultAsync<void, Err> => {
-        const [setClauses, values] = SqlHelper.buildUpdateClause(report);
-        const query = `UPDATE inventory_report SET ${setClauses} WHERE id = ?`;
-        return this.executeQuery(query, [...values, id]).andThen(([r, f]) => {
-            return ok(undefined)
-        })
-    }
-
-    public hardDeleteById = (id: number): ResultAsync<void, Err> => {
-        const query = `DELETE FROM inventory_report WHERE id = ?`;
-        return this.executeQuery(query, [id]).andThen(([r, f]) => {
-            return ok(undefined)
-        })
-    }
-
-    public findByCondition = (cond: ICondition, paging: Paging): ResultAsync<InventoryReport[], Err> => {
-        const [whereClause, values] = SqlHelper.buildWhereClause(cond)
-        const query = `SELECT * FROM inventory_report ${whereClause}`;
-
-        return this.executeQuery(query, values).andThen(
-            ([r, f]) => {
-                const rows = r as RowDataPacket[]
-                const data: InventoryReport[] = rows.map(row => SqlHelper.toCamelCase(row) as InventoryReport);
-                paging.total = rows.length;
-                return ok(data)
-            })
-    }
-
-    public getInventoryReportDetails = (reportId: number): ResultAsync<InventoryReportDetailTable, Err> => {
+    public findById = (reportId: number): ResultAsync<InventoryReportDetailTable | null, Err> => {
         const query = `
             SELECT
                 ird.id as inventoryReportId,
@@ -96,9 +65,11 @@ export class InventoryReportMysqlRepo extends BaseMysqlRepo implements IInventor
                 ird.amount,
                 ir.warehouse_man_1 as warehouseMan,
                 u.last_name as warehouseName,
+                ird.old_stock as oldStock,
                 ird.status,
                 ird.inventory_dif as inventoryDif,
                 ir.note,
+                s.price,
                 ird.created_at as createdAt,
                 ir.updated_at as updatedAt
             FROM
@@ -106,7 +77,7 @@ export class InventoryReportMysqlRepo extends BaseMysqlRepo implements IInventor
                     JOIN inventory_report ir ON ird.inventory_report_id = ir.id
                     JOIN sku s ON ird.sku_id = s.id
                     JOIN spu spu ON s.spu_id = spu.id  
-                    JOIN user u ON ir.warehouse_man_1 = u.id
+                    LEFT JOIN user u ON ir.warehouse_man_1 = u.id
             WHERE
                 ird.inventory_report_id = ?
         `;
@@ -115,12 +86,15 @@ export class InventoryReportMysqlRepo extends BaseMysqlRepo implements IInventor
             ([r, f]) => {
                 const rows = r as RowDataPacket[];
 
+                if (!rows.length) {
+                    return ok(null);
+                }
                 const groupedResults: InventoryReportDetailTable = {
                     inventoryReportId: reportId,
-                    amount: 0,  // Initialize with a default value
-                    warehouseMan: 0, // Initialize with a default value
+                    amount: 0,
+                    warehouseMan: 0,
                     warehouseName:"",
-                    status: 1,  // Default status if no specific status is found
+                    status: 1,
                     items: [],
                     note: "",
                     createdAt: null,
@@ -139,6 +113,8 @@ export class InventoryReportMysqlRepo extends BaseMysqlRepo implements IInventor
                     groupedResults.items.push({
                         skuId: row.skuId,
                         name: row.spuName,
+                        oldStock : row.oldStock,
+                        price: row.price,
                         amount: row.amount,
                         inventoryDif: row.inventoryDif,
                     });
@@ -150,7 +126,7 @@ export class InventoryReportMysqlRepo extends BaseMysqlRepo implements IInventor
         );
     };
 
-    public getInventoryReportsTable = (condition: ICondition, paging: Paging): ResultAsync<InventoryReportTable[], Err> => {
+    public list = (condition: ICondition, paging: Paging): ResultAsync<InventoryReportTable[], Err> => {
         const pagingClause = SqlHelper.buildPaginationClause(paging)
         const [whereClause, whereValues] = SqlHelper.buildWhereClause(condition,"ir");
         const query = `

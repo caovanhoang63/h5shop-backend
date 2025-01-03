@@ -14,13 +14,27 @@ import {IStockOutRepository} from "../repository/IStockOutRepository";
 import {StockOutDetailTable} from "../entity/stockOutDetailTable";
 import {StockOutTable} from "../entity/stockOutTable";
 import {StockOutCreate, stockOutCreateSchema} from "../entity/stockOut";
+import { StockOutReason} from "../entity/stockOutReason";
 
 @injectable()
 export class StockOutService implements IStockOutService {
     constructor(@inject(TYPES.IStockOutRepository) private readonly stockOutRepository: IStockOutRepository,
-                @inject(TYPES.IPubSub) private readonly pubSub : IPubSub,
-                @inject(TYPES.ISkuRepository) private readonly skuRepo : ISkuRepository,
-    ) {}
+                @inject(TYPES.IPubSub) private readonly pubSub: IPubSub,
+                @inject(TYPES.ISkuRepository) private readonly skuRepo: ISkuRepository,
+    ) {
+    }
+
+    listReason(condition: ICondition, paging: Paging): ResultAsync<StockOutReason[] | null, Err> {
+        return ResultAsync.fromPromise(
+            (async () =>{
+                const result = await this.stockOutRepository.listReason(condition,paging);
+                if (result.isErr()){
+                    return err(result.error)
+                }
+                return ok(result.value)
+            })(), e => createInternalError(e)
+        ).andThen(r=> r)
+    }
 
     findById(reportId: number): ResultAsync<StockOutDetailTable | null, Err> {
         return ResultAsync.fromPromise(
