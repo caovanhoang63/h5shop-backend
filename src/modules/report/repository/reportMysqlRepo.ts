@@ -56,7 +56,7 @@ export class ReportMysqlRepo extends BaseMysqlRepo implements IReportRepo {
             WITH sku_amounts AS (SELECT sk.id          as sku_id,
                                         SUM(oi.amount) as amount,
                                         sk.spu_id      as spu_id,
-                                        oi.amount * oi.unit_price as revenue 
+                                        SUM(oi.amount * oi.unit_price) as revenue 
                             
                                  FROM order_item oi
                                           JOIN \`order\` as o ON o.id = oi.order_id
