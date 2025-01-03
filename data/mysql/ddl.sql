@@ -41,6 +41,24 @@ CREATE TABLE `user`
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4;
 
+DROP TABLE IF EXISTS `employee`;
+CREATE TABLE `employee`
+(
+    `id`            int                            NOT NULL AUTO_INCREMENT,
+    `phone_number`  VARCHAR(20),
+    `address`       VARCHAR(255),
+    `first_name`    VARCHAR(255) NOT NULL ,
+    `last_name`     VARCHAR(255) NOT NULL,
+    `email`         varchar(255) UNIQUE,
+    `date_of_birth` date,
+    `gender`        enum ('male','female','other') NOT NULL DEFAULT 'other',
+    `status`        INT NOT NULL                                     DEFAULT 1,
+    `created_at`    TIMESTAMP                               DEFAULT CURRENT_TIMESTAMP,
+    `updated_at`    TIMESTAMP                               DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    PRIMARY KEY (`id`),
+    KEY `status` (`status`) USING BTREE
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4;
 
 DROP TABLE IF EXISTS `customer`;
 CREATE TABLE `customer`

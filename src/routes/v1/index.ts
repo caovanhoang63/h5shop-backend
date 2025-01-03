@@ -23,6 +23,7 @@ import providerRouter from "./providerRouter";
 import stockInRouter from "./stockInRoute";
 
 import orderItemRoute from "./orderItemRoute";
+import employeeRoute from "./employeeRoute";
 
 import stockOutRouter from "./stockOutRoute";
 
@@ -66,6 +67,7 @@ const v1Router = () => {
     router.use("/customer", customerRoute(appCtx))
 
     router.use("/provider", providerRouter(appCtx))
+    router.use("/employee", employeeRoute(appCtx))
 
     router.post("/pubsub/test", async (req, res, next) => {
         await appCtx.GetPubsub().Publish(topicTest, {data: null, id: randomUUID(), topic: ""})

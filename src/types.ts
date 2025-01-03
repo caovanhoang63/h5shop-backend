@@ -1,3 +1,4 @@
+import {IEmployeeService} from "./modules/employee/service/IEmployeeService";
 
 const TYPES = {
     // REPOSITORY
@@ -18,6 +19,7 @@ const TYPES = {
 
     ICustomerRepository: Symbol.for("ICustomerRepository"),
     IProviderRepository: Symbol.for("IProviderRepository"),
+    IEmployeeRepository: Symbol.for("IEmployeeRepository"),
     IStockInRepository: Symbol.for("IStockInRepository"),
     IStockOutRepository: Symbol.for("IStockOutRepository"),
 
@@ -44,6 +46,7 @@ const TYPES = {
     IUploadService: Symbol.for("IUploadService"),
 
     IProviderService: Symbol.for("IProviderService"),
+    IEmployeeService: Symbol.for("IEmployeeService"),
     IStockInService: Symbol.for("IStockInService"),
     IStockOutService: Symbol.for("IStockOutService"),
 
