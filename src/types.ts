@@ -1,3 +1,4 @@
+import {IEmployeeService} from "./modules/employee/service/IEmployeeService";
 
 const TYPES = {
     // REPOSITORY
@@ -18,11 +19,13 @@ const TYPES = {
 
     ICustomerRepository: Symbol.for("ICustomerRepository"),
     IProviderRepository: Symbol.for("IProviderRepository"),
+    IEmployeeRepository: Symbol.for("IEmployeeRepository"),
     IStockInRepository: Symbol.for("IStockInRepository"),
     IStockOutRepository: Symbol.for("IStockOutRepository"),
 
     IWarrantyRepository: Symbol.for("IWarrantyRepository"),
     ISettingRepository: Symbol.for("ISettingRepository"),
+    IReportRepository : Symbol.for("IReportRepository"),
 
     // SERVICE
     IAuthService: Symbol.for("IAuthService"),
@@ -36,12 +39,14 @@ const TYPES = {
     IOrderService: Symbol.for("IOrderService"),
     IOrderItemService: Symbol.for("IOrderItemService"),
     ISettingService: Symbol.for("ISettingService"),
+    IReportService : Symbol.for("IReportService"),
 
 
     ISkuWholesalePriceService: Symbol.for("ISkuWholesalePriceService"),
     IUploadService: Symbol.for("IUploadService"),
 
     IProviderService: Symbol.for("IProviderService"),
+    IEmployeeService: Symbol.for("IEmployeeService"),
     IStockInService: Symbol.for("IStockInService"),
     IStockOutService: Symbol.for("IStockOutService"),
 
@@ -53,7 +58,7 @@ const TYPES = {
     //Controller
     IWarrantyController: Symbol.for("IWarrantyController"),
     ISettingController: Symbol.for("ISettingController"),
-
+    IReportController: Symbol.for("IReportController"),
     // UTILS
     IHasher: Symbol.for("IHasher"),
     IJwtProvider: Symbol.for("IJwtProvider"),

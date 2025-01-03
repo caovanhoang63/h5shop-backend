@@ -23,11 +23,13 @@ import providerRouter from "./providerRouter";
 import stockInRouter from "./stockInRoute";
 
 import orderItemRoute from "./orderItemRoute";
+import employeeRoute from "./employeeRoute";
 
 import stockOutRouter from "./stockOutRoute";
 
 import warrantyRouter from "./warrantyRoute";
 import settingRouter from "./settingRoute";
+import reportRoute from "./reportRoute";
 
 
 
@@ -43,6 +45,7 @@ const v1Router = () => {
     router.get('/', function (req, res, next) {
         res.render('index', {title: 'Express'});
     });
+    router.use("/report", reportRoute());
     router.use("/warranty",warrantyRouter());
     router.use("/users", usersRouter(appCtx))
     router.use("/auth", authRouter(appCtx))
@@ -64,6 +67,7 @@ const v1Router = () => {
     router.use("/customer", customerRoute(appCtx))
 
     router.use("/provider", providerRouter(appCtx))
+    router.use("/employee", employeeRoute(appCtx))
 
     router.post("/pubsub/test", async (req, res, next) => {
         await appCtx.GetPubsub().Publish(topicTest, {data: null, id: randomUUID(), topic: ""})

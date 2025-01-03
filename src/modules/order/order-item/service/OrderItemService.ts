@@ -2,7 +2,13 @@ import {IOrderItemService} from "./IOrderItemService";
 import {inject, injectable} from "inversify";
 import {IOrderItemRepository} from "../repository/IOrderItemRepository";
 import {TYPES} from "../../../../types";
-import {createEntityNotFoundError, createInternalError, createInvalidDataError, Err} from "../../../../libs/errors";
+import {
+    createEntityNotFoundError,
+    createInternalError,
+    createInvalidDataError,
+    createInvalidRequestError,
+    Err
+} from "../../../../libs/errors";
 import {err, ok, ResultAsync} from "neverthrow";
 import {OrderItemCreate, orderItemCreateSchema} from "../entity/orderItemCreate";
 import {Validator} from "../../../../libs/validator";
@@ -35,10 +41,10 @@ export class OrderItemService implements IOrderItemService {
                 const orderCheck = await this.orderRepository.findById(o.orderId);
                 if (orderCheck.isErr()) return err(orderCheck.error);
                 if (orderCheck.value === null) return err(createEntityNotFoundError("Order"));
+                if (orderCheck.value.status != 1) return err(createInvalidRequestError(new Error("Order already payed")))
 
                 // Check if the sku exists
                 // const skuCheck = await this.skuRepository.findById(o.skuId);
-
 
                 const skuCheck = await this.skuService.getListWholeSale([{
                     quantity : o.amount,
