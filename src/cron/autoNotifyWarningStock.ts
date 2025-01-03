@@ -6,7 +6,7 @@ import {generateEmailTemplate, SesClient} from "../sesClient";
 import {SendEmailCommand} from "@aws-sdk/client-ses";
 
 export const cronAutoNotifyWarningStock = CronJob.from({
-    cronTime: "*/30 * * * * *",
+    cronTime: "0 22 * * *",
     onTick: async () => {
         const skuService = container.get<ISkuService>(TYPES.ISkuService);
         const result = await skuService.findWarningStock();
