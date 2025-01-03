@@ -171,20 +171,6 @@ CREATE TABLE `spu`
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4;
 
-ALTER TABLE spu
-    ADD COLUMN time_warranty INT NOT NULL
-    AFTER status;
-ALTER TABLE spu
-    ADD COLUMN time_return INT NOT NULL
-    AFTER status;
-ALTER TABLE spu
-    ADD COLUMN type_time_warranty ENUM ('day','month','year') DEFAULT 'day'
-    AFTER status;
-ALTER TABLE spu
-    ADD COLUMN type_time_return ENUM ('day','month','year') DEFAULT 'day'
-    AFTER status;
-
-
 
 DROP TABLE IF EXISTS `spu_to_provider`;
 CREATE TABLE `spu_to_provider`
@@ -521,7 +507,7 @@ CREATE TABLE `payment`
 
 
 DROP TABLE IF EXISTS `audit_log`;
-CREATE TABLE `_log` (
+CREATE TABLE `audit_log` (
      `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
      `user_id` INT NOT NULL COMMENT 'id = 0 if it is system action',
      `action` VARCHAR(50) NOT NULL,

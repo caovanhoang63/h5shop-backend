@@ -184,10 +184,11 @@ export class SkuService implements ISkuService {
     }
 
     getListPriceByQuantity(wholeSale: SkuWholesalePriceListDetail[], quantity: number, priceDefault: number): {price: number, isWholeSale: boolean} {
+        if (!wholeSale) return { price : priceDefault, isWholeSale: false }
         let isWholeSale = false
         let max = 0;
         let price = 0;
-        for(let i = 0; i<wholeSale.length; i++) {
+        for(let i = 0; i< wholeSale.length; i++) {
             if (wholeSale[i].minQuantity > max && quantity >= wholeSale[i].minQuantity) {
                 max = wholeSale[i].minQuantity
                 isWholeSale = true
