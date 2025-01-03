@@ -238,8 +238,7 @@ export class OrderService implements IOrderService {
                                     const skuTierIdxByAttribute = item.skuDetail.skuTierIdx?.map((skuTierIdx, index) => {
                                         return item.skuDetail?.attributes[index]?.value[skuTierIdx];
                                     });
-                                    item.skuDetail.name = `${nameSpu} ${skuTierIdxByAttribute?.join(' ')}`;
-                                    item.skuDetail.attributes = [];
+                                    item.skuDetail.name = `${nameSpu} ${skuTierIdxByAttribute?.join(' ')??""}`;
                                 }
                             })
                         );
