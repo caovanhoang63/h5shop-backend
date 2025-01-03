@@ -40,6 +40,10 @@ export class OrderService implements IOrderService {
                     return err(vR.error);
                 }
 
+                if (requester.userId) {
+                    o.sellerId = requester.userId
+                }
+
                 // Check if customer exists
                 if (o.customerId) {
                     const customerR = await this.customerRepository.findById(o.customerId);
@@ -243,6 +247,19 @@ export class OrderService implements IOrderService {
                 );
 
                 return ok(r.value);
+            })(), e => createInternalError(e)
+        ).andThen(r => r)
+    }
+
+    removeCustomer(requester: IRequester, id: number): ResultAsync<void, Err> {
+        return ResultAsync.fromPromise(
+            (async () => {
+                const r = await this.orderRepository.removeCustomer(id);
+                if (r.isErr()) {
+                    return err(r.error);
+                }
+
+                return ok(undefined);
             })(), e => createInternalError(e)
         ).andThen(r => r)
     }

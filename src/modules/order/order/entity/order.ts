@@ -5,7 +5,7 @@ export enum OrderType {
 
 export interface Order {
     id: number;
-    customerId: number | null;
+    customerId?: number;
     sellerId: number;
     status: number;
     orderType: OrderType;
