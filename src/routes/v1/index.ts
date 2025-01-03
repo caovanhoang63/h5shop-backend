@@ -37,14 +37,9 @@ import reportRoute from "./reportRoute";
 const v1Router = () => {
     const appCtx = container.get<IAppContext>(TYPES.IAppContext)
     const router = express.Router();
-
     router.get("/ping", async (req, res) => {
         res.send("pong");
     })
-
-    router.get('/', function (req, res, next) {
-        res.render('index', {title: 'Express'});
-    });
     router.use("/report", reportRoute());
     router.use("/warranty",warrantyRouter());
     router.use("/users", usersRouter(appCtx))
@@ -60,24 +55,12 @@ const v1Router = () => {
     router.use("/inventory", inventoryRouter(appCtx))
     router.use("/stock-in", stockInRouter(appCtx))
     router.use("/stock-out", stockOutRouter(appCtx))
-
     router.use("/sku-wholesale-price", skuWholesalePriceRoute(appCtx))
     router.use("/upload", uploadRouter(appCtx))
     router.use("/sku-attr", skuAttrRouter(appCtx))
     router.use("/customer", customerRoute(appCtx))
-
     router.use("/provider", providerRouter(appCtx))
     router.use("/employee", employeeRoute(appCtx))
-
-    router.post("/pubsub/test", async (req, res, next) => {
-        await appCtx.GetPubsub().Publish(topicTest, {data: null, id: randomUUID(), topic: ""})
-        res.status(200).send("oK")
-    })
-
-    router.post("/pubsub/test1", async (req, res, next) => {
-        await appCtx.GetPubsub().Publish(topicTest + "1", {data: null, id: randomUUID(), topic: ""})
-        res.status(200).send("oK")
-    })
     return router;
 }
 
