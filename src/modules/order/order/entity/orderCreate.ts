@@ -11,7 +11,7 @@ export interface OrderCreate extends BaseModel {
 
 export const orderCreateSchema = Joi.object({
     customerId: Joi.number().optional(),
-    sellerId: Joi.number().required(),
+    sellerId: Joi.number(),
     orderType: Joi.string().valid(...Object.values(OrderType)).required(),
     description: Joi.string().optional(),
 })

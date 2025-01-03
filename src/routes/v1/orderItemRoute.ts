@@ -4,13 +4,14 @@ import {IOrderItemService} from "../../modules/order/order-item/service/IOrderIt
 import {container} from "../../container";
 import express from "express";
 import {IAppContext} from "../../components/appContext/appContext";
+import authentication from "../../middlewares/authentication";
 
 const OrderItemRoute = (appContext: IAppContext) => {
     const router = express.Router();
     const orderItemService = container.get<IOrderItemService>(TYPES.IOrderItemService)
     const orderItemApi = new OrderItemApi(orderItemService);
 
-    // router.use(authentication())
+    router.use(authentication())
 
     router.post('/', orderItemApi.create())
     router.delete('/', orderItemApi.delete())
