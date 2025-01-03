@@ -9,11 +9,16 @@ export interface SpuDetail{
     categoryName: string;
     description: string;
     metadata: any;
+    timeReturn?: number;
+    timeWarranty?: number;
+    typeTimeWarranty?: string;
+    typeTimeReturn?: string;
     images? : Image[];
     outOfStock : boolean;
     status : number;
     attrs : Attr[];
     skus : Sku[];
+    providers : SkuProvider[];
 }
 
 interface Attr {
@@ -41,4 +46,11 @@ interface SkuWholesalePrice {
     skuId: number;
     minQuantity: number;
     price: number;
+}
+
+interface SkuProvider {
+    id: number;
+    name: string;
+    phone: string;
+    email: string;
 }

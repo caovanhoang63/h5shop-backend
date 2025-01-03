@@ -68,8 +68,6 @@ export class SpuMysqlRepo extends BaseMysqlRepo implements ISpuRepository {
             LEFT JOIN category_to_spu ON spu.id = category_to_spu.spu_id
             LEFT JOIN category ON category.id = category_to_spu.category_id
             LEFT JOIN brand ON brand.id = spu.brand_id
-            LEFT JOIN spu_to_provider ON spu.id = spu_to_provider.spu_id
-            LEFT JOIN provider ON provider.id = spu_to_provider.provider_id
             WHERE 1 = 1
                 ${cond.brandId ? 'AND spu.brand_id = ?' : ''}
                 ${cond.categoryId ? 'AND category_to_spu.category_id = ?' : ''}
@@ -77,19 +75,32 @@ export class SpuMysqlRepo extends BaseMysqlRepo implements ISpuRepository {
                 ${cond.status != undefined ? `AND spu.status = ${cond.status}` : ''}
             `;
         const query = `
-            SELECT spu.*, category_to_spu.category_id as category_id, category.name as category_name, brand.name as brand_name
+            SELECT spu.*, category_to_spu.category_id as category_id, category.name as category_name, brand.name as brand_name,
+                   'providers', (
+                       SELECT JSON_ARRAYAGG(
+                                      JSON_OBJECT(
+                                              'id', provider.id,
+                                              'name', provider.name,
+                                              'email', provider.email,
+                                              'phone', provider.phone_number
+                                      ))
+                       FROM spu_to_provider
+                       JOIN provider ON provider.id = spu_to_provider.provider_id
+                       WHERE spu_to_provider.spu_id = spu.id AND provider.status = 1
+                   )
             FROM spu
             LEFT JOIN category_to_spu ON spu.id = category_to_spu.spu_id 
             LEFT JOIN category ON category.id = category_to_spu.category_id
             LEFT JOIN brand ON brand.id = spu.brand_id
-            LEFT JOIN spu_to_provider ON spu.id = spu_to_provider.spu_id
-            LEFT JOIN provider ON provider.id = spu_to_provider.provider_id
             WHERE 1 = 1
                 ${cond.brandId ? 'AND spu.brand_id = ?' : ''}
                 ${cond.categoryId ? 'AND category_to_spu.category_id = ?' : ''}
                 ${cond.name ? 'AND spu.name LIKE concat(?, \'%\')' : ''}
                 ${cond.status != undefined ? `AND spu.status = ${cond.status}` : ''}
-                ${pagingClause}`;
+            ORDER BY spu.id DESC
+                ${pagingClause}
+            
+            `;
         const value =[cond.brandId,cond.categoryId,cond.name].filter(r => !!r)
         console.log(query)
         return this.executeQuery(countQuery,value).andThen(
@@ -207,6 +218,10 @@ export class SpuMysqlRepo extends BaseMysqlRepo implements ISpuRepository {
                     'categoryName', category.name,
                     'description', spu.description,
                     'metadata', spu.metadata,
+                    'timeReturn', spu.time_return,
+                    'timeWarranty', spu.time_warranty,
+                    'typeTimeWarranty', spu.type_time_warranty,
+                    'typeTimeReturn', spu.type_time_return,
                     'images', (
                         SELECT JSON_ARRAYAGG(
                                JSON_OBJECT(
@@ -268,6 +283,18 @@ export class SpuMysqlRepo extends BaseMysqlRepo implements ISpuRepository {
                                ))
                         FROM sku
                         WHERE sku.spu_id = spu.id AND sku.status = 1
+                    ),
+                    'providers', (
+                        SELECT JSON_ARRAYAGG(
+                                       JSON_OBJECT(
+                                               'id', provider.id,
+                                               'name', provider.name,
+                                               'email', provider.email,
+                                               'phone', provider.phone_number
+                                       ))
+                        FROM spu_to_provider
+                        JOIN provider ON provider.id = spu_to_provider.provider_id
+                        WHERE spu_to_provider.spu_id = spu.id AND provider.status = 1
                     )
                 ) AS spu_detail
             FROM spu

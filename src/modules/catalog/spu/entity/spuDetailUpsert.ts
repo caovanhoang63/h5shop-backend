@@ -30,7 +30,7 @@ export const spuDetailUpsertSchema = Joi.object({
     timeReturn: Joi.number().allow(null),
     typeTimeWarranty: Joi.string().allow(null),
     typeTimeReturn: Joi.string().allow(null),
-    images: Joi.array().items(imageSchema),
+    images: Joi.array().items(imageSchema).allow(null),
     skus: Joi.array().items(skuCreateSchema),
     attrs: Joi.array().items(skuAttrCreateSchema)
 })

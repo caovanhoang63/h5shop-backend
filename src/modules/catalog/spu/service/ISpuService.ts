@@ -1,13 +1,11 @@
 import {IRequester} from "../../../../libs/IRequester";
 import {ResultAsync} from "neverthrow";
 import {Err} from "../../../../libs/errors";
-import {ICondition} from "../../../../libs/condition";
 import {Paging} from "../../../../libs/paging";
 import {SpuCreate} from "../entity/spuCreate";
 import {Spu} from "../entity/spu";
 import {SpuUpdate} from "../entity/spuUpdate";
 import {SpuDetailUpsert} from "../entity/spuDetailUpsert";
-import {SpuGetDetail} from "../entity/spuGetDetail";
 import {SpuDetail} from "../entity/spuDetail";
 import {SpuFilter} from "../entity/spuFilterSchema";
 
