@@ -222,8 +222,11 @@ export class OrderMysqlRepo extends BaseMysqlRepo implements IOrderRepository {
                         )
                     }
                 ).andThen(
-                    r=> ok(undefined)
-                )
+                    r=> ResultAsync.fromPromise(
+                        conn.query(customerQuery,[order.pointUsed,order.customerId]),
+                        e => createDatabaseError(e)
+                    )
+                ).andThen(r => ok(undefined))
             }
         )
     }
