@@ -12,6 +12,7 @@ const skuRouter  = (appContext: IAppContext) => {
     const skuApi = new SkuApi(SkuService);
     //router.use(authentication())
 
+    router.get('/warning-stock', skuApi.listWarningStock())
     router.get('/search-detail', skuApi.searchDetail())
     router.get('/list-detail', skuApi.listDetail())
     router.get('/:id', skuApi.getDetailById())

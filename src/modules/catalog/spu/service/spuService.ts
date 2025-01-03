@@ -166,7 +166,11 @@ export class SpuService implements ISpuService {
                     categoryId: c.categoryId,
                     brandId: c.brandId,
                     metadata: c.metadata,
-                    images: c.images
+                    images: c.images,
+                    timeWarranty: c.timeWarranty,
+                    timeReturn: c.timeReturn,
+                    typeTimeWarranty: c.typeTimeWarranty,
+                    typeTimeReturn: c.typeTimeReturn ,
                 };
 
                 await this.repo.Begin();
@@ -183,41 +187,50 @@ export class SpuService implements ISpuService {
 
                 // upsert attrs
                 await this.skuAttrRepository.Begin()
-                const resultAttr = await this.skuAttrRepository.upsertMany(c.attrs)
-                if (resultAttr.isErr()) {
-                    await this.skuAttrRepository.Rollback()
-                    await this.repo.Rollback()
-                    return err(resultAttr.error)
+                if(c.attrs.length > 0) {
+                    const resultAttr = await this.skuAttrRepository.upsertMany(c.attrs)
+                    if (resultAttr.isErr()) {
+                        await this.skuAttrRepository.Rollback()
+                        await this.repo.Rollback()
+                        return err(resultAttr.error)
+                    }
                 }
 
                 // upsert skus
                 await this.skuRepository.Begin()
-                const resultSku = await this.skuRepository.upsertMany(c.skus)
-                if (resultSku.isErr()) {
-                    await this.skuRepository.Rollback()
-                    await this.skuAttrRepository.Rollback()
-                    await this.repo.Rollback()
-                    return err(resultSku.error)
-                }
+                if(c.skus.length > 0) {
+                    const resultSku = await this.skuRepository.upsertMany(c.skus)
+                    if (resultSku.isErr()) {
+                        await this.skuRepository.Rollback()
+                        await this.skuAttrRepository.Rollback()
+                        await this.repo.Rollback()
+                        return err(resultSku.error)
+                    }
 
-                // Set skuId for skuWholeSalePrices
-                const skuWholesalePricesData: SkuWholesalePriceCreate[] = []
-                resultSku.value.forEach((sku) => {
-                    sku.wholesalePrices?.forEach((wholesalePrice) => {
-                       wholesalePrice.skuId = sku.id??0;
-                       skuWholesalePricesData.push(wholesalePrice);
+                    console.log(resultSku.value)
+
+                    // Set skuId for skuWholeSalePrices
+                    let skuWholesalePricesData: SkuWholesalePriceCreate[] = []
+                    resultSku.value.forEach((sku) => {
+                        sku.wholesalePrices?.forEach((wholesalePrice) => {
+                            wholesalePrice.skuId = sku.id ?? 0;
+                            skuWholesalePricesData.push(wholesalePrice);
+                        });
                     });
-                });
 
-                // upsert skuWholeSalePrices
-                await this.skuWholesalePriceRepository.Begin()
-                const resultSkuWholesalePrices = await this.skuWholesalePriceRepository.upsertMany(skuWholesalePricesData)
-                if (resultSkuWholesalePrices.isErr()) {
-                    await this.skuWholesalePriceRepository.Rollback()
-                    await this.skuRepository.Rollback()
-                    await this.skuAttrRepository.Rollback()
-                    await this.repo.Rollback()
-                    return err(resultSkuWholesalePrices.error)
+
+                    // upsert skuWholeSalePrices
+                    await this.skuWholesalePriceRepository.Begin()
+                    if (skuWholesalePricesData.length > 0) {
+                        const resultSkuWholesalePrices = await this.skuWholesalePriceRepository.upsertMany(skuWholesalePricesData)
+                        if (resultSkuWholesalePrices.isErr()) {
+                            await this.skuWholesalePriceRepository.Rollback()
+                            await this.skuRepository.Rollback()
+                            await this.skuAttrRepository.Rollback()
+                            await this.repo.Rollback()
+                            return err(resultSkuWholesalePrices.error)
+                        }
+                    }
                 }
 
                 // await commit all

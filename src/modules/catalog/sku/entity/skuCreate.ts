@@ -20,7 +20,7 @@ export const skuCreateSchema = Joi.object({
     id: Joi.number().allow(null),
     spuId: Joi.number().required(),
     skuTierIdx: Joi.array().items(Joi.number()),
-    images : Joi.array().items(imageSchema),
+    images : Joi.array().items(imageSchema).allow(null),
     costPrice: Joi.number().required(),
     price: Joi.number().required(),
     stock: Joi.number().required(),

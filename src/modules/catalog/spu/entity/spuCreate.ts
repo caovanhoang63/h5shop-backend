@@ -8,6 +8,10 @@ export interface SpuCreate {
     description: string;
     categoryId: number,
     metadata: any,
+    timeWarranty?: number,
+    timeReturn?: number,
+    typeTimeWarranty?: string,
+    typeTimeReturn?: string,
     images? : Image[],
 }
 

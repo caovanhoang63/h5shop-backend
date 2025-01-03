@@ -14,6 +14,7 @@ import requestContext from "./middlewares/requestContext";
 import {client} from "./s3Client";
 import {ListBucketsCommand} from "@aws-sdk/client-s3";
 import {S3Provider} from "./components/uploadProvider/s3Provider";
+import {startAutoNotifyWarningStock} from "./cron";
 
 dotenv.config();
 
@@ -39,7 +40,7 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 app.use("/v1", v1Router());
 
-
+startAutoNotifyWarningStock()
 
 app.listen(port, () => {
     console.log(`[server]: Server is running at http://localhost:${port}`);
