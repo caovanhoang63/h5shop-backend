@@ -14,4 +14,5 @@ export interface IOrderService {
     findById(id: number): ResultAsync<Order | null, Err>;
     list(cond: ICondition): ResultAsync<OrderDetail[], Err>;
     payOrder(requester : IRequester, id: number,payOrder :PayOrder): ResultAsync<void, Err>;
+    removeCustomer(requester: IRequester, id: number): ResultAsync<void, Err>;
 }

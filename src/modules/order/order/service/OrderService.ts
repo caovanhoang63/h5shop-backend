@@ -25,7 +25,7 @@ import {FilterSkuGetWholeSale} from "../../../catalog/sku/entity/skuGetWholeSale
 export class OrderService implements IOrderService {
     constructor(@inject(TYPES.IOrderRepository) private readonly orderRepository: IOrderRepository,
                 @inject(TYPES.ISkuService) private readonly skuService: ISkuService,
-                // @inject(TYPES.ISkuRepository) private readonly skuRepository: ISkuRepository,
+                @inject(TYPES.ISkuRepository) private readonly skuRepository: ISkuRepository,
                 @inject(TYPES.IPubSub) private readonly pubSub : IPubSub,
                 @inject(TYPES.ICustomerRepository) private  readonly customerRepository : ICustomerRepository,
                 @inject(TYPES.ISettingRepository) private readonly settingRepository: ISettingRepo) {
@@ -38,6 +38,10 @@ export class OrderService implements IOrderService {
                 const vR = (await Validator(orderCreateSchema, o))
                 if (vR.isErr()) {
                     return err(vR.error);
+                }
+
+                if (requester.userId) {
+                    o.sellerId = requester.userId
                 }
 
                 // Check if customer exists
@@ -68,7 +72,6 @@ export class OrderService implements IOrderService {
                 }
 
                 // Check if customer exists
-                // Check if seller exists
 
                 const r = await this.orderRepository.update(id, o);
                 if (r.isErr()) {
@@ -219,7 +222,44 @@ export class OrderService implements IOrderService {
                     return err(r.error);
                 }
 
+                // Map sku detail
+                const orders = r.value!;
+                await Promise.all(
+                    orders.map(async (order) => {
+                        await Promise.all(
+                            order.items.map(async (item) => {
+                                const skuDetailResult = await this.skuRepository.getDetailById(item.skuId);
+                                if (skuDetailResult.isErr()) {
+                                    throw skuDetailResult.error; // Throw to be caught by ResultAsync
+                                }
+                                item.skuDetail = skuDetailResult.value ? skuDetailResult.value : undefined;
+                                if (item.skuDetail) {
+                                    const nameSpu = item.skuDetail.spuName;
+                                    const skuTierIdxByAttribute = item.skuDetail.skuTierIdx?.map((skuTierIdx, index) => {
+                                        return item.skuDetail?.attributes[index]?.value[skuTierIdx];
+                                    });
+                                    item.skuDetail.name = `${nameSpu} ${skuTierIdxByAttribute?.join(' ')}`;
+                                    item.skuDetail.attributes = [];
+                                }
+                            })
+                        );
+                    })
+                );
+
                 return ok(r.value);
+            })(), e => createInternalError(e)
+        ).andThen(r => r)
+    }
+
+    removeCustomer(requester: IRequester, id: number): ResultAsync<void, Err> {
+        return ResultAsync.fromPromise(
+            (async () => {
+                const r = await this.orderRepository.removeCustomer(id);
+                if (r.isErr()) {
+                    return err(r.error);
+                }
+
+                return ok(undefined);
             })(), e => createInternalError(e)
         ).andThen(r => r)
     }

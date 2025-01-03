@@ -19,6 +19,7 @@ const orderRoute = (appContext: IAppContext) => {
     router.get('/', orderApi.list())
     router.get('/:id', orderApi.findById())
     router.post('/:id/pay', orderApi.payOrder())
+    router.patch('/:id/remove-customer', orderApi.removeCustomer())
 
     return router;
 }

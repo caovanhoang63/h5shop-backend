@@ -227,4 +227,13 @@ export class OrderMysqlRepo extends BaseMysqlRepo implements IOrderRepository {
             }
         )
     }
+
+    removeCustomer(id: number): ResultAsync<void, Err> {
+        const query = `UPDATE \`order\` SET customer_id = NULL WHERE id = ?`;
+        return this.executeQuery(query, [id]).andThen(
+            ([r, f]) => {
+                return ok(undefined);
+            }
+        );
+    }
 }

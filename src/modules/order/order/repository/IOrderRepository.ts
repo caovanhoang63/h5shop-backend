@@ -14,4 +14,5 @@ export interface IOrderRepository extends IBaseRepo {
     findById: (id: number) => ResultAsync<OrderDetail | null, Err>;
     list: (cond: ICondition) => ResultAsync<OrderDetail[], Err>;
     payOrder(order: OrderDetail):ResultAsync<void, Err>;
+    removeCustomer(id: number): ResultAsync<void, Err>;
 }

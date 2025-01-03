@@ -439,7 +439,7 @@ DROP TABLE IF EXISTS `order`;
 CREATE TABLE `order`
 (
     `id`          INT                          NOT NULL AUTO_INCREMENT,
-    `customer_id` INT                          NOT NULL,
+    `customer_id` INT,
     `seller_id`   INT                          NOT NULL, # Reference to user_id
     `status`      INT NOT NULL                                  DEFAULT 1, # 0: soft delete, 1: ordering, 2: ordered
     `order_type`  ENUM ('retail', 'wholesale') NOT NULL DEFAULT 'retail',

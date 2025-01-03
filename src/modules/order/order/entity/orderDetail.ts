@@ -1,4 +1,5 @@
 import {OrderType} from "./order";
+import {SkuListDetail} from "../../../catalog/sku/entity/skuListDetail";
 
 export interface OrderDetail {
     id: number;
@@ -23,4 +24,5 @@ export interface OrderItemDetail {
     description?: string;
     unitPrice: number;
     createdAt: Date;
+    skuDetail?: SkuListDetail;
 }
