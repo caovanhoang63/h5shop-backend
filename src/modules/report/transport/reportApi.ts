@@ -19,6 +19,21 @@ const schema = Joi.object({
     }),
 });
 
+const schemaSkuOrder = Joi.object({
+    startDate: Joi.date().required().messages({
+        'date.base': 'startDate must be a valid date',
+        'any.required': 'startDate is required',
+    }),
+    endDate: Joi.date().required().min(Joi.ref('startDate')).messages({
+        'date.base': 'endDate must be a valid date',
+        'any.required': 'endDate is required',
+        'date.min': 'endDate must be greater than or equal to startDate',
+    }),
+    limit: Joi.number().required(),
+    order: Joi.string().valid("revenue","amount").default("amount").required(),
+});
+
+
 @injectable()
 export class ReportApi {
     constructor(@inject(TYPES.IReportService) private readonly reportService : IReportService) {
@@ -61,4 +76,23 @@ export class ReportApi {
         };
     }
 
+    skuOrder() : express.Handler {
+        return async (req :express.Request, res : express.Response) => {
+            const { error, value } = schemaSkuOrder.validate(req.query, { abortEarly: false });
+            if (error) {
+                writeErrorResponse(res, createInvalidRequestError(error));
+                return
+            }
+            const { startDate, endDate, limit, order } = value;
+            ( await this.reportService.skuOrder(new Date(startDate), new Date(endDate),limit,order)).match(
+                (r) => {
+                    res.status(200).send(AppResponse.SimpleResponse(r));
+                },
+                (e) => {
+                    writeErrorResponse(res, e);
+                }
+            );
+        };
+
+    }
 }

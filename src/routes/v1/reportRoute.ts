@@ -9,6 +9,7 @@ const reportRoute = () => {
     const reportService = container.get<ReportApi>(TYPES.IReportController)
     router.get("/revenue", reportService.revenue())
     router.get("/total-order", reportService.totalOrder())
+    router.get("/sku-order", reportService.skuOrder())
     return router;
 }
 

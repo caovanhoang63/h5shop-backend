@@ -444,6 +444,7 @@ CREATE TABLE `order_item`
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4;
 
+
 ALTER TABLE `order_item`
 ADD COLUMN `description` VARCHAR(255) AFTER `amount`;
 
