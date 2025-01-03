@@ -80,17 +80,17 @@ export class ReportMysqlRepo extends BaseMysqlRepo implements IReportRepo {
             FROM sku_amounts AS sa
                      JOIN sku AS sk ON sa.sku_id = sk.id
                      JOIN spu AS sp ON sp.id = sa.spu_id
-                     JOIN sku_attr AS attr ON sk.spu_id = attr.spu_id
-            WHERE attr.status = 1
+                     LEFT JOIN sku_attr AS attr ON sk.spu_id = attr.spu_id
             GROUP BY sa.sku_id, sk.spu_id, sa.amount
             ORDER BY sa.amount DESC;
         `
         return this.executeQuery(query,[startDate,endDate,order,limit]).andThen(
             ([r,f]) => {
                 const rows = r as RowDataPacket[]
+                console.log(rows    )
+
                 return ok(rows.map(row => {
                     let name = ""
-                    console.log(row.idx)
                     row.attributes?.forEach( (r : {name : string,value : any[]}, i : number) => {
                         name += r.value?.[row.idx?.[i]] ?  ' ' +  r.name + ' ' + r.value?.[row.idx?.[i]] : ''
                     })
