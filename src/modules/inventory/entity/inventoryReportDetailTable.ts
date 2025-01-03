@@ -13,6 +13,8 @@ export interface InventoryReportDetailTable {
 interface InventoryItem{
     skuId: number;
     name: string;
+    oldStock: number;
+    price:number | null;
     amount: number;
     inventoryDif: number;
 }

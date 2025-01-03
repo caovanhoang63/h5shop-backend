@@ -27,53 +27,7 @@ export class InventoryReportApi {
         };
     }
 
-    list(): express.Handler {
-        return async (req, res, next) => {
-            const paging = ReqHelper.getPaging(req.query);
-            const value = inventoryReportFilterSchema.validate(req.query, { stripUnknown: true });
-
-            if (value.error) {
-                writeErrorResponse(res, createInvalidDataError(value.error));
-                return;
-            }
-
-            const filter = value.value;
-            const r = await this.service.listReports(filter, paging);
-
-            r.match(
-                value => {
-                    res.status(200).send(AppResponse.SuccessResponse(value, paging, { filter: filter }));
-                },
-                e => {
-                    writeErrorResponse(res, e);
-                }
-            );
-        };
-    }
-
-    getById(): express.Handler {
-        return async (req, res, next) => {
-            const id = parseInt(req.params.id);
-
-            if (!id) {
-                res.status(400).send(AppResponse.ErrorResponse(createInvalidDataError(new Error("id must be a number"))));
-                return;
-            }
-
-            const r = await this.service.getReportById(id);
-
-            r.match(
-                value => {
-                    res.status(200).send(AppResponse.SimpleResponse(value));
-                },
-                e => {
-                    writeErrorResponse(res, e);
-                }
-            );
-        };
-    }
-
-    update(): express.Handler {
+    /*update(): express.Handler {
         return async (req, res, next) => {
             const id = parseInt(req.params.id);
             const body = req.body;
@@ -94,9 +48,9 @@ export class InventoryReportApi {
                 }
             );
         };
-    }
+    }*/
 
-    delete(): express.Handler {
+    /*delete(): express.Handler {
         return async (req, res, next) => {
             const id = parseInt(req.params.id);
 
@@ -116,18 +70,19 @@ export class InventoryReportApi {
                 }
             );
         };
-    }
+    }*/
 
-    getInventoryReportDetails(): express.Handler {
+    findById(): express.Handler {
         return async (req, res, next) => {
-            const reportId = parseInt(req.params.id);
 
-            if (!reportId) {
+            const id = parseInt(req.params.id);
+
+            if (!id) {
                 res.status(400).send(AppResponse.ErrorResponse(createInvalidDataError(new Error("id must be a number"))));
                 return;
             }
 
-            const r = await this.service.getInventoryReportDetails(reportId);
+            const r = await this.service.findById(id);
 
             r.match(
                 value => {
@@ -140,7 +95,7 @@ export class InventoryReportApi {
         };
     }
 
-    getInventoryReportsTable(): express.Handler {
+    list(): express.Handler {
         return async (req, res, next) => {
             const paging = ReqHelper.getPaging(req.query);
             const value = inventoryReportFilterSchema.validate(req.query, { stripUnknown: true });
@@ -151,7 +106,7 @@ export class InventoryReportApi {
             }
             const filter = req.query;
             console.log(filter)
-            const r = await this.service.getInventoryReportsTable(filter, paging);
+            const r = await this.service.list(filter, paging);
 
             r.match(
                 value => {

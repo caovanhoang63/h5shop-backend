@@ -349,6 +349,9 @@ CREATE TABLE `inventory_report_detail`
   DEFAULT CHARSET = utf8mb4;
 alter table inventory_report_detail
     drop column note;
+ALTER TABLE inventory_report_detail
+    ADD COLUMN old_stock INT NOT NULL
+    AFTER amount;
 
 # STOCK OUT
 DROP TABLE IF EXISTS `stock_out`;
