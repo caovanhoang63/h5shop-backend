@@ -200,7 +200,7 @@ export class OrderMysqlRepo extends BaseMysqlRepo implements IOrderRepository {
 
 
         const skuQuery = `UPDATE sku SET stock = CASE
-                            ${order.items.map(r => `WHEN id = ? THEN stock - ?`)}
+                            ${order.items.map(r => ` WHEN id = ? THEN stock - ? `).join(' ')}
                             END
                           WHERE id IN (?)`;
 
