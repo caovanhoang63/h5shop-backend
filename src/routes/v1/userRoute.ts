@@ -14,9 +14,11 @@ const userRouter = (appContext: IAppContext) => {
     const userApi = new UserApi(authBiz);
 
     router.use(authentication())
+    router.patch('/:id', userApi.update())
     router.get("/profile",userApi.getProfile())
     router.use(requiredRole(appContext, SystemRole.Admin, SystemRole.Owner))
     router.get('/', userApi.ListUsers)
+    // router.patch('/:id"', userApi.update())
     return router
 }
 

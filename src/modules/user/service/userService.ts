@@ -10,10 +10,37 @@ import {IUserService} from "./IUserService";
 import {ICondition} from "../../../libs/condition";
 import {inject, injectable} from "inversify";
 import {TYPES} from "../../../types";
+import {UserUpdate, userUpdateSchema} from "../entity/userUpdate";
 
 @injectable()
 export class UserService implements IUserService {
     constructor(@inject(TYPES.IUserRepository) private readonly userRepository: IUserRepository) {
+    }
+
+    update(requester: IRequester, id: number, c: UserUpdate): ResultAsync<void, Err> {
+        return ResultAsync.fromPromise((async () => {
+            const vR = await Validator(userUpdateSchema,c)
+            if (vR.isErr()) {
+                return err(vR.error);
+            }
+
+            const old = await this.userRepository.findByUserId(id)
+            if (old.isErr()) {
+                return err(old.error)
+            }
+
+            if (old.value == null) {
+                return err(createEntityNotFoundError("user"));
+            }
+
+            const r = await this.userRepository.update(id,c)
+            if (r.isErr()) {
+                return err(createInternalError(r.error))
+            }
+
+            return ok(undefined)
+        })(),e=>createInternalError(e)
+        ).andThen(r=>r)
     }
 
 

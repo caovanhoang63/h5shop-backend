@@ -5,10 +5,12 @@ import {User, UserEntityName} from "../../entity/user";
 import {SqlHelper} from "../../../../libs/sqlHelper";
 import {Paging} from "../../../../libs/paging";
 import {MysqlErrHandler} from "../../../../libs/mysqlErrHandler";
-import {err, ok, ResultAsync} from "neverthrow";
+import {err, ok, okAsync, ResultAsync} from "neverthrow";
 import {Err} from "../../../../libs/errors";
 import {IUserRepository} from "../IUserRepository";
 import {BaseMysqlRepo} from "../../../../components/mysql/BaseMysqlRepo";
+import {EmployeeUpdate} from "../../../employee/entity/employee";
+import {UserUpdate} from "../../entity/userUpdate";
 
 export class UserMysqlRepo extends BaseMysqlRepo implements IUserRepository {
 
@@ -41,6 +43,19 @@ export class UserMysqlRepo extends BaseMysqlRepo implements IUserRepository {
                     const data: User = SqlHelper.toCamelCase(a[0]);
                     return ok(data)
                 })
+    }
+
+    update(id: number, userUpdate: UserUpdate): ResultAsync<void, Error> {
+        const [clause, values] = SqlHelper.buildUpdateClause(userUpdate)
+        const query = `UPDATE user
+                       SET ${clause}
+                       WHERE id = ? `;
+        return this.executeQuery(query, [...values, id]).andThen(
+            ([r, f]) => {
+                const header = r as ResultSetHeader;
+                return okAsync(undefined)
+            }
+        );
     }
 
     public hardDeleteById(id: number): ResultAsync<void, Err> {

@@ -5,6 +5,8 @@ import {AppResponse} from "../../../libs/response";
 import {writeErrorResponse} from "../../../libs/writeErrorResponse";
 import {IUserService} from "../service/IUserService";
 import {ReqHelper} from "../../../libs/reqHelper";
+import {UserUpdate} from "../entity/userUpdate";
+import {createInvalidDataError} from "../../../libs/errors";
 
 
 export class UserApi {
@@ -24,6 +26,29 @@ export class UserApi {
             return
         }
         res.send(AppResponse.SuccessResponse(result.value, paging, cond))
+    }
+
+    update() :express.Handler {
+        return async (req: express.Request, res: express.Response) => {
+            const body = req.body as UserUpdate;
+            const id = parseInt(req.params.id);
+
+            if (!id) {
+                res.status(400).send(AppResponse.ErrorResponse(createInvalidDataError(new Error("id must be a number"))));
+                return;
+            }
+            const requester = ReqHelper.getRequester(res);
+
+
+            (await this.userBiz.update(requester,id,body)).match(
+                r=> {
+                    res.status(200).send(AppResponse.SimpleResponse(true))
+                },
+                e => {
+                    writeErrorResponse(res,e)
+                }
+            )
+        }
     }
     getProfile(): express.Handler {
         return async  (req, res) => {
