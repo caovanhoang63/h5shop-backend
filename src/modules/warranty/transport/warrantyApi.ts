@@ -37,6 +37,7 @@ export class WarrantyApi {
             const filter  = {
                 status : req.query.status,
                 lkCustomerPhoneNumber : req.query.lkCustomerPhoneNumber,
+                warrantyType : req.query.warrantyType,
                 gtCreatedAt : req.query.gtCreatedAt,
                 ltCreatedAt : req.query.ltCreatedAt,
                 gtUpdatedAt : req.query.gtUpdatedAt,
