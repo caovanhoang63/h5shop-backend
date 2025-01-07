@@ -98,9 +98,9 @@ export class StockInRepository extends BaseMysqlRepo implements IStockInReposito
                     JOIN provider p on st.provider_id = p.id
                 ${whereClause}
             GROUP BY st.id
+            ORDER BY st.created_at DESC
                 ${pagingClause}
         `;
-
         const countQuery = `
             SELECT COUNT(DISTINCT st.id) AS total
             FROM stock_in st
@@ -133,8 +133,8 @@ export class StockInRepository extends BaseMysqlRepo implements IStockInReposito
 
         create(report: StockInCreate): ResultAsync<number | null, Err> {
 
-            const query = `INSERT INTO stock_in (provider_id, warehouse_men)
-                           VALUES (?, ?)`;
+            const query = `INSERT INTO stock_in (provider_id, warehouse_men,total_price)
+                           VALUES (?, ?, ?)`;
 
             const detailQuery = `INSERT INTO stock_in_detail (stock_in_id, sku_id, amount, cost_price,total_price)
                             VALUES ?`
@@ -157,12 +157,14 @@ export class StockInRepository extends BaseMysqlRepo implements IStockInReposito
             const headerValues = [
                 report.providerId,
                 report.warehouseMen,
+                report.totalPrice,
             ];
             return this.executeInTransaction(conn =>
                 this.executeQuery(query, headerValues)
                     .andThen(([headerResult, _]) => {
                         const header = headerResult as ResultSetHeader;
                         const insertId = header.insertId;
+                        report.id = insertId
 
                         const detailValuesWithInsertId = report.items.map(item => [
                             insertId,

@@ -272,6 +272,23 @@ CREATE TABLE `stock_in`
     KEY `warehouse_men` (`warehouse_men`) USING BTREE
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4;
+ALTER TABLE stock_in
+    ADD COLUMN total_price DECIMAL(15,2)
+        AFTER warehouse_men;
+
+UPDATE stock_in s
+ JOIN (
+        SELECT s.id, SUM(d.total_price) as total
+        FROM stock_in_detail d JOIN stock_in s ON s.id = d.stock_in_id GROUP BY s.id
+        ) as sum_price
+ON sum_price.id = s.id
+SET s.total_price = sum_price.total;
+
+
+
+SELECT * from stock_in;
+
+
 
 DROP TABLE IF EXISTS `stock_in_detail`;
 CREATE TABLE `stock_in_detail`
@@ -355,6 +372,9 @@ CREATE TABLE `stock_out`
     KEY `stock_out_reason_id` (`stock_out_reason_id`) USING BTREE
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4;
+ALTER TABLE stock_out
+    ADD COLUMN total_price DECIMAL(15,2)
+        AFTER stock_out_reason_id;
 
 DROP TABLE IF EXISTS `stock_out_reason`;
 CREATE TABLE `stock_out_reason`
@@ -369,6 +389,10 @@ CREATE TABLE `stock_out_reason`
     KEY `status` (`status`) USING BTREE
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4;
+ALTER TABLE `stock_out_reason`
+    ADD COLUMN `stock_out_type` enum('chi','thu') default null
+        AFTER description;
+
 
 DROP TABLE IF EXISTS `stock_out_detail`;
 CREATE TABLE `stock_out_detail`

@@ -24,7 +24,7 @@ export class AuditApi {
                 objectType : req.query.objectType,
             } as AuditFilter;
 
-            console.log(auditFilter.objectType);
+            //console.log(auditFilter.objectType);
 
             const result = await this.auditService.list(requester, auditFilter, paging)
             if (result.isErr()) {

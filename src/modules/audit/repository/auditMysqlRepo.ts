@@ -51,7 +51,6 @@ export class AuditMysqlRepo extends BaseMysqlRepo implements IAuditRepository {
                             const audits = (r as RowDataPacket[]).map(row =>{
                                 const camel =  SqlHelper.toCamelCase(row)
 
-                                console.log(row)
                                 return {
                                     action: camel.action,
                                     createdAt: camel.createdAt,

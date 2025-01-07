@@ -28,7 +28,7 @@ export const topicDeleteSkuWholeSalePrice = "TopicDeleteSkuWholeSalePrice";
 
 export const topicCreateInventory = "topicCreateInventory";
 
-
+export const topicCreateStockOut = "topicCreateStockOut";
 
 export const topicCreateStockIn = "TopicCreateStockIn";
 
