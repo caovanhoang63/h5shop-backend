@@ -125,7 +125,7 @@ export class OrderApi {
             const requester = ReqHelper.getRequester(res);
             (await this.userService.payOrder(requester, id,payOrder)).match(
                 value => {
-                    res.status(200).send(AppResponse.SimpleResponse(true))
+                    res.status(200).send(AppResponse.SimpleResponse(value))
                 },
                 e =>{
                     writeErrorResponse(res, e)

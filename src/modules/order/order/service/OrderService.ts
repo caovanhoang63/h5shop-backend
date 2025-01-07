@@ -110,8 +110,21 @@ export class OrderService implements IOrderService {
                     return err(r.error);
                 }
 
-                // Map sku detail
                 const order = r.value!;
+
+                // Map customer if has
+                if (order.customerId) {
+                    const customerR = await this.customerRepository.findById(order.customerId);
+
+                    if (!customerR.isErr() && customerR.value) {
+                        const lastName = customerR.value.lastName ? customerR.value.lastName : "";
+                        const firstName = customerR.value.firstName ? customerR.value.firstName : "";
+                        order.customerName = lastName + " " + firstName;
+                        order.customerPhone = customerR.value?.phoneNumber;
+                    }
+                }
+
+                // Map sku detail
                 await Promise.all(
                     order.items.map(async (item) => {
                         const skuDetailResult = await this.skuRepository.getDetailById(item.skuId);
@@ -135,7 +148,7 @@ export class OrderService implements IOrderService {
     }
 
 
-    payOrder(requester: IRequester, id: number,payOrder :PayOrder): ResultAsync<void, Err> {
+    payOrder(requester: IRequester, id: number,payOrder :PayOrder): ResultAsync<OrderDetail, Err> {
         return ResultAsync.fromPromise(
             (async () => {
                 const orderR =await this.orderRepository.findById(id)
@@ -231,9 +244,45 @@ export class OrderService implements IOrderService {
                 if (r.isErr()) {
                     return err(r.error)
                 }
+
+                // Map customer name and number
+                if (customer) {
+                    order.customerName = customer.lastName + " " + customer.firstName;
+                    order.customerPhone = customer.phoneNumber;
+                }
+
+                // Map customer if has
+                if (order.customerId) {
+                    const customerR = await this.customerRepository.findById(order.customerId);
+
+                    if (!customerR.isErr() && customerR.value) {
+                        const lastName = customerR.value.lastName ? customerR.value.lastName : "";
+                        const firstName = customerR.value.firstName ? customerR.value.firstName : "";
+                        order.customerName = lastName + " " + firstName;
+                        order.customerPhone = customerR.value?.phoneNumber;
+                    }
+                }
+
+                // Map sku detail
+                await Promise.all(
+                    order.items.map(async (item) => {
+                        const skuDetailResult = await this.skuRepository.getDetailById(item.skuId);
+                        if (skuDetailResult.isErr()) {
+                            throw skuDetailResult.error; // Throw to be caught by ResultAsync
+                        }
+                        item.skuDetail = skuDetailResult.value ? skuDetailResult.value : undefined;
+                        if (item.skuDetail) {
+                            const nameSpu = item.skuDetail.spuName;
+                            const skuTierIdxByAttribute = item.skuDetail.skuTierIdx?.map((skuTierIdx, index) => {
+                                return item.skuDetail?.attributes[index]?.value[skuTierIdx];
+                            });
+                            item.skuDetail.name = `${nameSpu} ${skuTierIdxByAttribute?.join(' ')??""}`;
+                        }
+                    })
+                );
                 this.pubSub.Publish(topicPayOrder, createMessage(order,requester))
 
-                return ok(undefined)
+                return ok(order)
 
         })(), e => createInternalError(e)).andThen(r=>r)
     }

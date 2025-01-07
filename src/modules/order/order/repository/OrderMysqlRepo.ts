@@ -137,6 +137,7 @@ export class OrderMysqlRepo extends BaseMysqlRepo implements IOrderRepository {
                 oi.created_at AS item_created_at
             FROM \`order\` AS o
                      LEFT JOIN order_item AS oi ON o.id = oi.order_id
+                    LEFT JOIN customer AS c ON o.customer_id = c.id
                 ${whereClause}
             ORDER BY o.id ASC, oi.sku_id ASC;
         `;
