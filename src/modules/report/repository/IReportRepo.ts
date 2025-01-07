@@ -3,6 +3,7 @@ import {Revenue} from "../entity/revenue";
 import {SkuOrder} from "../entity/skuOrder";
 import {Sale} from "../entity/sale";
 import {SkuStock} from "../entity/skuStock";
+import {Category} from "../entity/category";
 
 
 export interface IReportRepo {
@@ -11,4 +12,5 @@ export interface IReportRepo {
     skuOrder(startDate: Date, endDate: Date,limit : number, order: string): ResultAsync<SkuOrder[], Error>
     sale(startDate: Date, endDate: Date): ResultAsync<Sale[], Error>
     inventory(gtStock : number,ltStock: number) : ResultAsync<SkuStock[], Error>
+    category(startDate: Date, endDate: Date): ResultAsync<Category[], Error>
 }

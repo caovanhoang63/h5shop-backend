@@ -10,10 +10,15 @@ import { Sale } from "../entity/sale";
 import {SkuWarningStock} from "../../catalog/sku/entity/skuWarningStock";
 import {ISkuRepository} from "../../catalog/sku/repository/ISkuRepository";
 import {SkuStock} from "../entity/skuStock";
+import { Category } from "../entity/category";
 
 @injectable()
 export class ReportService implements IReportService {
     constructor(@inject(TYPES.IReportRepository) private readonly reportRepo: IReportRepo) {
+    }
+
+    category(startDate: Date, endDate: Date): ResultAsync<Category[], Error> {
+        return this.reportRepo.category(startDate, endDate)
     }
     sale(startDate: Date, endDate: Date): ResultAsync<Sale[], Error> {
         return this.reportRepo.sale(startDate, endDate);

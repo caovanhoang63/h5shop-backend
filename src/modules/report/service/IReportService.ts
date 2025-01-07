@@ -5,6 +5,7 @@ import {Sale} from "../entity/sale";
 import {SkuWarningStock} from "../../catalog/sku/entity/skuWarningStock";
 import {Err} from "../../../libs/errors";
 import {SkuStock} from "../entity/skuStock";
+import {Category} from "../entity/category";
 
 
 export interface IReportService {
@@ -13,4 +14,5 @@ export interface IReportService {
     skuOrder(startDate: Date, endDate: Date,limit : number, order: string): ResultAsync<SkuOrder[], Error>
     sale(startDate: Date, endDate: Date): ResultAsync<Sale[], Error>
     inventory(gtStock : number,ltStock: number) : ResultAsync<SkuStock[], Error>
+    category(startDate: Date, endDate: Date): ResultAsync<Category[], Error>
 }

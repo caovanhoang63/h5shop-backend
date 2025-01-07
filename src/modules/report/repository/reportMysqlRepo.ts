@@ -8,9 +8,11 @@ import {SkuOrder} from "../entity/skuOrder";
 import {Sale} from "../entity/sale";
 import {SqlHelper} from "../../../libs/sqlHelper";
 import {SkuStock} from "../entity/skuStock";
+import { Category } from "../entity/category";
 
 @injectable()
 export class ReportMysqlRepo extends BaseMysqlRepo implements IReportRepo {
+
     totalOrder(startDate: Date, endDate: Date): ResultAsync<number, Error> {
         const query = `
             SELECT count(*) as count
@@ -29,6 +31,36 @@ export class ReportMysqlRepo extends BaseMysqlRepo implements IReportRepo {
             }
         )
 
+    }
+    category(startDate: Date, endDate: Date): ResultAsync<Category[], Error> {
+        const query = `
+            SELECT
+                c.id as id,
+                c.name as name,
+                SUM(oi.amount) as amount,
+                SUM(oi.amount * oi.unit_price) as revenue
+            FROM category c
+                LEFT JOIN category_to_spu cts ON cts.category_id = c.id
+                JOIN spu sp ON cts.spu_id = sp.id
+                JOIN sku sk ON sk.spu_id = sp.id
+                JOIN order_item oi ON sk.id = oi.sku_id
+                JOIN \`order\` o ON o.id = oi.order_id
+            WHERE
+                o.status = 2
+            AND o.created_at >= DATE(?)
+            AND o.created_at <= DATE(?)
+            AND c.status = 1
+            GROUP BY c.id ORDER BY revenue
+        `
+        return this.executeQuery(query,[startDate,endDate]).andThen(
+            ([r,f]) => {
+                const rows = r as RowDataPacket[]
+                console.log(rows)
+                return ok(rows.map(row => {
+                    return row as Category
+                }))
+            }
+        )
     }
     revenue(startDate: Date, endDate: Date): ResultAsync<Revenue[], Error> {
         const query = `
