@@ -72,6 +72,12 @@ export class OrderService implements IOrderService {
                 }
 
                 // Check if customer exists
+                if (o.customerId) {
+                    const customerR = await this.customerRepository.findById(o.customerId);
+                    if (customerR.isErr()) {return errAsync(createInternalError(customerR.error))}
+
+                    if (!customerR.value) {return errAsync(createInvalidDataError(new Error("Invalid customer")))}
+                }
 
                 const r = await this.orderRepository.update(id, o);
                 if (r.isErr()) {
@@ -96,13 +102,32 @@ export class OrderService implements IOrderService {
         ).andThen(r => r)
     }
 
-    findById = (id: number): ResultAsync<Order | null, Err> => {
+    findById = (id: number): ResultAsync<OrderDetail | null, Err> => {
         return ResultAsync.fromPromise(
             (async () => {
                 const r = await this.orderRepository.findById(id);
                 if (r.isErr()) {
                     return err(r.error);
                 }
+
+                // Map sku detail
+                const order = r.value!;
+                await Promise.all(
+                    order.items.map(async (item) => {
+                        const skuDetailResult = await this.skuRepository.getDetailById(item.skuId);
+                        if (skuDetailResult.isErr()) {
+                            throw skuDetailResult.error; // Throw to be caught by ResultAsync
+                        }
+                        item.skuDetail = skuDetailResult.value ? skuDetailResult.value : undefined;
+                        if (item.skuDetail) {
+                            const nameSpu = item.skuDetail.spuName;
+                            const skuTierIdxByAttribute = item.skuDetail.skuTierIdx?.map((skuTierIdx, index) => {
+                                return item.skuDetail?.attributes[index]?.value[skuTierIdx];
+                            });
+                            item.skuDetail.name = `${nameSpu} ${skuTierIdxByAttribute?.join(' ')??""}`;
+                        }
+                    })
+                );
 
                 return ok(r.value);
             })(), e => createInternalError(e)

@@ -11,9 +11,9 @@ export interface OrderUpdate extends BaseModel {
 }
 
 export const orderUpdateSchema = Joi.object({
-    customerId: Joi.number(),
+    customerId: Joi.number().allow(null),
     sellerId: Joi.number(),
     status: Joi.number(),
     orderType: Joi.string().valid(...Object.values(OrderType)),
-    description: Joi.string(),
+    description: Joi.string().allow(""),
 })
