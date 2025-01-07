@@ -1,5 +1,5 @@
 import {TokenResponse} from "../../entity/authVar";
-import {createForbiddenError, Err} from "../../../../libs/errors";
+import {createForbiddenError, createInternalError, Err} from "../../../../libs/errors";
 import {ErrInvalidCredentials, ErrUserNameAlreadyExists} from "../../entity/authErrors";
 import {randomSalt} from "../../../../libs/salt";
 import {Validator} from "../../../../libs/validator";
@@ -12,9 +12,9 @@ import {
 } from "../../../../components/jwtProvider/IJwtProvider";
 import {randomUUID} from "node:crypto";
 import {IAuthRepository} from "../../repository/IAuthRepository";
-import {errAsync, okAsync, ResultAsync} from "neverthrow";
+import {err, errAsync, ok, okAsync, ResultAsync} from "neverthrow";
 import {IAuthService} from "../interface/IAuthService";
-import {AuthCreate, authCreateSchema} from "../../entity/authCreate";
+import {AuthChangePassword, AuthCreate, authCreateSchema, changePasswordSchema} from "../../entity/authCreate";
 import {AuthLogin, authLoginSchema} from "../../entity/authLogin";
 import {TYPES} from "../../../../types";
 import {inject, injectable} from "inversify";
@@ -35,6 +35,37 @@ export class AuthService implements IAuthService {
                 @inject(TYPES.IUserRepository) private readonly userRepo: IUserRepository,
                 @inject(TYPES.IJwtProvider) private readonly jwtProvider: IJwtProvider,
                 @inject(TYPES.IPubSub) private readonly pubSub: IPubSub,) {
+    }
+
+    changePassword(requester: IRequester, userId: number, u: AuthChangePassword): ResultAsync<void, Err> {
+        return ResultAsync.fromPromise((async () => {
+
+            const vR = await Validator(changePasswordSchema,u)
+            if (vR.isErr()) {
+                return errAsync(vR.error);
+            }
+            this.authRepo.FindByUserId(userId);
+            const old = await this.authRepo.FindByUserId(userId);
+
+            if (old.isErr()) {
+                return errAsync(old.error);
+            }
+
+            if (!old.value) {
+                return errAsync(ErrUserNameAlreadyExists('user'));
+            }
+
+            u.salt = randomSalt(50);
+            u.password = this.hasher.hash(u.password,u.salt)
+
+
+            const r = await this.authRepo.changePassword(userId, u)
+            if (r.isErr()) {
+                return err(createInternalError(r.error));
+            }
+
+            return ok(undefined)
+        })(),e => createInternalError(e)).andThen(r=>r)
     }
 
     public register = (requester: IRequester, u: AuthCreate): ResultAsync<void, Err> => {

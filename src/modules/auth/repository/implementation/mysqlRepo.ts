@@ -3,11 +3,18 @@ import {Auth} from "../../entity/auth";
 import {SqlHelper} from "../../../../libs/sqlHelper";
 import {IAuthRepository} from "../IAuthRepository";
 import {ok, ResultAsync} from "neverthrow";
-import {AuthCreate} from "../../entity/authCreate";
+import {AuthChangePassword, AuthCreate} from "../../entity/authCreate";
 import {createDatabaseError, Err} from "../../../../libs/errors";
 import {BaseMysqlRepo} from "../../../../components/mysql/BaseMysqlRepo";
 
 export class AuthMysqlRepo extends BaseMysqlRepo implements IAuthRepository {
+    changePassword(userId: number, u: AuthChangePassword): ResultAsync<void, Error> {
+        const query = `UPDATE auth SET password = ?, salt = ? WHERE user_id = ?`
+        return this.executeQuery(query,[u.password,u.salt,userId])
+            .andThen(() => {
+                return ok(undefined)}
+            )
+    }
     Create = (u: AuthCreate): ResultAsync<void, Err> => {
         const query = `INSERT INTO auth (user_id, user_name, salt, password)
                        VALUES (?, ?, ?, ?)`

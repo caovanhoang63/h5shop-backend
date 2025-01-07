@@ -14,9 +14,12 @@ const authRouter = (appContext: IAppContext) => {
     const authBiz = container.get<IAuthService>(TYPES.IAuthService)
     const authApi = new AuthApi(authBiz)
     router.post('/login', authApi.Login)
-    // router.use(authentication())
-    // router.use(requiredRole(appContext, SystemRole.Admin, SystemRole.Owner))
     router.post('/register', authApi.Register)
+
+    router.use(authentication())
+    router.use(requiredRole(appContext, SystemRole.Admin, SystemRole.Owner))
+
+    router.post("/:id/change-password",authApi.changePassword)
     return router
 }
 

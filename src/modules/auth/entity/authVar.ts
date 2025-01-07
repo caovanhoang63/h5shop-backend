@@ -7,9 +7,3 @@ export interface TokenResponse {
     accessToken: Token;
     refreshToken?: Token;
 }
-
-
-
-
-
-

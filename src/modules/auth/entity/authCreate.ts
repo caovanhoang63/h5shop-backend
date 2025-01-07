@@ -31,3 +31,15 @@ export const authCreateSchema = Joi.object().keys({
     gender: Joi.string().valid('male','female','other').optional(),
     phoneNumber: Joi.string().optional(),
 })
+
+
+export interface AuthChangePassword {
+    password: string;
+    salt?: string;
+}
+
+export const changePasswordSchema = Joi.object().keys({
+    password: Joi.string().regex(new RegExp("^(?=.*[A-Za-z])(?=.*\\d)(?=.*[@$!%*#?&])[A-Za-z\\d@$!%*#?&]{8,}$")).required()
+        .error(new Error("Password is not strong enough")),
+    salt: Joi.string().optional(),
+})
