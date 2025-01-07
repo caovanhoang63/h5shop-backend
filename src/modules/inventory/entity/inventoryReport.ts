@@ -10,7 +10,7 @@ export interface InventoryReport extends BaseModel {
     note?: string
 }
 
-export interface InventoryReportCreate extends Omit<InventoryReport, 'id' | 'createdAt' | 'updatedAt' | 'status'> {
+export interface InventoryReportCreate extends Omit<InventoryReport, 'createdAt' | 'updatedAt' | 'status'> {
     items: InventoryReportDetailCreate[];
 }
 

@@ -1,10 +1,20 @@
 import {
 
-    topicCreateCategory, topicCreateCustomer, topicCreateInventory, topicCreateSpu, topicCreateStockIn,
-    topicDeleteCategory, topicDeleteCustomer, topicDeleteSpu,
-    topicDeleteUser, topicPayOrder,
+    topicCreateCategory,
+    topicCreateCustomer,
+    topicCreateInventory,
+    topicCreateSpu,
+    topicCreateStockIn,
+    topicCreateStockOut,
+    topicDeleteCategory,
+    topicDeleteCustomer,
+    topicDeleteSpu,
+    topicDeleteUser,
+    topicPayOrder,
     topicRegister,
-    topicUpdateCategory, topicUpdateCustomer, topicUpdateSpu
+    topicUpdateCategory,
+    topicUpdateCustomer,
+    topicUpdateSpu
 
 } from "./libs/topics";
 import {SubscriberEngine} from "./components/subcriber";
@@ -55,6 +65,8 @@ subscriberEngine.subscribe(topicCreateCustomer, audit.onCreate("customer"));
 subscriberEngine.subscribe(topicUpdateCustomer, audit.onUpdate("customer"));
 subscriberEngine.subscribe(topicDeleteCustomer, audit.onDelete("customer"));
 
-subscriberEngine.subscribe(topicCreateStockIn, sku.onUpdate())
+subscriberEngine.subscribe(topicCreateInventory, audit.onCreate("inventory"));
+subscriberEngine.subscribe(topicCreateStockOut, audit.onCreate("stock-out"));
+subscriberEngine.subscribe(topicCreateStockIn, audit.onCreate("stock-in"))
 
 export default subscriberEngine

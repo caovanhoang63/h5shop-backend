@@ -38,7 +38,7 @@ export class InventoryReportMysqlRepo extends BaseMysqlRepo implements IInventor
                 .andThen(([headerResult, _]) => {
                     const header = headerResult as ResultSetHeader;
                     const insertId = header.insertId;
-
+                    report.id = insertId
                     const detailValuesWithInsertId = report.items.map(item => [
                         insertId,
                         item.skuId,

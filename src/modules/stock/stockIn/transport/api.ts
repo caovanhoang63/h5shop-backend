@@ -37,7 +37,6 @@ export class StockInApi {
         return async (req, res, next) => {
             const paging = ReqHelper.getPaging(req.query);
             const valueCond = inventoryReportFilterSchema.validate(req.query, { stripUnknown: true });
-            console.log(paging)
             if (valueCond.error) {
                 writeErrorResponse(res, createInvalidDataError(valueCond.error));
                 return;

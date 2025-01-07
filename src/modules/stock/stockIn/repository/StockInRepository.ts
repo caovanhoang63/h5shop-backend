@@ -73,7 +73,6 @@ export class StockInRepository extends BaseMysqlRepo implements IStockInReposito
                     });
                 });
 
-                // Return the structured data.
                 return ok(groupedResults);
             }
         );
@@ -99,16 +98,15 @@ export class StockInRepository extends BaseMysqlRepo implements IStockInReposito
                     JOIN provider p on st.provider_id = p.id
                 ${whereClause}
             GROUP BY st.id
+            ORDER BY st.created_at DESC
                 ${pagingClause}
         `;
-
         const countQuery = `
             SELECT COUNT(DISTINCT st.id) AS total
             FROM stock_in st
                      JOIN stock_in_detail std ON st.id = std.stock_in_id
                 ${whereClause}
         `;
-        console.log(query)
         return this.executeQuery(countQuery, whereValues)
             .andThen(([countResult, _]) => {
                 const firstRow = (countResult as RowDataPacket[])[0];
@@ -133,44 +131,66 @@ export class StockInRepository extends BaseMysqlRepo implements IStockInReposito
             );
     }
 
-    create(report: StockInCreate): ResultAsync<number | null, Err> {
+        create(report: StockInCreate): ResultAsync<number | null, Err> {
 
-        const query = `INSERT INTO stock_in (provider_id, warehouse_men)
-                       VALUES (?, ?)`;
+            const query = `INSERT INTO stock_in (provider_id, warehouse_men,total_price)
+                           VALUES (?, ?, ?)`;
 
-        const detailQuery = `INSERT INTO stock_in_detail (stock_in_id, sku_id, amount, cost_price,total_price)
-                        VALUES ?`
+            const detailQuery = `INSERT INTO stock_in_detail (stock_in_id, sku_id, amount, cost_price,total_price)
+                            VALUES ?`
 
-        const skuQuery = `UPDATE sku SET stock = CASE
-                            ${report.items.map(r => `WHEN id = ? THEN stock + ?`).join(' ')}
-                            END
-                          WHERE id IN (${report.items.map(()=> '?').join(',')})`;
-        const skuValue = report.items.map(r =>[r.skuId,r.amount]).flat();
-        const ids = report.items.map(r => r.skuId)
-        const headerValues = [
-            report.providerId,
-            report.warehouseMen,
-        ];
-        return this.executeInTransaction(conn =>
-            this.executeQuery(query, headerValues)
-                .andThen(([headerResult, _]) => {
-                    const header = headerResult as ResultSetHeader;
-                    const insertId = header.insertId;
+            const skuQuery = `UPDATE sku SET stock = CASE
+                                ${report.items.map(r => `WHEN id = ? THEN stock + ?`).join(' ')}
+                                END
+                              WHERE id IN (${report.items.map(()=> '?').join(',')})`;
+            const skuValue = report.items.map(r =>[r.skuId,r.amount]).flat();
+            const ids = report.items.map(r => r.skuId)
 
-                    const detailValuesWithInsertId = report.items.map(item => [
-                        insertId,
-                        item.skuId,
-                        item.amount,
-                        item.costPrice,
-                        item.totalPrice,
-                    ]);
+            const spuToProviderMutation = `INSERT INTO spu_to_provider (spu_id, provider_id)
+                                            VALUES ${report.items.map(() => '(?, ?)').join(',')}
+                                            ON DUPLICATE KEY UPDATE
+                                            created_at=NOW()`;
+            const spuQuery = `SELECT spu_id, id AS sku_id
+                                FROM sku
+                                WHERE id IN (${report.items.map(() => '?').join(',')})
+                                `;
+            const headerValues = [
+                report.providerId,
+                report.warehouseMen,
+                report.totalPrice,
+            ];
+            return this.executeInTransaction(conn =>
+                this.executeQuery(query, headerValues)
+                    .andThen(([headerResult, _]) => {
+                        const header = headerResult as ResultSetHeader;
+                        const insertId = header.insertId;
+                        report.id = insertId
 
-                    return this.executeQuery(detailQuery, [detailValuesWithInsertId])
-                        .andThen(()=>
-                            this.executeQuery(skuQuery, [...skuValue,...ids])
-                        )
-                        .map(() => insertId);
-                })
-        );
+                        const detailValuesWithInsertId = report.items.map(item => [
+                            insertId,
+                            item.skuId,
+                            item.amount,
+                            item.costPrice,
+                            item.totalPrice,
+                        ]);
+
+                        return this.executeQuery(detailQuery, [detailValuesWithInsertId])
+                            .andThen(()=>
+                                this.executeQuery(skuQuery, [...skuValue,...ids])
+                            )
+                            .andThen(() =>
+                                this.executeQuery(spuQuery, ids)
+                                    .map(([spuResults,_]) => {
+                                        const results = spuResults as RowDataPacket[]
+                                        const spuProviderValues = results.map((row: any) => [
+                                            row.spu_id,
+                                            report.providerId,
+                                        ]).flat();
+                                        return this.executeQuery(spuToProviderMutation, spuProviderValues);
+                                    })
+                            )
+                            .map(() => insertId);
+                    })
+            );
     }
 }
