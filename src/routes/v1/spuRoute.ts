@@ -12,7 +12,7 @@ const spuRouter = (appContext: IAppContext) => {
     const router = express.Router();
     const SpuService = container.get<ISpuService>(TYPES.ISpuService)
     const spuApi = new SpuApi(SpuService);
-    //router.use(authentication())
+    router.use(authentication())
 
     router.get('/', spuApi.list())
     router.get('/:id', spuApi.getById())
