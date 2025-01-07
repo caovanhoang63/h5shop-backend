@@ -243,6 +243,7 @@ export class ReportMysqlRepo extends BaseMysqlRepo implements IReportRepo {
                         day: row.day,
                         revenue: parseFloat(row.total_revenue),
                         expenditure:  parseFloat(row.total_expenditure),
+                        profit: parseFloat(row.total_revenue)-parseFloat(row.total_expenditure)
                     } as  RevenueAndExpenditure
                 }))
             }
