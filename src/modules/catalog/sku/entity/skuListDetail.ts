@@ -12,6 +12,10 @@ export interface SkuListDetail{
     costPrice: number;
     price: number;
     stock: number;
+    timeWarranty: number;
+    timeReturn: number;
+    typeTimeWarranty: string;
+    typeTimeReturn: string;
     attributes: SkuAttrListDetail[]
     wholesalePrices: SkuWholesalePriceListDetail[];
 }

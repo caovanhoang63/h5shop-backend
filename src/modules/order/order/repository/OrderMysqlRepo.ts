@@ -9,6 +9,8 @@ import {SqlHelper} from "../../../../libs/sqlHelper";
 import {OrderDetail, OrderItemDetail} from "../entity/orderDetail";
 import {ICondition} from "../../../../libs/condition";
 import {Order} from "../entity/order";
+import {Paging} from "../../../../libs/paging";
+import {OrderFilter} from "../entity/orderFilter";
 
 export class OrderMysqlRepo extends BaseMysqlRepo implements IOrderRepository {
 
@@ -116,8 +118,9 @@ export class OrderMysqlRepo extends BaseMysqlRepo implements IOrderRepository {
         )
     }
 
-    list(cond: ICondition): ResultAsync<OrderDetail[], Err> {
+    list(cond: OrderFilter, page: Paging): ResultAsync<OrderDetail[], Err> {
         const [whereClause, values] = SqlHelper.buildWhereClause(cond,"o");
+        const pagingClause = SqlHelper.buildPaginationClause(page);
         const query = `
             SELECT
                 o.id,
@@ -135,58 +138,125 @@ export class OrderMysqlRepo extends BaseMysqlRepo implements IOrderRepository {
                 oi.description AS item_description,
                 oi.unit_price,
                 oi.created_at AS item_created_at
-            FROM \`order\` AS o
+            FROM \`order\` as o
                      LEFT JOIN order_item AS oi ON o.id = oi.order_id
+                    LEFT JOIN customer AS c ON o.customer_id = c.id
                 ${whereClause}
-            ORDER BY o.id ASC, oi.sku_id ASC;
+            ORDER BY o.id ASC, oi.sku_id ASC 
+                ${pagingClause};
         `;
-        return this.executeQuery(query, values).andThen(
+        const countQuery = `SELECT COUNT(id) as total FROM \`order\` as o ${whereClause}`;
+        return this.executeQuery(countQuery, values).andThen(
             ([r, f]) => {
-                const rows = r as RowDataPacket[];
-                const ordersMap = new Map<number, OrderDetail>();
+                const firstRow = (r as RowDataPacket[])[0];
+                if (!firstRow) {
+                    return okAsync({total: 0});
+                }
+                page.total = firstRow.total;
+                return okAsync({total: firstRow.total});
+            }
+        ).andThen(
+            (r) => {
+                if (r.total === 0) {
+                    return okAsync([]);
+                } else {
+                    return this.executeQuery(query, values).andThen(
+                        ([r, f]) => {
+                            const rows = r as RowDataPacket[];
+                            const ordersMap = new Map<number, OrderDetail>();
 
-                rows.forEach((row) => {
-                    const camelRow = SqlHelper.toCamelCase(row);
+                            rows.forEach((row) => {
+                                const camelRow = SqlHelper.toCamelCase(row);
 
-                    // Check if the order already exists in the map
-                    if (!ordersMap.has(camelRow.id)) {
-                        ordersMap.set(camelRow.id, {
-                            id: camelRow.id,
-                            customerId: camelRow.customerId,
-                            sellerId: camelRow.sellerId,
-                            status: camelRow.status,
-                            orderType: camelRow.orderType,
-                            description: camelRow.description,
-                            createdAt: camelRow.orderCreatedAt,
-                            updatedAt: camelRow.orderUpdatedAt,
-                            totalAmount: camelRow.totalAmount,
-                            discountAmount: camelRow.discountAmount,
-                            finalAmount: camelRow.finalAmount,
-                            pointUsed: camelRow.pointUsed,
-                            items: [], // Initialize the items array
-                        });
-                    }
+                                // Check if the order already exists in the map
+                                if (!ordersMap.has(camelRow.id)) {
+                                    ordersMap.set(camelRow.id, {
+                                        id: camelRow.id,
+                                        customerId: camelRow.customerId,
+                                        sellerId: camelRow.sellerId,
+                                        status: camelRow.status,
+                                        orderType: camelRow.orderType,
+                                        description: camelRow.description,
+                                        createdAt: camelRow.orderCreatedAt,
+                                        updatedAt: camelRow.orderUpdatedAt,
+                                        totalAmount: camelRow.totalAmount,
+                                        discountAmount: camelRow.discountAmount,
+                                        finalAmount: camelRow.finalAmount,
+                                        pointUsed: camelRow.pointUsed,
+                                        items: [], // Initialize the items array
+                                    });
+                                }
 
-                    // Add the order item to the corresponding order
-                    if (camelRow.skuId) {
-                        const order = ordersMap.get(camelRow.id);
-                        order?.items.push({
-                            orderId: camelRow.id,
-                            skuId: camelRow.skuId,
-                            amount: camelRow.amount,
-                            unitPrice: camelRow.unitPrice,
-                            description: camelRow.itemDescription,
-                            createdAt: camelRow.itemCreatedAt,
-                        });
-                    }
-                });
+                                // Add the order item to the corresponding order
+                                if (camelRow.skuId) {
+                                    const order = ordersMap.get(camelRow.id);
+                                    order?.items.push({
+                                        orderId: camelRow.id,
+                                        skuId: camelRow.skuId,
+                                        amount: camelRow.amount,
+                                        unitPrice: camelRow.unitPrice,
+                                        description: camelRow.itemDescription,
+                                        createdAt: camelRow.itemCreatedAt,
+                                    });
+                                }
+                            });
 
-                // Convert the map to an array of unique orders
-                const uniqueOrders = Array.from(ordersMap.values());
+                            // Convert the map to an array of unique orders
+                            const uniqueOrders = Array.from(ordersMap.values());
 
-                return okAsync(uniqueOrders);
-            })
-            .orElse((error) => errAsync(error));
+                            return okAsync(uniqueOrders);
+                        }
+                    )
+                }
+            });
+        // return this.executeQuery(query, values)
+        //     .andThen(
+        //     ([r, f]) => {
+        //         const rows = r as RowDataPacket[];
+        //         const ordersMap = new Map<number, OrderDetail>();
+        //
+        //         rows.forEach((row) => {
+        //             const camelRow = SqlHelper.toCamelCase(row);
+        //
+        //             // Check if the order already exists in the map
+        //             if (!ordersMap.has(camelRow.id)) {
+        //                 ordersMap.set(camelRow.id, {
+        //                     id: camelRow.id,
+        //                     customerId: camelRow.customerId,
+        //                     sellerId: camelRow.sellerId,
+        //                     status: camelRow.status,
+        //                     orderType: camelRow.orderType,
+        //                     description: camelRow.description,
+        //                     createdAt: camelRow.orderCreatedAt,
+        //                     updatedAt: camelRow.orderUpdatedAt,
+        //                     totalAmount: camelRow.totalAmount,
+        //                     discountAmount: camelRow.discountAmount,
+        //                     finalAmount: camelRow.finalAmount,
+        //                     pointUsed: camelRow.pointUsed,
+        //                     items: [], // Initialize the items array
+        //                 });
+        //             }
+        //
+        //             // Add the order item to the corresponding order
+        //             if (camelRow.skuId) {
+        //                 const order = ordersMap.get(camelRow.id);
+        //                 order?.items.push({
+        //                     orderId: camelRow.id,
+        //                     skuId: camelRow.skuId,
+        //                     amount: camelRow.amount,
+        //                     unitPrice: camelRow.unitPrice,
+        //                     description: camelRow.itemDescription,
+        //                     createdAt: camelRow.itemCreatedAt,
+        //                 });
+        //             }
+        //         });
+        //
+        //         // Convert the map to an array of unique orders
+        //         const uniqueOrders = Array.from(ordersMap.values());
+        //
+        //         return okAsync(uniqueOrders);
+        //     })
+        //     .orElse((error) => errAsync(error));
     }
     payOrder(order: OrderDetail): ResultAsync<void, Err> {
         const orderQuery = `UPDATE \`order\` SET
