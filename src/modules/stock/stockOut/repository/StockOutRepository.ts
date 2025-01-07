@@ -149,13 +149,16 @@ export class StockOutRepository extends BaseMysqlRepo implements IStockOutReposi
                     groupedResults.updatedAt = camelRow.updatedAt || groupedResults.updatedAt;
 
                     groupedResults.items.push({
-                        skuId: row.skuId,
-                        name: row.spuName,
-                        amount: row.amount,
-                        price: row.costPrice
+                        skuId: camelRow.skuId,
+                        name: camelRow.spuName,
+                        amount: camelRow.amount,
+                        price: camelRow.costPrice
                     });
                 })
+
+                console.log(groupedResults)
                 return ok(groupedResults);
+
             }
         );
     }

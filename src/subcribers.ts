@@ -55,6 +55,7 @@ subscriberEngine.subscribe(topicCreateCustomer, audit.onCreate("customer"));
 subscriberEngine.subscribe(topicUpdateCustomer, audit.onUpdate("customer"));
 subscriberEngine.subscribe(topicDeleteCustomer, audit.onDelete("customer"));
 
+subscriberEngine.subscribe(topicCreateInventory, audit.onCreate("inventory"));
 subscriberEngine.subscribe(topicCreateStockIn, sku.onUpdate())
 
 export default subscriberEngine
