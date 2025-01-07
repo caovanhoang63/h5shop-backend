@@ -8,16 +8,18 @@ import {IWarrantyService} from "./IWarrantyService";
 import {inject, injectable} from "inversify";
 import {TYPES} from "../../../types";
 import {IWarrantyRepo} from "../repo/IWarrantyRepo";
-import {IPubSub} from "../../../components/pubsub";
+import {createMessage, IPubSub} from "../../../components/pubsub";
 import {ISkuRepository} from "../../catalog/sku/repository/ISkuRepository";
 import {IOrderRepository} from "../../order/order/repository/IOrderRepository";
 import {Validator} from "../../../libs/validator";
 import {createEntityNotFoundError, createInternalError, createInvalidRequestError} from "../../../libs/errors";
+import {brandUpdateScheme} from "../../catalog/brand/entity/brandUpdate";
+import {topicCreateWarrantyForm, topicUpdateBrand, topicUpdateWarrantyForm} from "../../../libs/topics";
 
 
 export class WarrantyService implements IWarrantyService {
     constructor(@inject(TYPES.IWarrantyRepository) private readonly warrantyRepo : IWarrantyRepo,
-                @inject(TYPES.IPubSub) private readonly pubsub: IPubSub,
+                @inject(TYPES.IPubSub) private readonly pubSub: IPubSub,
                 @inject(TYPES.IOrderRepository) private readonly orderRepository: IOrderRepository,
                 @inject(TYPES.ISkuRepository) private readonly skuRepository: ISkuRepository,) {
     }
@@ -27,10 +29,6 @@ export class WarrantyService implements IWarrantyService {
             const validate = await Validator(warrantyCreateSchema, create);
             if (validate.isErr()) {
                 return err(validate.error)
-            }
-            const order = await this.orderRepository.findById(create.orderId);
-            if (order.isErr()) {
-                return err(createInternalError(order.error))
             }
 
             const sku = await this.skuRepository.findById(create.skuId);
@@ -43,9 +41,46 @@ export class WarrantyService implements IWarrantyService {
                 return err(createInternalError(r));
             }
 
+            this.pubSub.Publish(topicCreateWarrantyForm,createMessage({
+                id: r.value,
+                old: null,
+                new: create
+            },requester))
+
             return ok(undefined);
         })(), e => createInternalError(e)).andThen(r=>r)
     }
+
+    update(requester: IRequester, id: number, c: WarrantyFormCreate): ResultAsync<void, Error> {
+        return ResultAsync.fromPromise(
+            (async () => {
+                const vr = await Validator(warrantyCreateSchema,c)
+                if (vr.isErr())
+                    return err(vr.error)
+
+                const old = await this.warrantyRepo.findById(id)
+
+                if (old.isErr())
+                    return err(old.error)
+
+                if (!old.value)
+                    return err(createEntityNotFoundError("Warranty Form"))
+
+                const result = await this.warrantyRepo.update(id,c)
+                if (result.isErr())
+                    return err(result.error)
+
+                this.pubSub.Publish(topicUpdateWarrantyForm,createMessage({
+                    id: id,
+                    old: old.value,
+                    new: c
+                },requester))
+
+                return ok(undefined)
+            })(), e => createInternalError(e)
+        ).andThen(r=> r)
+    }
+
     findById(id: number): ResultAsync<WarrantyForm, Error> {
         return ResultAsync.fromPromise((async () => {
             const r=  await this.warrantyRepo.findById(id)

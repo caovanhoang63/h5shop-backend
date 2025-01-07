@@ -97,6 +97,7 @@ export class SpuMysqlRepo extends BaseMysqlRepo implements ISpuRepository {
                 ${cond.categoryId ? 'AND category_to_spu.category_id = ?' : ''}
                 ${cond.name ? 'AND spu.name LIKE concat(?, \'%\')' : ''}
                 ${cond.status != undefined ? `AND spu.status = ${cond.status}` : ''}
+                AND spu.status = 1
             ORDER BY spu.id DESC
                 ${pagingClause}
             

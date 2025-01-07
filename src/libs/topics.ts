@@ -38,3 +38,6 @@ export const topicCreateCustomer = "TopicCreateCustomer";
 export const topicUpdateCustomer = "TopicUpdateCustomer";
 export const topicDeleteCustomer = "TopicDeleteCustomer";
 
+export const topicCreateWarrantyForm = "TopicCreateWarrantyForm";
+
+export const topicUpdateWarrantyForm = "TopicUpdateWarrantyForm";
