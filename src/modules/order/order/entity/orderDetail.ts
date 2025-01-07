@@ -3,7 +3,9 @@ import {SkuListDetail} from "../../../catalog/sku/entity/skuListDetail";
 
 export interface OrderDetail {
     id: number;
-    customerId: number;
+    customerId?: number;
+    customerName?: string;
+    customerPhone?: string;
     sellerId: number;
     status: number;
     orderType: OrderType;

@@ -20,6 +20,8 @@ import {MONEY_TO_POINT_KEY, POINT_TO_DISCOUNT_KEY} from "../../../../libs/settin
 import { Customer } from "../../../customer/entity/customer";
 import { ISkuService } from "../../../catalog/sku/service/ISkuService";
 import {FilterSkuGetWholeSale} from "../../../catalog/sku/entity/skuGetWholeSale";
+import {Paging} from "../../../../libs/paging";
+import {OrderFilter} from "../entity/orderFilter";
 
 @injectable()
 export class OrderService implements IOrderService {
@@ -72,6 +74,12 @@ export class OrderService implements IOrderService {
                 }
 
                 // Check if customer exists
+                if (o.customerId) {
+                    const customerR = await this.customerRepository.findById(o.customerId);
+                    if (customerR.isErr()) {return errAsync(createInternalError(customerR.error))}
+
+                    if (!customerR.value) {return errAsync(createInvalidDataError(new Error("Invalid customer")))}
+                }
 
                 const r = await this.orderRepository.update(id, o);
                 if (r.isErr()) {
@@ -96,7 +104,7 @@ export class OrderService implements IOrderService {
         ).andThen(r => r)
     }
 
-    findById = (id: number): ResultAsync<Order | null, Err> => {
+    findById = (id: number): ResultAsync<OrderDetail | null, Err> => {
         return ResultAsync.fromPromise(
             (async () => {
                 const r = await this.orderRepository.findById(id);
@@ -104,13 +112,45 @@ export class OrderService implements IOrderService {
                     return err(r.error);
                 }
 
+                const order = r.value!;
+
+                // Map customer if has
+                if (order.customerId) {
+                    const customerR = await this.customerRepository.findById(order.customerId);
+
+                    if (!customerR.isErr() && customerR.value) {
+                        const lastName = customerR.value.lastName ? customerR.value.lastName : "";
+                        const firstName = customerR.value.firstName ? customerR.value.firstName : "";
+                        order.customerName = lastName + " " + firstName;
+                        order.customerPhone = customerR.value?.phoneNumber;
+                    }
+                }
+
+                // Map sku detail
+                await Promise.all(
+                    order.items.map(async (item) => {
+                        const skuDetailResult = await this.skuRepository.getDetailById(item.skuId);
+                        if (skuDetailResult.isErr()) {
+                            throw skuDetailResult.error; // Throw to be caught by ResultAsync
+                        }
+                        item.skuDetail = skuDetailResult.value ? skuDetailResult.value : undefined;
+                        if (item.skuDetail) {
+                            const nameSpu = item.skuDetail.spuName;
+                            const skuTierIdxByAttribute = item.skuDetail.skuTierIdx?.map((skuTierIdx, index) => {
+                                return item.skuDetail?.attributes[index]?.value[skuTierIdx];
+                            });
+                            item.skuDetail.name = `${nameSpu} ${skuTierIdxByAttribute?.join(' ')??""}`;
+                        }
+                    })
+                );
+
                 return ok(r.value);
             })(), e => createInternalError(e)
         ).andThen(r => r)
     }
 
 
-    payOrder(requester: IRequester, id: number,payOrder :PayOrder): ResultAsync<void, Err> {
+    payOrder(requester: IRequester, id: number,payOrder :PayOrder): ResultAsync<OrderDetail, Err> {
         return ResultAsync.fromPromise(
             (async () => {
                 const orderR =await this.orderRepository.findById(id)
@@ -206,18 +246,54 @@ export class OrderService implements IOrderService {
                 if (r.isErr()) {
                     return err(r.error)
                 }
+
+                // Map customer name and number
+                if (customer) {
+                    order.customerName = customer.lastName + " " + customer.firstName;
+                    order.customerPhone = customer.phoneNumber;
+                }
+
+                // Map customer if has
+                if (order.customerId) {
+                    const customerR = await this.customerRepository.findById(order.customerId);
+
+                    if (!customerR.isErr() && customerR.value) {
+                        const lastName = customerR.value.lastName ? customerR.value.lastName : "";
+                        const firstName = customerR.value.firstName ? customerR.value.firstName : "";
+                        order.customerName = lastName + " " + firstName;
+                        order.customerPhone = customerR.value?.phoneNumber;
+                    }
+                }
+
+                // Map sku detail
+                await Promise.all(
+                    order.items.map(async (item) => {
+                        const skuDetailResult = await this.skuRepository.getDetailById(item.skuId);
+                        if (skuDetailResult.isErr()) {
+                            throw skuDetailResult.error; // Throw to be caught by ResultAsync
+                        }
+                        item.skuDetail = skuDetailResult.value ? skuDetailResult.value : undefined;
+                        if (item.skuDetail) {
+                            const nameSpu = item.skuDetail.spuName;
+                            const skuTierIdxByAttribute = item.skuDetail.skuTierIdx?.map((skuTierIdx, index) => {
+                                return item.skuDetail?.attributes[index]?.value[skuTierIdx];
+                            });
+                            item.skuDetail.name = `${nameSpu} ${skuTierIdxByAttribute?.join(' ')??""}`;
+                        }
+                    })
+                );
                 this.pubSub.Publish(topicPayOrder, createMessage(order,requester))
 
-                return ok(undefined)
+                return ok(order)
 
         })(), e => createInternalError(e)).andThen(r=>r)
     }
 
 
-    list = (cond: ICondition): ResultAsync<OrderDetail[], Err> => {
+    list(cond: OrderFilter, page: Paging): ResultAsync<OrderDetail[], Err> {
         return ResultAsync.fromPromise(
             (async () => {
-                const r = await this.orderRepository.list(cond);
+                const r = await this.orderRepository.list(cond, page);
                 if (r.isErr()) {
                     return err(r.error);
                 }
