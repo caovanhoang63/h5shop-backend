@@ -13,7 +13,7 @@ const categoryRouter = (appContext: IAppContext) => {
     const categoryService = container.get<ICategoryService>(TYPES.ICategoryService)
     const categoryApi = new CategoryApi(categoryService);
 
-    //router.use(authentication())
+    router.use(authentication())
 
     router.get('/', categoryApi.list())
     router.get('/tree', categoryApi.getListTree())
