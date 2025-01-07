@@ -16,7 +16,6 @@ const userRouter = (appContext: IAppContext) => {
     router.use(authentication())
     router.get("/profile",userApi.getProfile())
     router.use(requiredRole(appContext, SystemRole.Admin, SystemRole.Owner))
-    router.post('/', userApi.CreateNewUser)
     router.get('/', userApi.ListUsers)
     return router
 }

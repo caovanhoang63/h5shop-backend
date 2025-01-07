@@ -14,17 +14,7 @@ export class UserApi {
         this.userBiz = biz;
     }
 
-    public CreateNewUser: express.Handler = async (req, res, next) => {
-        const data: UserCreate = {
-            firstName: "caovanhoang", lastName: "123", systemRole: SystemRole.Admin, userName: "123"
-        };
-        const result = await this.userBiz.createNewUser(data);
-        if (result.isErr()) {
-            writeErrorResponse(res, result.error)
-            return
-        }
-        res.send(AppResponse.SimpleResponse(true))
-    }
+
     public ListUsers: express.Handler = async (req, res, next) => {
         const paging = ReqHelper.getPaging(req.query);
         const cond = {}

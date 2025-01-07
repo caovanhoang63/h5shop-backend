@@ -40,14 +40,11 @@ export class AuthService implements IAuthService {
     public register = (requester: IRequester, u: AuthCreate): ResultAsync<void, Err> => {
         return ResultAsync.fromPromise(
             (async () => {
-
                 // Validate
                 const vR = await Validator(authCreateSchema, u);
                 if (vR.isErr()) {
                     return errAsync(vR.error);
                 }
-
-
                 // Check if username exists
                 const old = await this.authRepo.FindByUserName(u.userName);
                 if (old.isErr()) {
@@ -56,8 +53,12 @@ export class AuthService implements IAuthService {
                 if (old.value) {
                     return errAsync(ErrUserNameAlreadyExists(u.userName));
                 }
-
                 const create: UserCreate = {
+                    address: u.address,
+                    dateOfBirth: u.dateOfBirth,
+                    email: u.email,
+                    gender: u.gender,
+                    phoneNumber: u.phoneNumber,
                     firstName: u.firstName,
                     lastName: u.lastName,
                     systemRole: u.systemRole,
@@ -65,11 +66,9 @@ export class AuthService implements IAuthService {
                 }
                 // Create new user
                 const createUserR = await this.userRepo.create(create);
-
                 if (createUserR.isErr()) {
                     return errAsync(createUserR.error);
                 }
-
                 // Prepare user data for auth
                 u.userId = create.id!;
                 u.salt = randomSalt(50);

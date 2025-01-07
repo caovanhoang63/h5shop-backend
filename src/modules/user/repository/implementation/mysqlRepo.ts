@@ -13,11 +13,13 @@ import {BaseMysqlRepo} from "../../../../components/mysql/BaseMysqlRepo";
 export class UserMysqlRepo extends BaseMysqlRepo implements IUserRepository {
 
     public create = (u: UserCreate): ResultAsync<void, Err> => {
-        const query = `INSERT INTO user (user_name, first_name, last_name, system_role)
-                       VALUES (?, ?, ?, ?) `;
+        const query = `
+            INSERT INTO user ( user_name, first_name, last_name, system_role,phone_number, email, address, date_of_birth)
+            VALUES (?,?,?,?,?,?,?,?)
+                       `;
 
         return this.executeQuery(query,
-            [u.userName, u.firstName, u.lastName, u.systemRole.toString()],
+            [u.userName, u.firstName, u.lastName, u.systemRole.toString(),u.phoneNumber,u.email,u.address,u.dateOfBirth],
         ).andThen(
             ([r, f]) => {
                 const header = r as ResultSetHeader
@@ -60,12 +62,7 @@ export class UserMysqlRepo extends BaseMysqlRepo implements IUserRepository {
         return this.executeQuery(query, values).andThen(
                 ([r, f]) => {
                     const rows = r as RowDataPacket[]
-                    const data: User[] = []
-                    if (rows && rows.length > 0) {
-                        data.push(SqlHelper.toCamelCase(rows[0]) as User);
-                        paging.total = rows.length;
-                    }
-                    return ok(data)
+                    return ok(rows.map(row => SqlHelper.toCamelCase(row)))
                 })
     }
 }
