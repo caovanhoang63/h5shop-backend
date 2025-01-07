@@ -7,6 +7,7 @@ import {AppResponse} from "../../../../libs/response";
 import {createInvalidDataError} from "../../../../libs/errors";
 import {OrderUpdate} from "../entity/orderUpdate";
 import {PayOrder} from "../entity/order";
+import {OrderFilter} from "../entity/orderFilter";
 
 export class OrderApi {
     constructor(private readonly userService: IOrderService) {}
@@ -98,12 +99,19 @@ export class OrderApi {
 
     list(): express.Handler {
         return async (req, res, next) => {
-            const cond = req.query as any;
-            const r = await this.userService.list(cond)
+            const filter = {
+                status: req.query.status,
+                gtCreatedAt : req.query.gtCreatedAt,
+                ltCreatedAt : req.query.ltCreatedAt,
+                gtUpdatedAt : req.query.gtUpdatedAt,
+                ltUpdatedAt : req.query.ltUpdatedAt
+            } as OrderFilter
+            const paging = ReqHelper.getPaging(req.query);
+            const r = await this.userService.list(filter, paging)
 
             r.match(
                 value => {
-                    res.status(200).send(AppResponse.SimpleResponse(value))
+                    res.status(200).send(AppResponse.SuccessResponse(value, paging, filter))
                 },
                 e => {
                     writeErrorResponse(res, e)

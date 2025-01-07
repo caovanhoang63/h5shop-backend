@@ -20,6 +20,8 @@ import {MONEY_TO_POINT_KEY, POINT_TO_DISCOUNT_KEY} from "../../../../libs/settin
 import { Customer } from "../../../customer/entity/customer";
 import { ISkuService } from "../../../catalog/sku/service/ISkuService";
 import {FilterSkuGetWholeSale} from "../../../catalog/sku/entity/skuGetWholeSale";
+import {Paging} from "../../../../libs/paging";
+import {OrderFilter} from "../entity/orderFilter";
 
 @injectable()
 export class OrderService implements IOrderService {
@@ -288,10 +290,10 @@ export class OrderService implements IOrderService {
     }
 
 
-    list = (cond: ICondition): ResultAsync<OrderDetail[], Err> => {
+    list(cond: OrderFilter, page: Paging): ResultAsync<OrderDetail[], Err> {
         return ResultAsync.fromPromise(
             (async () => {
-                const r = await this.orderRepository.list(cond);
+                const r = await this.orderRepository.list(cond, page);
                 if (r.isErr()) {
                     return err(r.error);
                 }
