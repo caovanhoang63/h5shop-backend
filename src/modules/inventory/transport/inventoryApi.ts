@@ -98,19 +98,17 @@ export class InventoryReportApi {
     list(): express.Handler {
         return async (req, res, next) => {
             const paging = ReqHelper.getPaging(req.query);
-            const value = inventoryReportFilterSchema.validate(req.query, { stripUnknown: true });
-
-            if (value.error) {
-                writeErrorResponse(res, createInvalidDataError(value.error));
+            const valueValidate = inventoryReportFilterSchema.validate(req.query, { stripUnknown: true });
+            console.log(valueValidate)
+            if (valueValidate.error) {
+                writeErrorResponse(res, createInvalidDataError(valueValidate.error));
                 return;
             }
-            const filter = req.query;
-            console.log(filter)
-            const r = await this.service.list(filter, paging);
+            const r = await this.service.list(valueValidate.value, paging);
 
             r.match(
                 value => {
-                    res.status(200).send(AppResponse.SuccessResponse(value, paging, filter));
+                    res.status(200).send(AppResponse.SuccessResponse(value, paging, valueValidate));
                 },
                 e => {
                     writeErrorResponse(res, e);
