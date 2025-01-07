@@ -35,5 +35,17 @@ export class UserApi {
         }
         res.send(AppResponse.SuccessResponse(result.value, paging, cond))
     }
-
+    getProfile(): express.Handler {
+        return async  (req, res) => {
+            const requester = ReqHelper.getRequester(res);
+            (await this.userBiz.getProfile(requester)).match(
+                r=> {
+                    res.status(200).send(AppResponse.SimpleResponse(r))
+                },
+                e=> {
+                    writeErrorResponse(res, e);
+                }
+            )
+        }
+    }
 }

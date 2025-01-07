@@ -1,7 +1,7 @@
 import {UserCreate, userCreateSchema} from "../entity/userCreate";
-import {createEntityNotFoundError, createForbiddenError, Err,} from "../../../libs/errors";
+import {createEntityNotFoundError, createForbiddenError, createInternalError, Err,} from "../../../libs/errors";
 import {Paging} from "../../../libs/paging";
-import {SystemRole} from "../entity/user";
+import {SystemRole, User} from "../entity/user";
 import {Validator} from "../../../libs/validator";
 import {IRequester} from "../../../libs/IRequester";
 import {err, ok, ResultAsync} from "neverthrow";
@@ -15,6 +15,7 @@ import {TYPES} from "../../../types";
 export class UserService implements IUserService {
     constructor(@inject(TYPES.IUserRepository) private readonly userRepository: IUserRepository) {
     }
+
 
     public createNewUser = (u: UserCreate): ResultAsync<void, Err> => {
         return ResultAsync.fromPromise(
@@ -59,6 +60,23 @@ export class UserService implements IUserService {
                 return ok(undefined);
             })(), e => e as Err
         ).andThen(r => r)
+    }
+    getProfile(requester: IRequester): ResultAsync<User | null, Err> {
+        return ResultAsync.fromPromise(
+            (async () => {
+                if (!requester || !requester.userId) {
+                    return err(createForbiddenError())
+                }
+
+                const r = await  this.userRepository.findByUserId(requester.userId)
+                if (r.isErr()) {
+                    return err(createEntityNotFoundError("user"))
+                }
+                return ok(r.value)
+            })(),
+            e => createInternalError(e)
+        ).andThen(r=>r)
+
     }
 
     hardDeleteById(id: number): ResultAsync<void, Err> {
