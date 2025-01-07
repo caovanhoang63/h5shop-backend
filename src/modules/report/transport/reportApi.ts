@@ -154,5 +154,22 @@ export class ReportApi {
             );
         };
     }
-
+    revenueAndExpenditure() : express.Handler {
+        return async (req :express.Request, res : express.Response) => {
+            const { error, value } = schema.validate(req.query, { abortEarly: false });
+            if (error) {
+                writeErrorResponse(res, createInvalidRequestError(error));
+                return
+            }
+            const { startDate, endDate} = value;
+            ( await this.reportService.revenueAndExpenditure(new Date(startDate), new Date(endDate))).match(
+                (r) => {
+                    res.status(200).send(AppResponse.SimpleResponse(r));
+                },
+                (e) => {
+                    writeErrorResponse(res, e);
+                }
+            );
+        };
+    }
 }

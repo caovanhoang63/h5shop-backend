@@ -11,10 +11,15 @@ import {SkuWarningStock} from "../../catalog/sku/entity/skuWarningStock";
 import {ISkuRepository} from "../../catalog/sku/repository/ISkuRepository";
 import {SkuStock} from "../entity/skuStock";
 import { Category } from "../entity/category";
+import { RevenueAndExpenditure } from "../entity/revenueAndExpenditure";
 
 @injectable()
 export class ReportService implements IReportService {
     constructor(@inject(TYPES.IReportRepository) private readonly reportRepo: IReportRepo) {
+    }
+
+    revenueAndExpenditure(startDate: Date, endDate: Date): ResultAsync<RevenueAndExpenditure[], Error> {
+        return this.reportRepo.revenueAndExpenditure(startDate, endDate);
     }
 
     category(startDate: Date, endDate: Date): ResultAsync<Category[], Error> {

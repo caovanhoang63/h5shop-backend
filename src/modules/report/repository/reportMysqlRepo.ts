@@ -9,6 +9,7 @@ import {Sale} from "../entity/sale";
 import {SqlHelper} from "../../../libs/sqlHelper";
 import {SkuStock} from "../entity/skuStock";
 import { Category } from "../entity/category";
+import { RevenueAndExpenditure } from "../entity/revenueAndExpenditure";
 
 @injectable()
 export class ReportMysqlRepo extends BaseMysqlRepo implements IReportRepo {
@@ -198,4 +199,54 @@ export class ReportMysqlRepo extends BaseMysqlRepo implements IReportRepo {
             }
         )
     }
+    revenueAndExpenditure(startDate: Date, endDate: Date): ResultAsync<RevenueAndExpenditure[], Error> {
+        const query = `
+            SELECT
+                day,
+                SUM(revenue) as total_revenue,
+                SUM(expenditure) as total_expenditure
+            FROM (
+                     SELECT
+                         DATE(o.created_at) as day,
+                         SUM(o.final_amount) as revenue,
+                         0 as expenditure
+                     FROM \`order\` o
+                     WHERE o.status = 2
+                       AND DATE(o.created_at) BETWEEN ? AND ?
+                     GROUP BY DATE(o.created_at)
+                     UNION ALL
+                     SELECT
+                         DATE(st.created_at) as day,
+                         0 as revenue,
+                         SUM(st.total_price) as expenditure
+                     FROM stock_in st
+                     WHERE DATE(st.created_at) BETWEEN ? AND ?
+                     GROUP BY DATE(st.created_at)
+                     UNION ALL
+                     SELECT
+                         DATE(so.created_at) as day,
+                         SUM(CASE WHEN r.stock_out_type = 'thu' THEN so.total_price ELSE 0 END ) as revenue,
+                         SUM(CASE WHEN r.stock_out_type = 'chi' THEN so.total_price ELSE 0 END ) as expenditure
+                     FROM stock_out so JOIN stock_out_reason r ON so.stock_out_reason_id = r.id
+                     WHERE DATE(so.created_at) BETWEEN ? AND ?
+                     GROUP BY DATE(so.created_at)
+            ) as combined_data
+            GROUP BY day
+            ORDER BY day;
+        `
+        return this.executeQuery(query,[startDate,endDate,startDate,endDate,startDate,endDate]).andThen(
+            ([r,f]) => {
+                const rows = r as RowDataPacket[]
+                console.log(rows)
+                return ok(rows.map(row => {
+                    return {
+                        day: row.day,
+                        revenue: parseFloat(row.total_revenue),
+                        expenditure:  parseFloat(row.total_expenditure),
+                    } as  RevenueAndExpenditure
+                }))
+            }
+        )
+    }
+
 }
