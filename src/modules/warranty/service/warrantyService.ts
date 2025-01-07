@@ -1,7 +1,7 @@
 import {err, ok, ResultAsync} from "neverthrow";
 import { IRequester } from "../../../libs/IRequester";
 import { Paging } from "../../../libs/paging";
-import { WarrantyFilter } from "../entity/filter";
+import {WarrantyFilter, warrantyFilterSchema} from "../entity/filter";
 import { WarrantyForm } from "../entity/warrantyForm";
 import {warrantyCreateSchema, WarrantyFormCreate} from "../entity/warrantyFormCreate";
 import {IWarrantyService} from "./IWarrantyService";
@@ -62,7 +62,12 @@ export class WarrantyService implements IWarrantyService {
     }
     findMany(filter: WarrantyFilter, paging: Paging): ResultAsync<WarrantyForm[], Error> {
         return ResultAsync.fromPromise((async () => {
-            const r=  await this.warrantyRepo.findMany(filter,paging)
+            const newFilter = warrantyFilterSchema.validate(filter, { stripUnknown: true });
+            if(newFilter.error) {
+                return err(createInvalidRequestError(newFilter.error))
+            }
+
+            const r=  await this.warrantyRepo.findMany(newFilter.value,paging)
             if (r.isErr()) {
                 return err(createInternalError(r.error))
             }
