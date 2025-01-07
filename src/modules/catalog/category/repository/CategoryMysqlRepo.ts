@@ -55,7 +55,7 @@ export class CategoryMysqlRepo extends BaseMysqlRepo implements ICategoryReposit
         console.log( Date.now() - time)
         const pagingClause = SqlHelper.buildPaginationClause(paging)
         const countQuery = `SELECT COUNT(*) as total FROM category ${clause}`;
-        const query = `SELECT * FROM category ${clause} ${pagingClause}`;
+        const query = `SELECT * FROM category ${clause} AND status = 1 ${pagingClause}`;
         return this.executeQuery(countQuery,values).andThen(
             ([r,f]) => {
                 const firstRow = (r as RowDataPacket[])[0];

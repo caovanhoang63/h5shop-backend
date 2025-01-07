@@ -10,7 +10,7 @@ const skuWholesalePriceRoute = (appContext: IAppContext) => {
     const router = express.Router();
     const SkuWholesalePriceService = container.get<ISkuWholesalePriceService>(TYPES.ISkuWholesalePriceService)
     const skuWholeSalePriceApi = new SkuWholesalePriceApi(SkuWholesalePriceService);
-    //router.use(authentication())
+    router.use(authentication())
 
     router.get('/', skuWholeSalePriceApi.list())
     router.get('/:id', skuWholeSalePriceApi.getById())

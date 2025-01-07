@@ -9,4 +9,5 @@ export interface IWarrantyRepo {
     create(create : WarrantyFormCreate): ResultAsync<void,Error>
     findById(id : number): ResultAsync<WarrantyForm | null, Error>
     findMany(filter: WarrantyFilter, paging :Paging) : ResultAsync<WarrantyForm[], Error>
+    update(id: number, update: WarrantyFormCreate): ResultAsync<void, Error>
 }

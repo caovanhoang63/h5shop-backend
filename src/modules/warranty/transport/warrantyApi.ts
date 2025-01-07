@@ -8,6 +8,7 @@ import {writeErrorResponse} from "../../../libs/writeErrorResponse";
 import {ReqHelper} from "../../../libs/reqHelper";
 import {WarrantyFilter} from "../entity/filter";
 import {WarrantyFormCreate} from "../entity/warrantyFormCreate";
+import {BrandUpdate} from "../../catalog/brand/entity/brandUpdate";
 
 @injectable()
 export class WarrantyApi {
@@ -37,10 +38,11 @@ export class WarrantyApi {
             const filter  = {
                 status : req.query.status,
                 lkCustomerPhoneNumber : req.query.lkCustomerPhoneNumber,
+                warrantyType : req.query.warrantyType,
                 gtCreatedAt : req.query.gtCreatedAt,
                 ltCreatedAt : req.query.ltCreatedAt,
                 gtUpdatedAt : req.query.gtUpdatedAt,
-                ltUpdatedAt : req.query.ltUpdatedAt
+                ltUpdatedAt : req.query.ltUpdatedAt,
             } as WarrantyFilter;
 
             const paging = ReqHelper.getPaging(req.query)
@@ -62,6 +64,30 @@ export class WarrantyApi {
             const body = req.body as WarrantyFormCreate;
             const requester = ReqHelper.getRequester(res)
             const r = await this.warrantyService.create(requester,body)
+            r.match(
+                value => {
+                    res.status(200).send(AppResponse.SimpleResponse(true))
+                },
+                e => {
+                    writeErrorResponse(res,e)
+                }
+            )
+        }
+    }
+
+    update() : express.Handler {
+        return async (req, res, next) => {
+            const body = req.body as WarrantyFormCreate;
+            const id = parseInt(req.params.id);
+
+            if(!id){
+                res.status(400).send(AppResponse.ErrorResponse(createInvalidDataError(new Error("id must a number"))))
+                return
+            }
+
+            const requester = ReqHelper.getRequester(res)
+            const r = await this.warrantyService.update(requester,id,body)
+
             r.match(
                 value => {
                     res.status(200).send(AppResponse.SimpleResponse(true))

@@ -8,6 +8,9 @@ import {injectable} from "inversify";
 import {BaseMysqlRepo} from "../../../components/mysql/BaseMysqlRepo";
 import {ResultSetHeader, RowDataPacket} from "mysql2";
 import {SqlHelper} from "../../../libs/sqlHelper";
+import {SkuListDetail} from "../../catalog/sku/entity/skuListDetail";
+import {BrandUpdate} from "../../catalog/brand/entity/brandUpdate";
+import {Err} from "../../../libs/errors";
 
 @injectable()
 export class WarrantyMysqlRepo extends BaseMysqlRepo implements IWarrantyRepo {
@@ -24,6 +27,18 @@ export class WarrantyMysqlRepo extends BaseMysqlRepo implements IWarrantyRepo {
             }
         )
     }
+
+    update(id: number, c: WarrantyFormCreate): ResultAsync<void, Err> {
+        const [clause,values] = SqlHelper.buildUpdateClause(c)
+        const query = `UPDATE warranty_form SET ${clause} WHERE id = ? `;
+        return this.executeQuery(query,[...values,id]).andThen(
+            ([r,f]) => {
+                const header = r as ResultSetHeader;
+                return okAsync(undefined)
+            }
+        );
+    }
+
     findById(id: number): ResultAsync<WarrantyForm | null, Error> {
         const query = `SELECT * FROM warranty_form WHERE id = ? LIMIT 1`;
         return this.executeQuery(query, [id]).andThen(
@@ -39,10 +54,11 @@ export class WarrantyMysqlRepo extends BaseMysqlRepo implements IWarrantyRepo {
     findMany(filter: WarrantyFilter, paging: Paging): ResultAsync<WarrantyForm[], Error> {
         const [whereClause,whereValue] = SqlHelper.buildWhereClause(filter)
         const pagingClause = SqlHelper.buildPaginationClause(paging)
-        const query = `SELECT * FROM warranty_form ${whereClause} ${pagingClause}`;
-        const countQuery = `SELECT COUNT(id) as total FROM warranty_form ${whereClause}`;
-        return this.executeQuery(countQuery,[whereValue]).andThen(
-            ([r,f]) => {
+        const query = `SELECT * FROM warranty_form ${whereClause} ORDER BY id DESC ${pagingClause} `;
+        const countQuery = `SELECT COUNT(*) AS total FROM warranty_form ${whereClause}`;
+        console.log(countQuery)
+        return this.executeQuery(countQuery, whereValue).andThen(
+            ([r, f]) => {
                 const firstRow = (r as RowDataPacket[])[0];
                 if(!firstRow) {
                     return okAsync({total: 0});
@@ -55,13 +71,13 @@ export class WarrantyMysqlRepo extends BaseMysqlRepo implements IWarrantyRepo {
                 if(r.total == 0)
                     return ok([]);
                 else
-                    return this.executeQuery(query,whereValue).andThen(
-                        ([r,f]) => {
+                    return this.executeQuery(query, whereValue).andThen(
+                        ([r, f]) => {
                             const data = (r as RowDataPacket[]).map(row => SqlHelper.toCamelCase(row) as WarrantyForm);
                             return ok(data)
                         }
                     )
-            })
-
+            }
+        )
     }
 }

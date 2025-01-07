@@ -97,12 +97,12 @@ export class SpuMysqlRepo extends BaseMysqlRepo implements ISpuRepository {
                 ${cond.categoryId ? 'AND category_to_spu.category_id = ?' : ''}
                 ${cond.name ? 'AND spu.name LIKE concat(?, \'%\')' : ''}
                 ${cond.status != undefined ? `AND spu.status = ${cond.status}` : ''}
+                AND spu.status = 1
             ORDER BY spu.id DESC
                 ${pagingClause}
             
             `;
         const value =[cond.brandId,cond.categoryId,cond.name].filter(r => !!r)
-        console.log(query)
         return this.executeQuery(countQuery,value).andThen(
             ([r,f]) => {
                 const firstRow = (r as RowDataPacket[])[0];
@@ -122,7 +122,6 @@ export class SpuMysqlRepo extends BaseMysqlRepo implements ISpuRepository {
                     ).andThen(
                         ([r, f]) => {
                             const data = (r as RowDataPacket[]).map(row => SqlHelper.toCamelCase(row) as Spu);
-                            console.log(data)
                             return ok(data)
                         }
                     )

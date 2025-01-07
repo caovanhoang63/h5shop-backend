@@ -12,6 +12,7 @@ export interface WarrantyFormCreate {
     amount: number; // Default: 0
     returnDate: Date; // ISO string format for timestamp, optional
     note?: string; // Optional text field
+    status?: number; // Default: 0
 }
 
 
@@ -21,8 +22,9 @@ export const warrantyCreateSchema = Joi.object().keys({
     customerPhoneNumber: Joi.string().required(),
     stockInId: Joi.number().optional(),
     skuId: Joi.number().required(),
-    orderId: Joi.number().required(),
+    orderId: Joi.number().optional(),
     amount: Joi.number().required(),
     returnDate: Joi.date().greater("now").iso().required(),
     note: Joi.string().optional(),
+    status: Joi.number().optional()
 })

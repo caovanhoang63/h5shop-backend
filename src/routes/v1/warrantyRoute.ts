@@ -10,6 +10,7 @@ const warrantyRouter = () => {
     router.post("",service.create())
     router.get("",service.list())
     router.get("/:id",service.findById())
+    router.patch("/:id", service.update())
 
     return router
 }
