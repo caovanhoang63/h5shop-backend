@@ -239,7 +239,11 @@ export class SpuService implements ISpuService {
                     this.repo.Commit(),
                     this.skuAttrRepository.Commit(),
                     this.skuRepository.Commit(),
-                ]);
+                ]).then(r=> {
+
+                }).catch(e => {
+                    console.log(e)
+                });
 
                 return ok(undefined)
             })(), e => createInternalError(e)
