@@ -11,7 +11,7 @@ const customerRoute = (appContext: IAppContext) => {
     const customerService = container.get<ICustomerService>(TYPES.ICustomerService)
     const customerApi = new CustomerApi(customerService);
 
-    // router.use(authentication())
+    router.use(authentication())
 
     router.post('/', customerApi.create())
     router.delete('/:id', customerApi.delete())
