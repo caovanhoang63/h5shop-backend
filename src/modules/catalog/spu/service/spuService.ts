@@ -231,6 +231,7 @@ export class SpuService implements ISpuService {
                             return err(resultSkuWholesalePrices.error)
                         }
                     }
+                    await this.skuWholesalePriceRepository.Commit()
                 }
 
                 // await commit all
@@ -238,7 +239,6 @@ export class SpuService implements ISpuService {
                     this.repo.Commit(),
                     this.skuAttrRepository.Commit(),
                     this.skuRepository.Commit(),
-                    this.skuWholesalePriceRepository.Commit()
                 ]);
 
                 return ok(undefined)
