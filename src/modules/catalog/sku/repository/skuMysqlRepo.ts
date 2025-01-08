@@ -337,6 +337,10 @@ export class SkuMysqlRepo extends BaseMysqlRepo implements ISkuRepository{
                 sku.stock AS stock,
                 sku.images AS images,
                 spu.name AS spu_name,
+                spu.time_warranty AS time_warranty,
+                spu.time_return AS time_return,
+                spu.type_time_warranty AS type_time_warranty,
+                spu.type_time_return AS type_time_return,
                 category.name AS category_name,
                 brand.name AS brand_name,
                 (

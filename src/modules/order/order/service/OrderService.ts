@@ -9,7 +9,6 @@ import {IRequester} from "../../../../libs/IRequester";
 import {TYPES} from "../../../../types";
 import {OrderUpdate, orderUpdateSchema} from "../entity/orderUpdate";
 import {OrderDetail} from "../entity/orderDetail";
-import {ICondition} from "../../../../libs/condition";
 import {Order, OrderType, PayOrder} from "../entity/order";
 import {ISkuRepository} from "../../../catalog/sku/repository/ISkuRepository";
 import {createMessage, IPubSub} from "../../../../components/pubsub";
@@ -22,6 +21,7 @@ import { ISkuService } from "../../../catalog/sku/service/ISkuService";
 import {FilterSkuGetWholeSale} from "../../../catalog/sku/entity/skuGetWholeSale";
 import {Paging} from "../../../../libs/paging";
 import {OrderFilter} from "../entity/orderFilter";
+import {IUserRepository} from "../../../user/repository/IUserRepository";
 
 @injectable()
 export class OrderService implements IOrderService {
@@ -30,7 +30,9 @@ export class OrderService implements IOrderService {
                 @inject(TYPES.ISkuRepository) private readonly skuRepository: ISkuRepository,
                 @inject(TYPES.IPubSub) private readonly pubSub : IPubSub,
                 @inject(TYPES.ICustomerRepository) private  readonly customerRepository : ICustomerRepository,
-                @inject(TYPES.ISettingRepository) private readonly settingRepository: ISettingRepo) {
+                @inject(TYPES.ISettingRepository) private readonly settingRepository: ISettingRepo,
+                @inject(TYPES.IUserRepository) private readonly userRepository: IUserRepository,
+    ) {
     }
 
 
@@ -123,6 +125,17 @@ export class OrderService implements IOrderService {
                         const firstName = customerR.value.firstName ? customerR.value.firstName : "";
                         order.customerName = lastName + " " + firstName;
                         order.customerPhone = customerR.value?.phoneNumber;
+                    }
+                }
+
+                // Map seller if has
+                if (order.sellerId) {
+                    const sellerR = await this.userRepository.findByUserId(order.sellerId);
+
+                    if (!sellerR.isErr() && sellerR.value) {
+                        const lastName = sellerR.value.lastName ? sellerR.value.lastName : "";
+                        const firstName = sellerR.value.firstName ? sellerR.value.firstName : "";
+                        order.sellerName = lastName + " " + firstName;
                     }
                 }
 
@@ -302,6 +315,27 @@ export class OrderService implements IOrderService {
                 const orders = r.value!;
                 await Promise.all(
                     orders.map(async (order) => {
+                        // Map customer if has
+                        if (order.customerId) {
+                            const customerR = await this.customerRepository.findById(order.customerId);
+
+                            if (!customerR.isErr() && customerR.value) {
+                                const lastName = customerR.value.lastName ? customerR.value.lastName : "";
+                                const firstName = customerR.value.firstName ? customerR.value.firstName : "";
+                                order.customerName = lastName + " " + firstName;
+                                order.customerPhone = customerR.value?.phoneNumber;
+                            }
+                        }
+                        // Map seller if has
+                        if (order.sellerId) {
+                            const sellerR = await this.userRepository.findByUserId(order.sellerId);
+
+                            if (!sellerR.isErr() && sellerR.value) {
+                                const lastName = sellerR.value.lastName ? sellerR.value.lastName : "";
+                                const firstName = sellerR.value.firstName ? sellerR.value.firstName : "";
+                                order.sellerName = lastName + " " + firstName;
+                            }
+                        }
                         await Promise.all(
                             order.items.map(async (item) => {
                                 const skuDetailResult = await this.skuRepository.getDetailById(item.skuId);
@@ -320,7 +354,6 @@ export class OrderService implements IOrderService {
                         );
                     })
                 );
-
                 return ok(r.value);
             })(), e => createInternalError(e)
         ).andThen(r => r)

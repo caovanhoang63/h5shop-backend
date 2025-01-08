@@ -122,28 +122,35 @@ export class OrderMysqlRepo extends BaseMysqlRepo implements IOrderRepository {
         const [whereClause, values] = SqlHelper.buildWhereClause(cond,"o");
         const pagingClause = SqlHelper.buildPaginationClause(page);
         const query = `
+            WITH PaginatedOrders AS (
+                SELECT
+                    o.id,
+                    o.customer_id,
+                    o.point_used,
+                    o.seller_id,
+                    o.status,
+                    o.order_type,
+                    o.description,
+                    o.total_amount,
+                    o.discount_amount,
+                    o.final_amount,
+                    o.created_at AS order_created_at,
+                    o.updated_at AS order_updated_at
+                FROM \`order\` AS o
+                ${whereClause}
+            ORDER BY o.id ASC
+                ${pagingClause}
+                )
             SELECT
-                o.id,
-                o.customer_id,
-                o.point_used,
-                o.seller_id,
-                o.status,
-                o.point_used,
-                o.order_type,
-                o.description,
-                o.created_at AS order_created_at,
-                o.updated_at AS order_updated_at,
+                po.*,
                 oi.sku_id,
                 oi.amount,
-                oi.description AS item_description,
                 oi.unit_price,
+                oi.description AS item_description,
                 oi.created_at AS item_created_at
-            FROM \`order\` as o
-                     LEFT JOIN order_item AS oi ON o.id = oi.order_id
-                    LEFT JOIN customer AS c ON o.customer_id = c.id
-                ${whereClause}
-            ORDER BY o.id ASC, oi.sku_id ASC 
-                ${pagingClause};
+            FROM PaginatedOrders AS po
+                     LEFT JOIN order_item AS oi ON po.id = oi.order_id
+            ORDER BY po.id ASC, oi.sku_id ASC;
         `;
         const countQuery = `SELECT COUNT(id) as total FROM \`order\` as o ${whereClause}`;
         return this.executeQuery(countQuery, values).andThen(
@@ -162,6 +169,7 @@ export class OrderMysqlRepo extends BaseMysqlRepo implements IOrderRepository {
                 } else {
                     return this.executeQuery(query, values).andThen(
                         ([r, f]) => {
+                            console.log(query);
                             const rows = r as RowDataPacket[];
                             const ordersMap = new Map<number, OrderDetail>();
 
@@ -209,54 +217,6 @@ export class OrderMysqlRepo extends BaseMysqlRepo implements IOrderRepository {
                     )
                 }
             });
-        // return this.executeQuery(query, values)
-        //     .andThen(
-        //     ([r, f]) => {
-        //         const rows = r as RowDataPacket[];
-        //         const ordersMap = new Map<number, OrderDetail>();
-        //
-        //         rows.forEach((row) => {
-        //             const camelRow = SqlHelper.toCamelCase(row);
-        //
-        //             // Check if the order already exists in the map
-        //             if (!ordersMap.has(camelRow.id)) {
-        //                 ordersMap.set(camelRow.id, {
-        //                     id: camelRow.id,
-        //                     customerId: camelRow.customerId,
-        //                     sellerId: camelRow.sellerId,
-        //                     status: camelRow.status,
-        //                     orderType: camelRow.orderType,
-        //                     description: camelRow.description,
-        //                     createdAt: camelRow.orderCreatedAt,
-        //                     updatedAt: camelRow.orderUpdatedAt,
-        //                     totalAmount: camelRow.totalAmount,
-        //                     discountAmount: camelRow.discountAmount,
-        //                     finalAmount: camelRow.finalAmount,
-        //                     pointUsed: camelRow.pointUsed,
-        //                     items: [], // Initialize the items array
-        //                 });
-        //             }
-        //
-        //             // Add the order item to the corresponding order
-        //             if (camelRow.skuId) {
-        //                 const order = ordersMap.get(camelRow.id);
-        //                 order?.items.push({
-        //                     orderId: camelRow.id,
-        //                     skuId: camelRow.skuId,
-        //                     amount: camelRow.amount,
-        //                     unitPrice: camelRow.unitPrice,
-        //                     description: camelRow.itemDescription,
-        //                     createdAt: camelRow.itemCreatedAt,
-        //                 });
-        //             }
-        //         });
-        //
-        //         // Convert the map to an array of unique orders
-        //         const uniqueOrders = Array.from(ordersMap.values());
-        //
-        //         return okAsync(uniqueOrders);
-        //     })
-        //     .orElse((error) => errAsync(error));
     }
     payOrder(order: OrderDetail): ResultAsync<void, Err> {
         const orderQuery = `UPDATE \`order\` SET

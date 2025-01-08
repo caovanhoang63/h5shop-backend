@@ -7,6 +7,7 @@ export interface OrderDetail {
     customerName?: string;
     customerPhone?: string;
     sellerId: number;
+    sellerName?: string;
     status: number;
     orderType: OrderType;
     description?: string;
