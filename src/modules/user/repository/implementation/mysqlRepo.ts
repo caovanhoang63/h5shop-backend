@@ -72,7 +72,7 @@ export class UserMysqlRepo extends BaseMysqlRepo implements IUserRepository {
 
         const [whereClause, values] = SqlHelper.buildWhereClause(cond)
         const query = `SELECT *
-                       FROM user ${whereClause}`;
+                       FROM user ${whereClause} order by id DESC `;
 
         return this.executeQuery(query, values).andThen(
                 ([r, f]) => {
