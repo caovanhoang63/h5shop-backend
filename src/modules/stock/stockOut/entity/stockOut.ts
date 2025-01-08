@@ -10,7 +10,7 @@ export interface StockOut extends BaseModel
     status:number;
 }
 
-export interface StockOutCreate extends Omit<StockOut, 'id' | 'createdAt' | 'updatedAt' | 'status'> {
+export interface StockOutCreate extends Omit<StockOut,  'createdAt' | 'updatedAt' | 'status'> {
     items: StockOutDetailCreate[];
 }
 export const stockOutCreateSchema = Joi.object({
