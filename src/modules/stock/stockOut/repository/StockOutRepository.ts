@@ -87,7 +87,7 @@ export class StockOutRepository extends BaseMysqlRepo implements IStockOutReposi
                 .andThen(([headerResult, _]) => {
                     const header = headerResult as ResultSetHeader;
                     const insertId = header.insertId;
-
+                    report.id = insertId;
                     const detailValuesWithInsertId = report.items.map(item => [
                         insertId,
                         item.skuId,

@@ -7,7 +7,7 @@ import {IStockOutService} from "./IStockOutService";
 import {TYPES} from "../../../../types";
 import {Validator} from "../../../../libs/validator";
 import {createMessage, IPubSub} from "../../../../components/pubsub";
-import {topicCreateBrand, topicCreateStockIn} from "../../../../libs/topics";
+import {topicCreateBrand, topicCreateStockIn, topicCreateStockOut} from "../../../../libs/topics";
 import {IRequester} from "../../../../libs/IRequester";
 import {ISkuRepository} from "../../../catalog/sku/repository/ISkuRepository";
 import {IStockOutRepository} from "../repository/IStockOutRepository";
@@ -67,7 +67,7 @@ export class StockOutService implements IStockOutService {
                 if (r.isErr()) {
                     return err(r.error);
                 }
-                this.pubSub.Publish(topicCreateStockIn,createMessage(report,requester))
+                this.pubSub.Publish(topicCreateStockOut,createMessage(report,requester))
                 return ok(r.value);
             })(), e => e as Err
         ).andThen(r => r)
