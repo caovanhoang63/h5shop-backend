@@ -87,7 +87,7 @@ export class SpuMysqlRepo extends BaseMysqlRepo implements ISpuRepository {
                        FROM spu_to_provider
                        JOIN provider ON provider.id = spu_to_provider.provider_id
                        WHERE spu_to_provider.spu_id = spu.id AND provider.status = 1
-                   )
+                   ) AS providers
             FROM spu
             LEFT JOIN category_to_spu ON spu.id = category_to_spu.spu_id 
             LEFT JOIN category ON category.id = category_to_spu.category_id
@@ -159,6 +159,10 @@ export class SpuMysqlRepo extends BaseMysqlRepo implements ISpuRepository {
                                      type_time_return = VALUES(type_time_return);
         `;
 
+        const queryDeleteCatePrevious = `
+           DELETE FROM category_to_spu WHERE spu_id = ?;
+        `
+
         const queryCate = `
             INSERT INTO category_to_spu (category_id, spu_id)
             VALUES (?, ?)
@@ -191,7 +195,12 @@ export class SpuMysqlRepo extends BaseMysqlRepo implements ISpuRepository {
                 return okAsync({id : c.id})
             }).andThen(r =>
                 ResultAsync.fromPromise(
-                    conn.query(queryCate,[c.categoryId,r.id]),
+                    conn.query(queryDeleteCatePrevious,[c.id]),
+                    e => createDatabaseError(e),
+                )
+            ).andThen(r =>
+                ResultAsync.fromPromise(
+                    conn.query(queryCate,[c.categoryId,c.id]),
                     e => createDatabaseError(e),
                 )
             ).andThen(([r,f]) => {
