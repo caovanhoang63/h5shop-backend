@@ -138,7 +138,7 @@ export class OrderMysqlRepo extends BaseMysqlRepo implements IOrderRepository {
                     o.updated_at AS order_updated_at
                 FROM \`order\` AS o
                 ${whereClause}
-            ORDER BY o.id ASC
+            ORDER BY o.id DESC 
                 ${pagingClause}
                 )
             SELECT
@@ -150,7 +150,7 @@ export class OrderMysqlRepo extends BaseMysqlRepo implements IOrderRepository {
                 oi.created_at AS item_created_at
             FROM PaginatedOrders AS po
                      LEFT JOIN order_item AS oi ON po.id = oi.order_id
-            ORDER BY po.id ASC, oi.sku_id ASC;
+            ORDER BY po.id DESC, oi.sku_id ASC;
         `;
         const countQuery = `SELECT COUNT(id) as total FROM \`order\` as o ${whereClause}`;
         return this.executeQuery(countQuery, values).andThen(
