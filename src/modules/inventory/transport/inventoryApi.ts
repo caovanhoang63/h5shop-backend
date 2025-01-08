@@ -99,7 +99,6 @@ export class InventoryReportApi {
         return async (req, res, next) => {
             const paging = ReqHelper.getPaging(req.query);
             const valueValidate = inventoryReportFilterSchema.validate(req.query, { stripUnknown: true });
-            console.log(valueValidate)
             if (valueValidate.error) {
                 writeErrorResponse(res, createInvalidDataError(valueValidate.error));
                 return;

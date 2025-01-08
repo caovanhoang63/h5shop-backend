@@ -145,6 +145,7 @@ export class InventoryReportMysqlRepo extends BaseMysqlRepo implements IInventor
                     JOIN sku s ON ird.sku_id = s.id
                 ${whereClause}
             GROUP BY ir.id
+                ORDER BY ir.created_at DESC
                 ${pagingClause}
         `;
 

@@ -43,7 +43,7 @@ export class StockOutApi {
                 writeErrorResponse(res, createInvalidDataError(valueCond.error));
                 return;
             }
-            const r = await this.service.list(req.query, paging);
+            const r = await this.service.list(valueCond.value, paging);
 
             r.match(
                 value => {

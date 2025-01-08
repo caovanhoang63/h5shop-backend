@@ -28,7 +28,10 @@ export class StockOutRepository extends BaseMysqlRepo implements IStockOutReposi
                      JOIN stock_out_detail sod ON so.id = sod.stock_out_id
                      JOIN stock_out_reason sor ON so.stock_out_reason_id = sor.id
                 ${whereClause}
-            GROUP BY so.id ${pagingClause}
+            GROUP BY so.id
+            ORDER BY so.created_at DESC
+
+                ${pagingClause}
         `;
         const countQuery = `
             SELECT COUNT(DISTINCT so.id) AS total
